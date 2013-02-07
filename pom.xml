@@ -7,20 +7,20 @@
     <version>1.424</version>
   </parent>
 
-  <artifactId>campfire</artifactId>
+  <artifactId>humbug</artifactId>
   <packaging>hpi</packaging>
-  <version>2.7-SNAPSHOT</version>
-  <name>Jenkins Campfire Plugin</name>
-  <description>A build status notifier that sends notifications to Campfire rooms</description>
-  <url>https://wiki.jenkins-ci.org/display/JENKINS/Campfire+Plugin</url>
+  <version>0.1</version>
+  <name>Jenkins Humbug Plugin</name>
+  <description>A build status notifier that sends notifications to Humbug</description>
+  <url>https://humbughq.com/integrations#jenkins</url>
   <licenses>
     <license><name>MIT license</name><comments>All source code is under the MIT license.</comments></license>
   </licenses>
-  <scm>
-    <connection>scm:git:git://github.com/jenkinsci/campfire-plugin.git</connection>
-    <developerConnection>scm:git:git@github.com:jenkinsci/campfire-plugin.git</developerConnection>
-    <url>http://github.com/jenkinsci/campfire-plugin</url>
-  </scm>
+  <!-- <scm> -->
+  <!--   <connection>scm:git:git://github.com/jenkinsci/campfire-plugin.git</connection> -->
+  <!--   <developerConnection>scm:git:git@github.com:jenkinsci/campfire-plugin.git</developerConnection> -->
+  <!--   <url>http://github.com/jenkinsci/campfire-plugin</url> -->
+  <!-- </scm> -->
   <dependencies>
     <dependency>
       <groupId>org.jenkins-ci.main</groupId>
@@ -75,31 +75,38 @@
       <name>Dante Briones</name>
       <url>https://github.com/dbriones</url>
     </developer>
+    <developer>
+      <id>wdaher</id>
+      <name>Waseem Daher</name>
+      <email>wdaher@humbughq.com</email>
+      <organization>Humbug</organization>
+      <organizationUrl>https://humbughq.com/</organizationUrl>
+    </developer>
   </developers>
 
-  <repositories>
-    <repository>
-      <id>repo.jenkins-ci.org</id>
-      <url>http://repo.jenkins-ci.org/public/</url>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </repository>
-  </repositories>
+  <!-- <repositories> -->
+  <!--   <repository> -->
+  <!--     <id>repo.jenkins-ci.org</id> -->
+  <!--     <url>http://repo.jenkins-ci.org/public/</url> -->
+  <!--     <releases> -->
+  <!--       <enabled>true</enabled> -->
+  <!--     </releases> -->
+  <!--     <snapshots> -->
+  <!--       <enabled>false</enabled> -->
+  <!--     </snapshots> -->
+  <!--   </repository> -->
+  <!-- </repositories> -->
 
-  <pluginRepositories>
-    <pluginRepository>
-      <id>repo.jenkins-ci.org</id>
-      <url>http://repo.jenkins-ci.org/public/</url>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </pluginRepository>
-  </pluginRepositories>
+  <!-- <pluginRepositories> -->
+  <!--   <pluginRepository> -->
+  <!--     <id>repo.jenkins-ci.org</id> -->
+  <!--     <url>http://repo.jenkins-ci.org/public/</url> -->
+  <!--     <releases> -->
+  <!--       <enabled>true</enabled> -->
+  <!--     </releases> -->
+  <!--     <snapshots> -->
+  <!--       <enabled>false</enabled> -->
+  <!--     </snapshots> -->
+  <!--   </pluginRepository> -->
+  <!-- </pluginRepositories> -->
 </project>
