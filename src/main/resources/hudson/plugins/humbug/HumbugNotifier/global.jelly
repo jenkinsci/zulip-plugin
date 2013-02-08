@@ -1,0 +1,37 @@
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+  <!--
+    This Jelly script is used to produce the global configuration option.
+
+    Hudson uses a set of tag libraries to provide uniformity in forms.
+    To determine where this tag is defined, first check the namespace URI,
+    and then look under $HUDSON/views/. For example, <f:section> is defined
+    in $HUDSON/views/lib/form/section.jelly.
+
+    It's also often useful to just check other similar scripts to see what
+    tags they use. Views are always organized according to its owner class,
+    so it should be straightforward to find them.
+  -->
+<f:section title="Global Humbug Notifier Settings">
+    <f:entry title="Default Subdomain" help="${rootURL}/plugin/humbug/help-globalConfig-subdomain.html">
+        <f:textbox name="humbugSubdomain" value="${descriptor.getSubdomain()}" />
+    </f:entry>
+    <f:entry title="Default API Token" help="${rootURL}/plugin/humbug/help-globalConfig-token.html">
+        <f:textbox name="humbugToken" value="${descriptor.getToken()}" />
+    </f:entry>
+    <f:entry title="Default Room Name" help="${rootURL}/plugin/humbug/help-globalConfig-room.html">
+        <f:textbox name="humbugRoom" value="${descriptor.getRoom()}" />
+    </f:entry>
+    <f:entry title="Hudson Url" help="${rootURL}/plugin/humbug/help-globalConfig-hudsonUrl.html">
+        <f:textbox name="humbugHudsonUrl" value="${descriptor.getHudsonUrl()}" />
+    </f:entry>
+    <f:entry title="SSL" help="${rootURL}/plugin/humbug/help-globalConfig-ssl.html">
+        <f:checkbox name="humbugSsl" checked="${descriptor.getSsl()}" />
+    </f:entry>
+    <f:entry title="Enable Smart Notification" help="${rootURL}/plugin/humbug/help-globalConfig-smartNotify.html">
+        <f:checkbox name="humbugSmartNotify" checked="${descriptor.getSmartNotify()}" />
+    </f:entry>
+    <f:entry title="Enable Sounds" help="${rootURL}/plugin/humbug/help-globalConfig-sounds.html">
+        <f:checkbox name="humbugSound" checked="${descriptor.getSound()}" />
+    </f:entry>
+  </f:section>
+</j:jelly>

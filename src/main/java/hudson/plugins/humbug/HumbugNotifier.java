@@ -1,4 +1,4 @@
-package hudson.plugins.campfire;
+package hudson.plugins.humbug;
 
 import hudson.Extension;
 import hudson.Launcher;
@@ -17,9 +17,9 @@ import java.lang.reflect.Method;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class CampfireNotifier extends Notifier {
+public class HumbugNotifier extends Notifier {
 
-    private Campfire campfire;
+    private Humbug humbug;
     private Room room;
     private String hudsonUrl;
     private boolean smartNotify;
@@ -36,32 +36,32 @@ public class CampfireNotifier extends Notifier {
     }
 
     public String getConfiguredSubdomain() {
-        if ( DESCRIPTOR.getSubdomain().equals(campfire.getSubdomain()) ) {
+        if ( DESCRIPTOR.getSubdomain().equals(humbug.getSubdomain()) ) {
             return null;
         } else {
-            return campfire.getSubdomain();
+            return humbug.getSubdomain();
         }
     }
 
     public String getConfiguredToken() {
-        if ( DESCRIPTOR.getToken().equals(campfire.getToken()) ) {
+        if ( DESCRIPTOR.getToken().equals(humbug.getToken()) ) {
             return null;
         } else {
-            return campfire.getToken();
+            return humbug.getToken();
         }
     }
 
     @Extension
     public static final DescriptorImpl DESCRIPTOR = new DescriptorImpl();
 
-    private static final Logger LOGGER = Logger.getLogger(CampfireNotifier.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(HumbugNotifier.class.getName());
 
-    public CampfireNotifier() {
+    public HumbugNotifier() {
         super();
         initialize();
     }
 
-    public CampfireNotifier(String subdomain, String token, String room, String hudsonUrl, boolean ssl, boolean smartNotify, boolean sound) {
+    public HumbugNotifier(String subdomain, String token, String room, String hudsonUrl, boolean ssl, boolean smartNotify, boolean sound) {
         super();
         initialize(subdomain, token, room, hudsonUrl, ssl, smartNotify, sound);
     }
@@ -71,7 +71,7 @@ public class CampfireNotifier extends Notifier {
     }
 
     private void publish(AbstractBuild<?, ?> build) throws IOException {
-        checkCampfireConnection();
+        checkHumbugConnection();
         Result result = build.getResult();
         String changeString = "No changes";
         if (!build.hasChangeSetComputed()) {
@@ -144,8 +144,8 @@ public class CampfireNotifier extends Notifier {
         return sha;
     }
 
-    private void checkCampfireConnection() {
-        if (campfire == null) {
+    private void checkHumbugConnection() {
+        if (humbug == null) {
             initialize();
         }
     }
@@ -155,8 +155,8 @@ public class CampfireNotifier extends Notifier {
     }
 
     private void initialize(String subdomain, String token, String roomName, String hudsonUrl, boolean ssl, boolean smartNotify, boolean sound) {
-        campfire = new Campfire(subdomain, token, ssl);
-        this.room = campfire.findRoomByName(roomName);
+        humbug = new Humbug(subdomain, token, ssl);
+        this.room = humbug.findRoomByName(roomName);
         if ( this.room == null ) {
             throw new RuntimeException("Room '" + roomName + "' not found - verify name and room permissions");
         }

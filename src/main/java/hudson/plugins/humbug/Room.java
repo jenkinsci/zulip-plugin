@@ -1,4 +1,4 @@
-package hudson.plugins.campfire;
+package hudson.plugins.humbug;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -6,13 +6,13 @@ import java.util.Map;
 import java.util.Date;
 
 public class Room {
-    private Campfire campfire;
+    private Humbug humbug;
     private String name;
     private String id;
 
-    public Room(Campfire cf, String name, String id) {
+    public Room(Humbug cf, String name, String id) {
         super();
-        this.campfire = cf;
+        this.humbug = cf;
         this.name = name;
         this.id = id;
     }
@@ -26,11 +26,11 @@ public class Room {
     }
 
     public void speak(String message) throws IOException {
-        campfire.post("room/" + id + "/speak.xml", "<message><type>TextMessage</type><body>" + message + "</body></message>");
+        humbug.post("room/" + id + "/speak.xml", "<message><type>TextMessage</type><body>" + message + "</body></message>");
     }
 
     public void play(String sound) throws IOException {
-        campfire.post("room/" + id + "/speak.xml", "<message><type>SoundMessage</type><body>" + sound + "</body></message>");
+        humbug.post("room/" + id + "/speak.xml", "<message><type>SoundMessage</type><body>" + sound + "</body></message>");
     }
 
 }

@@ -1,4 +1,4 @@
-package hudson.plugins.campfire;
+package hudson.plugins.humbug;
 
 import org.apache.commons.httpclient.Credentials;
 import org.apache.commons.httpclient.HttpClient;
@@ -25,12 +25,12 @@ import java.util.List;
 import hudson.model.Hudson;
 import hudson.ProxyConfiguration;
 
-public class Campfire {
+public class Humbug {
     private String subdomain;
     private String token;
     private boolean ssl;
 
-    public Campfire(String subdomain, String token, boolean ssl) {
+    public Humbug(String subdomain, String token, boolean ssl) {
         super();
         this.subdomain = subdomain;
         this.token = token;
@@ -51,7 +51,7 @@ public class Campfire {
     }
 
     protected String getHost() {
-      return this.subdomain + ".campfirenow.com";
+      return this.subdomain + ".humbughq.com";
     }
 
     public String getSubdomain() {

@@ -1,4 +1,4 @@
-package hudson.plugins.campfire;
+package hudson.plugins.humbug;
 
 import hudson.Plugin;
 

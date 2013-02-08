@@ -1,4 +1,4 @@
-package hudson.plugins.campfire;
+package hudson.plugins.humbug;
 
 import hudson.model.AbstractProject;
 import hudson.tasks.BuildStepDescriptor;
@@ -21,7 +21,7 @@ public class DescriptorImpl extends BuildStepDescriptor<Publisher> {
     private static final Logger LOGGER = Logger.getLogger(DescriptorImpl.class.getName());
 
     public DescriptorImpl() {
-        super(CampfireNotifier.class);
+        super(HumbugNotifier.class);
         load();
     }
 
@@ -66,9 +66,9 @@ public class DescriptorImpl extends BuildStepDescriptor<Publisher> {
      */
     @Override
     public Publisher newInstance(StaplerRequest req, JSONObject formData) throws FormException {
-        String projectSubdomain = req.getParameter("campfireSubdomain");
-        String projectToken = req.getParameter("campfireToken");
-        String projectRoom = req.getParameter("campfireRoom");
+        String projectSubdomain = req.getParameter("humbugSubdomain");
+        String projectToken = req.getParameter("humbugToken");
+        String projectRoom = req.getParameter("humbugRoom");
         if ( projectRoom == null || projectRoom.trim().length() == 0 ) {
             projectRoom = room;
         }
@@ -79,9 +79,9 @@ public class DescriptorImpl extends BuildStepDescriptor<Publisher> {
             projectSubdomain = subdomain;
         }
         try {
-            return new CampfireNotifier(projectSubdomain, projectToken, projectRoom, hudsonUrl, ssl, smartNotify, sound);
+            return new HumbugNotifier(projectSubdomain, projectToken, projectRoom, hudsonUrl, ssl, smartNotify, sound);
         } catch (Exception e) {
-            String message = "Failed to initialize campfire notifier - check your campfire notifier configuration settings: " + e.getMessage();
+            String message = "Failed to initialize humbug notifier - check your humbug notifier configuration settings: " + e.getMessage();
             LOGGER.log(Level.WARNING, message, e);
             throw new FormException(message, e, "");
         }
@@ -89,20 +89,20 @@ public class DescriptorImpl extends BuildStepDescriptor<Publisher> {
 
     @Override
     public boolean configure(StaplerRequest req, JSONObject json) throws FormException {
-        subdomain = req.getParameter("campfireSubdomain");
-        token = req.getParameter("campfireToken");
-        room = req.getParameter("campfireRoom");
-        hudsonUrl = req.getParameter("campfireHudsonUrl");
+        subdomain = req.getParameter("humbugSubdomain");
+        token = req.getParameter("humbugToken");
+        room = req.getParameter("humbugRoom");
+        hudsonUrl = req.getParameter("humbugHudsonUrl");
         if ( hudsonUrl != null && !hudsonUrl.endsWith("/") ) {
             hudsonUrl = hudsonUrl + "/";
         }
-        ssl = req.getParameter("campfireSsl") != null;
-        smartNotify = req.getParameter("campfireSmartNotify") != null;
-        sound = req.getParameter("campfireSound") != null;
+        ssl = req.getParameter("humbugSsl") != null;
+        smartNotify = req.getParameter("humbugSmartNotify") != null;
+        sound = req.getParameter("humbugSound") != null;
         try {
-            new CampfireNotifier(subdomain, token, room, hudsonUrl, ssl, smartNotify, sound);
+            new HumbugNotifier(subdomain, token, room, hudsonUrl, ssl, smartNotify, sound);
         } catch (Exception e) {
-            String message = "Failed to initialize campfire notifier - check your global campfire notifier configuration settings: " + e.getMessage();
+            String message = "Failed to initialize humbug notifier - check your global humbug notifier configuration settings: " + e.getMessage();
             LOGGER.log(Level.WARNING, message, e);
             throw new FormException(message, e, "");
         }
@@ -115,7 +115,7 @@ public class DescriptorImpl extends BuildStepDescriptor<Publisher> {
      */
     @Override
     public String getDisplayName() {
-        return "Campfire Notification";
+        return "Humbug Notification";
     }
 
     /**
@@ -123,6 +123,6 @@ public class DescriptorImpl extends BuildStepDescriptor<Publisher> {
      */
     @Override
     public String getHelpFile() {
-        return "/plugin/campfire/help.html";
+        return "/plugin/humbug/help.html";
     }
 }
