@@ -56,9 +56,9 @@ public class HumbugNotifier extends Notifier {
     private void publish(AbstractBuild<?, ?> build) throws IOException {
         checkHumbugConnection();
         Result result = build.getResult();
-        String changeString = "No changes";
+        String changeString = "No changes since last build.";
         if (!build.hasChangeSetComputed()) {
-            changeString = "Changes not determined";
+            changeString = "Could not determine changes since last build.";
         } else if (build.getChangeSet().iterator().hasNext()) {
             ChangeLogSet changeSet = build.getChangeSet();
             ChangeLogSet.Entry entry = build.getChangeSet().iterator().next();
@@ -87,22 +87,31 @@ public class HumbugNotifier extends Notifier {
                     throw new RuntimeException(e.getClass().getName() + ": " + e.getMessage(), e);
                 }
             }
-            String commitMsg = entry.getMsg().trim();
-            if (!"".equals(commitMsg)) {
-                if (commitMsg.length() > 47) {
-                    commitMsg = commitMsg.substring(0, 46)  + "...";
+            if (!"".equals(entry.getMsg().trim())) {
+                // If there seems to be a commit message at all, try to list all the changes.
+                changeString = "Changes since last build:\n";
+                for (ChangeLogSet.Entry e: build.getChangeSet()) {
+                    String commitMsg = e.getMsg().trim();
+                    if (commitMsg.length() > 47) {
+                        commitMsg = commitMsg.substring(0, 46)  + "...";
+                    }
+                    String author = e.getAuthor().getDisplayName();
+                    String id = e.getCommitId().substring(0,8);
+                    changeString += "\n* `"+ author + "` " + commitMsg;
                 }
-                changeString = commitMsg + " - " + entry.getAuthor().toString();
             }
         }
         String resultString = result.toString();
         if (!smartNotify && result == Result.SUCCESS) resultString = resultString.toLowerCase();
-        String message = "Build " + build.getDisplayName() + " \"" + changeString + "\": ";
+
+        String message = "Build " + build.getDisplayName();
         if (hudsonUrl != null && hudsonUrl.length() > 1 && (smartNotify || result != Result.SUCCESS)) {
-            message += "[" + resultString + "](" + hudsonUrl + build.getUrl() + ")";
-        } else {
-            message += "**" + resultString + "**";
+            message += "[" + message + "](" + hudsonUrl + build.getUrl() + ")";
         }
+        message += ": ";
+        message += "**" + resultString + "**";
+        message += "\n";
+        message += changeString;
         humbug.sendStreamMessage(stream, build.getProject().getName(), message);
     }
 
