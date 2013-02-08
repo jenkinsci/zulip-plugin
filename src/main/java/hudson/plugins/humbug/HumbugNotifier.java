@@ -62,32 +62,7 @@ public class HumbugNotifier extends Notifier {
         } else if (build.getChangeSet().iterator().hasNext()) {
             ChangeLogSet changeSet = build.getChangeSet();
             ChangeLogSet.Entry entry = build.getChangeSet().iterator().next();
-            // note: iterator should return recent changes first, but GitChangeSetList currently reverses the log entries
-            if (changeSet.getClass().getSimpleName().equals("GitChangeSetList")) {
-                String exceptionLogMsg = "Workaround to obtain latest commit info from git plugin failed";
-                try {
-                    // find the sha for the first commit in the changelog file, and then grab the corresponding entry from the changeset, yikes!
-                    String changeLogPath = build.getRootDir().toString() + File.separator + "changelog.xml";
-                    String sha = getCommitHash(changeLogPath);
-                    if (!"".equals(sha)) {
-                        Method getIdMethod = entry.getClass().getDeclaredMethod("getId");
-                        for(ChangeLogSet.Entry nextEntry : build.getChangeSet()) {
-                            if ( ( (String)getIdMethod.invoke(entry) ).compareTo(sha) != 0 ) entry = nextEntry;
-                        }
-                    }
-                } catch ( IOException e ){
-                    LOGGER.log(Level.WARNING, exceptionLogMsg, e);
-                } catch ( NoSuchMethodException e ) {
-                    LOGGER.log(Level.WARNING, exceptionLogMsg, e);
-                } catch ( IllegalAccessException e ) {
-                    LOGGER.log(Level.WARNING, exceptionLogMsg, e);
-                } catch ( SecurityException e ) {
-                    LOGGER.log(Level.WARNING, exceptionLogMsg, e);
-                } catch ( Exception e ) {
-                    throw new RuntimeException(e.getClass().getName() + ": " + e.getMessage(), e);
-                }
-            }
-            if (!"".equals(entry.getMsg().trim())) {
+            if (!build.getChangeSet().isEmptySet()) {
                 // If there seems to be a commit message at all, try to list all the changes.
                 changeString = "Changes since last build:\n";
                 for (ChangeLogSet.Entry e: build.getChangeSet()) {
