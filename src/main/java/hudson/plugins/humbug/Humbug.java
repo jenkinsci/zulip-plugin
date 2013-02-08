@@ -1,27 +1,13 @@
 package hudson.plugins.humbug;
 
-import org.apache.commons.httpclient.Credentials;
+import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
-import org.apache.commons.httpclient.auth.AuthScope;
-import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.httpclient.HttpStatus;
+import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.StringRequestEntity;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.*;
 import java.io.IOException;
-import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import hudson.model.Hudson;
 import hudson.ProxyConfiguration;
@@ -30,6 +16,7 @@ public class Humbug {
     private String email;
     private String apiKey;
     private String subdomain;
+    private static final Logger LOGGER = Logger.getLogger(Humbug.class.getName());
 
     public Humbug(String email, String apiKey, String subdomain) {
         super();
@@ -40,10 +27,10 @@ public class Humbug {
 
     protected HttpClient getClient() {
       HttpClient client = new HttpClient();
-      Credentials defaultcreds = new UsernamePasswordCredentials(this.apiKey, "x");
-      client.getState().setCredentials(new AuthScope(getHost(), -1, AuthScope.ANY_REALM), defaultcreds);
-      client.getParams().setAuthenticationPreemptive(true);
-      client.getParams().setParameter("http.useragent", "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_4; en-us) AppleWebKit/533.16 (KHTML, like Gecko) Version/5.0 Safari/533.16");
+      // TODO: It would be nice if this version number read from the Maven XML file
+      // (which is possible, but annoying)
+      // http://stackoverflow.com/questions/8829147/maven-version-number-in-java-file
+      client.getParams().setParameter("http.useragent", "humbug-jenkins bot v0.1");
       ProxyConfiguration proxy = Hudson.getInstance().proxy;
       if (proxy != null) {
           client.getHostConfiguration().setProxy(proxy.name, proxy.port);
@@ -52,7 +39,10 @@ public class Humbug {
     }
 
     protected String getHost() {
-      return this.subdomain + ".humbughq.com";
+        if (this.subdomain.length() > 0) {
+            return this.subdomain + ".humbughq.com";
+        }
+        return "humbughq.com";
     }
 
     public String getSubdomain() {
@@ -65,15 +55,16 @@ public class Humbug {
 
     public String getEmail() {
         return this.email;
-      }
-
-
-    public int post(String url, String body) {
-        PostMethod post = new PostMethod("https://" + getHost() + "/" + url);
-        post.setRequestHeader("Content-Type", "application/xml");
+    }
+    
+    public String post(String url, NameValuePair[] parameters) {
+        PostMethod post = new PostMethod("https://" + getHost() + "/api/v1/" + url);
+        post.setRequestHeader("Content-Type", post.FORM_URL_ENCODED_CONTENT_TYPE);
         try {
-            post.setRequestEntity(new StringRequestEntity(body, "application/xml", "UTF8"));
-            return getClient().executeMethod(post);
+            post.setRequestBody(parameters);
+            HttpClient client = getClient();
+            client.executeMethod(post);
+            return post.getResponseBodyAsString();
         } catch (IOException e) {
             throw new RuntimeException(e);
         } finally {
@@ -81,30 +72,35 @@ public class Humbug {
         }
     }
 
-    public String get(String url) {
-        GetMethod get = new GetMethod("https://" + getHost() + "/" + url);
-        get.setFollowRedirects(true);
-        get.setRequestHeader("Content-Type", "application/xml");
-        try {
-            getClient().executeMethod(get);
-            verify(get.getStatusCode());
-            return get.getResponseBodyAsString();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } finally {
-            get.releaseConnection();
-        }
-    }
+//    public String get(String url) {
+//        GetMethod get = new GetMethod("https://" + getHost() + "/api/v1/" + url);
+//        get.setFollowRedirects(true);
+//        get.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+//        try {
+//            getClient().executeMethod(get);
+//            verify(get.getStatusCode());
+//            return get.getResponseBodyAsString();
+//        } catch (IOException e) {
+//            throw new RuntimeException(e);
+//        } finally {
+//            get.releaseConnection();
+//        }
+//    }
+//
+//    public boolean verify(int returnCode) {
+//        if (returnCode != 200) {
+//            throw new RuntimeException("Unexpected response code: " + Integer.toString(returnCode));
+//        }
+//        return true;
+//    }
 
-    public boolean verify(int returnCode) {
-        if (returnCode != 200) {
-            throw new RuntimeException("Unexpected response code: " + Integer.toString(returnCode));
-        }
-        return true;
-    }
-
-    public boolean sendStreamMessage(String stream, String subject, String message) {
-        // TODO
-        return true;
+    public String sendStreamMessage(String stream, String subject, String message) {
+        NameValuePair[] body = {new NameValuePair("api-key", this.getApiKey()),
+                                new NameValuePair("email",   this.getEmail()),
+                                new NameValuePair("type",    "stream"),
+                                new NameValuePair("to",      stream),
+                                new NameValuePair("subject", subject),
+                                new NameValuePair("content", message)};
+        return post("send_message", body);
     }
 }
