@@ -97,13 +97,13 @@ public class HumbugNotifier extends Notifier {
         }
         String resultString = result.toString();
         if (!smartNotify && result == Result.SUCCESS) resultString = resultString.toLowerCase();
-        String message = "Build " + build.getDisplayName() + " \"" + changeString + "\": " + resultString;
+        String message = "Build " + build.getDisplayName() + " \"" + changeString + "\": ";
         if (hudsonUrl != null && hudsonUrl.length() > 1 && (smartNotify || result != Result.SUCCESS)) {
-            message = message + " (" + hudsonUrl + build.getUrl() + ")";
+            message += "[" + resultString + "](" + hudsonUrl + build.getUrl() + ")";
+        } else {
+            message += "**" + resultString + "**";
         }
-        // TODO: Set subject.
-        String subject = stream;
-        humbug.sendStreamMessage(stream, subject, message);
+        humbug.sendStreamMessage(stream, build.getProject().getName(), message);
     }
 
     private String getCommitHash(String changeLogPath) throws IOException {
