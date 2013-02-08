@@ -15,9 +15,7 @@ public class DescriptorImpl extends BuildStepDescriptor<Publisher> {
     private String token;
     private String room;
     private String hudsonUrl;
-    private boolean ssl;
     private boolean smartNotify;
-    private boolean sound;
     private static final Logger LOGGER = Logger.getLogger(DescriptorImpl.class.getName());
 
     public DescriptorImpl() {
@@ -45,16 +43,8 @@ public class DescriptorImpl extends BuildStepDescriptor<Publisher> {
         return hudsonUrl;
     }
 
-    public boolean getSsl() {
-        return ssl;
-    }
-
     public boolean getSmartNotify() {
         return smartNotify;
-    }
-
-    public boolean getSound() {
-        return sound;
     }
 
     public boolean isApplicable(Class<? extends AbstractProject> aClass) {
@@ -79,7 +69,7 @@ public class DescriptorImpl extends BuildStepDescriptor<Publisher> {
             projectSubdomain = subdomain;
         }
         try {
-            return new HumbugNotifier(projectSubdomain, projectToken, projectRoom, hudsonUrl, ssl, smartNotify, sound);
+            return new HumbugNotifier(projectSubdomain, projectToken, projectRoom, hudsonUrl, smartNotify);
         } catch (Exception e) {
             String message = "Failed to initialize humbug notifier - check your humbug notifier configuration settings: " + e.getMessage();
             LOGGER.log(Level.WARNING, message, e);
@@ -96,11 +86,9 @@ public class DescriptorImpl extends BuildStepDescriptor<Publisher> {
         if ( hudsonUrl != null && !hudsonUrl.endsWith("/") ) {
             hudsonUrl = hudsonUrl + "/";
         }
-        ssl = req.getParameter("humbugSsl") != null;
         smartNotify = req.getParameter("humbugSmartNotify") != null;
-        sound = req.getParameter("humbugSound") != null;
         try {
-            new HumbugNotifier(subdomain, token, room, hudsonUrl, ssl, smartNotify, sound);
+            new HumbugNotifier(subdomain, token, room, hudsonUrl, smartNotify);
         } catch (Exception e) {
             String message = "Failed to initialize humbug notifier - check your global humbug notifier configuration settings: " + e.getMessage();
             LOGGER.log(Level.WARNING, message, e);

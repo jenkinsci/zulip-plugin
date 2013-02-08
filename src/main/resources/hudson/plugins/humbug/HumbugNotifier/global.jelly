@@ -24,14 +24,8 @@
     <f:entry title="Hudson Url" help="${rootURL}/plugin/humbug/help-globalConfig-hudsonUrl.html">
         <f:textbox name="humbugHudsonUrl" value="${descriptor.getHudsonUrl()}" />
     </f:entry>
-    <f:entry title="SSL" help="${rootURL}/plugin/humbug/help-globalConfig-ssl.html">
-        <f:checkbox name="humbugSsl" checked="${descriptor.getSsl()}" />
-    </f:entry>
     <f:entry title="Enable Smart Notification" help="${rootURL}/plugin/humbug/help-globalConfig-smartNotify.html">
         <f:checkbox name="humbugSmartNotify" checked="${descriptor.getSmartNotify()}" />
-    </f:entry>
-    <f:entry title="Enable Sounds" help="${rootURL}/plugin/humbug/help-globalConfig-sounds.html">
-        <f:checkbox name="humbugSound" checked="${descriptor.getSound()}" />
     </f:entry>
   </f:section>
 </j:jelly>

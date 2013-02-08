@@ -28,13 +28,11 @@ import hudson.ProxyConfiguration;
 public class Humbug {
     private String subdomain;
     private String token;
-    private boolean ssl;
 
-    public Humbug(String subdomain, String token, boolean ssl) {
+    public Humbug(String subdomain, String token) {
         super();
         this.subdomain = subdomain;
         this.token = token;
-        this.ssl = ssl;
     }
 
     protected HttpClient getClient() {
@@ -63,8 +61,7 @@ public class Humbug {
     }
 
     protected String getProtocol() {
-      if (this.ssl) { return "https://"; }
-      return "http://";
+      return "https://";
     }
 
     public int post(String url, String body) {

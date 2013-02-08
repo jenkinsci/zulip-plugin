@@ -23,7 +23,6 @@ public class HumbugNotifier extends Notifier {
     private Room room;
     private String hudsonUrl;
     private boolean smartNotify;
-    private boolean sound;
 
     // getters for project configuration..
     // Configured room name / subdomain / token should be null unless different from descriptor/global values
@@ -61,9 +60,9 @@ public class HumbugNotifier extends Notifier {
         initialize();
     }
 
-    public HumbugNotifier(String subdomain, String token, String room, String hudsonUrl, boolean ssl, boolean smartNotify, boolean sound) {
+    public HumbugNotifier(String subdomain, String token, String room, String hudsonUrl, boolean smartNotify) {
         super();
-        initialize(subdomain, token, room, hudsonUrl, ssl, smartNotify, sound);
+        initialize(subdomain, token, room, hudsonUrl, smartNotify);
     }
 
     public BuildStepMonitor getRequiredMonitorService() {
@@ -119,15 +118,6 @@ public class HumbugNotifier extends Notifier {
             message = message + " (" + hudsonUrl + build.getUrl() + ")";
         }
         room.speak(message);
-        if (sound) {
-          String message_sound;
-          if ("FAILURE".equals(resultString)) {
-            message_sound = "trombone";
-          } else {
-            message_sound = "rimshot";
-          }
-          room.play(message_sound);
-        }
     }
 
     private String getCommitHash(String changeLogPath) throws IOException {
@@ -151,18 +141,17 @@ public class HumbugNotifier extends Notifier {
     }
 
     private void initialize()  {
-        initialize(DESCRIPTOR.getSubdomain(), DESCRIPTOR.getToken(), room.getName(), DESCRIPTOR.getHudsonUrl(), DESCRIPTOR.getSsl(), DESCRIPTOR.getSmartNotify(), DESCRIPTOR.getSound());
+        initialize(DESCRIPTOR.getSubdomain(), DESCRIPTOR.getToken(), room.getName(), DESCRIPTOR.getHudsonUrl(), DESCRIPTOR.getSmartNotify());
     }
 
-    private void initialize(String subdomain, String token, String roomName, String hudsonUrl, boolean ssl, boolean smartNotify, boolean sound) {
-        humbug = new Humbug(subdomain, token, ssl);
+    private void initialize(String subdomain, String token, String roomName, String hudsonUrl, boolean smartNotify) {
+        humbug = new Humbug(subdomain, token);
         this.room = humbug.findRoomByName(roomName);
         if ( this.room == null ) {
             throw new RuntimeException("Room '" + roomName + "' not found - verify name and room permissions");
         }
         this.hudsonUrl = hudsonUrl;
         this.smartNotify = smartNotify;
-        this.sound = sound;
     }
 
     @Override
