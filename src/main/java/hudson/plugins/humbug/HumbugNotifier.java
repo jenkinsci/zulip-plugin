@@ -106,7 +106,7 @@ public class HumbugNotifier extends Notifier {
 
         String message = "Build " + build.getDisplayName();
         if (hudsonUrl != null && hudsonUrl.length() > 1 && (smartNotify || result != Result.SUCCESS)) {
-            message += "[" + message + "](" + hudsonUrl + build.getUrl() + ")";
+            message = "[" + message + "](" + hudsonUrl + build.getUrl() + ")";
         }
         message += ": ";
         message += "**" + resultString + "**";
