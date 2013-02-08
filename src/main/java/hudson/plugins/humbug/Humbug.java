@@ -64,7 +64,16 @@ public class Humbug {
             post.setRequestBody(parameters);
             HttpClient client = getClient();
             client.executeMethod(post);
-            return post.getResponseBodyAsString();
+            String response = post.getResponseBodyAsString();
+            if (post.getStatusCode() != HttpStatus.SC_OK) {
+                String params = "";
+                for (NameValuePair pair: parameters) {
+                    params += "\n" + pair.getName() + ":" + pair.getValue();
+                }
+                LOGGER.log(Level.SEVERE, "Error sending Humbug message:\n" + response + "\n\n" +
+                                         "We sent:" + params);
+            }
+            return response;
         } catch (IOException e) {
             throw new RuntimeException(e);
         } finally {
