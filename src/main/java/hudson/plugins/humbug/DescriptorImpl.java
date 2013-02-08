@@ -61,12 +61,8 @@ public class DescriptorImpl extends BuildStepDescriptor<Publisher> {
      */
     @Override
     public Publisher newInstance(StaplerRequest req, JSONObject formData) throws FormException {
-        String humbugStream = req.getParameter("humbugStream");
-        if ( humbugStream == null || humbugStream.trim().length() == 0 ) {
-            humbugStream = stream;
-        }
         try {
-            return new HumbugNotifier(email, apiKey, subdomain, humbugStream, hudsonUrl, smartNotify);
+            return new HumbugNotifier();
         } catch (Exception e) {
             String message = "Failed to initialize humbug notifier - check your humbug notifier configuration settings: " + e.getMessage();
             LOGGER.log(Level.WARNING, message, e);
@@ -86,7 +82,7 @@ public class DescriptorImpl extends BuildStepDescriptor<Publisher> {
         }
         smartNotify = req.getParameter("humbugSmartNotify") != null;
         try {
-            new HumbugNotifier(email, apiKey, subdomain, stream, hudsonUrl, smartNotify);
+            new HumbugNotifier();
         } catch (Exception e) {
             String message = "Failed to initialize humbug notifier - check your global humbug notifier configuration settings: " + e.getMessage();
             LOGGER.log(Level.WARNING, message, e);

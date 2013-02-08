@@ -26,16 +26,6 @@ public class HumbugNotifier extends Notifier {
     private String hudsonUrl;
     private boolean smartNotify;
 
-    // getters for project configuration..
-    // Configured stream name should be null unless different from descriptor/global values
-    public String getConfiguredStreamName() {
-        if ( DESCRIPTOR.getStream().equals(stream) ) {
-            return null;
-        } else {
-            return stream;
-        }
-    }
-
     @Extension
     public static final DescriptorImpl DESCRIPTOR = new DescriptorImpl();
 
@@ -56,7 +46,9 @@ public class HumbugNotifier extends Notifier {
     }
 
     private void publish(AbstractBuild<?, ?> build) throws IOException {
-        checkHumbugConnection();
+        // We call this every time in case our settings have changed
+        // between the last time this was run and now.
+        initialize();
         Result result = build.getResult();
         String changeString = "";
         if (!build.hasChangeSetComputed()) {
@@ -112,14 +104,8 @@ public class HumbugNotifier extends Notifier {
         return sha;
     }
 
-    private void checkHumbugConnection() {
-        if (humbug == null) {
-            initialize();
-        }
-    }
-
     private void initialize()  {
-        initialize(DESCRIPTOR.getEmail(), DESCRIPTOR.getApiKey(), DESCRIPTOR.getSubdomain(), stream, DESCRIPTOR.getHudsonUrl(), DESCRIPTOR.getSmartNotify());
+        initialize(DESCRIPTOR.getEmail(), DESCRIPTOR.getApiKey(), DESCRIPTOR.getSubdomain(), DESCRIPTOR.getStream(), DESCRIPTOR.getHudsonUrl(), DESCRIPTOR.getSmartNotify());
     }
 
     private void initialize(String email, String apiKey, String subdomain, String streamName, String hudsonUrl, boolean smartNotify) {
@@ -136,6 +122,7 @@ public class HumbugNotifier extends Notifier {
         //  (1) there was no previous build, or
         //  (2) the current build did not succeed, or
         //  (3) the previous build failed and the current build succeeded.
+        smartNotify = DESCRIPTOR.getSmartNotify();
         if (smartNotify) {
             AbstractBuild previousBuild = build.getPreviousBuild();
             if (previousBuild == null ||

@@ -3,7 +3,4 @@
     This jelly script is used for per-project configuration.
     See global.jelly for a general discussion about jelly script.
   -->
-    <f:entry title="Custom Stream Name" description="Optional. Use to send notifications to a stream other than the default (${descriptor.getStream()})" help="${rootURL}/plugin/humbug/help-projectConfig-stream.html">
-      <f:textbox name="humbugStream" value="${instance.getConfiguredStreamName()}"/>
-    </f:entry>
 </j:jelly>
