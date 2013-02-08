@@ -12,20 +12,24 @@
     so it should be straightforward to find them.
   -->
 <f:section title="Global Humbug Notifier Settings">
-    <f:entry title="Default Subdomain" help="${rootURL}/plugin/humbug/help-globalConfig-subdomain.html">
-        <f:textbox name="humbugSubdomain" value="${descriptor.getSubdomain()}" />
+    <f:entry title="Default Humbug User Email" help="${rootURL}/plugin/humbug/help-globalConfig-email.html">
+        <f:textbox name="humbugEmail" value="${descriptor.getEmail()}" />
     </f:entry>
-    <f:entry title="Default API Token" help="${rootURL}/plugin/humbug/help-globalConfig-token.html">
-        <f:textbox name="humbugToken" value="${descriptor.getToken()}" />
+    <f:entry title="Default API Key" help="${rootURL}/plugin/humbug/help-globalConfig-apiKey.html">
+        <f:textbox name="humbugApiKey" value="${descriptor.getApiKey()}" />
     </f:entry>
-    <f:entry title="Default Room Name" help="${rootURL}/plugin/humbug/help-globalConfig-room.html">
-        <f:textbox name="humbugRoom" value="${descriptor.getRoom()}" />
-    </f:entry>
-    <f:entry title="Hudson Url" help="${rootURL}/plugin/humbug/help-globalConfig-hudsonUrl.html">
-        <f:textbox name="humbugHudsonUrl" value="${descriptor.getHudsonUrl()}" />
+    <f:entry title="Default Stream Name" help="${rootURL}/plugin/humbug/help-globalConfig-stream.html">
+        <f:textbox name="humbugStream" value="${descriptor.getStream()}" />
     </f:entry>
     <f:entry title="Enable Smart Notification" help="${rootURL}/plugin/humbug/help-globalConfig-smartNotify.html">
         <f:checkbox name="humbugSmartNotify" checked="${descriptor.getSmartNotify()}" />
+    </f:entry>
+    <f:entry title="Jenkins URL" help="${rootURL}/plugin/humbug/help-globalConfig-hudsonUrl.html">
+        <f:textbox name="humbugHudsonUrl" value="${descriptor.getHudsonUrl()}" />
+    </f:entry>
+    <f:entry title="Default Subdomain" help="${rootURL}/plugin/humbug/help-globalConfig-subdomain.html"
+             description="Optional. If you use a URL like yourcompany.humbughq.com, put 'yourcompany' here.">
+        <f:textbox name="humbugSubdomain" value="${descriptor.getSubdomain()}" />
     </f:entry>
   </f:section>
 </j:jelly>
