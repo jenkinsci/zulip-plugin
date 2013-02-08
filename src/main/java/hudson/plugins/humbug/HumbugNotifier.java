@@ -20,33 +20,17 @@ import java.util.logging.Logger;
 public class HumbugNotifier extends Notifier {
 
     private Humbug humbug;
-    private Room room;
+    private String stream;
     private String hudsonUrl;
     private boolean smartNotify;
 
     // getters for project configuration..
-    // Configured room name / subdomain / token should be null unless different from descriptor/global values
-    public String getConfiguredRoomName() {
-        if ( DESCRIPTOR.getRoom().equals(room.getName()) ) {
+    // Configured stream name should be null unless different from descriptor/global values
+    public String getConfiguredStreamName() {
+        if ( DESCRIPTOR.getStream().equals(stream) ) {
             return null;
         } else {
-            return room.getName();
-        }
-    }
-
-    public String getConfiguredSubdomain() {
-        if ( DESCRIPTOR.getSubdomain().equals(humbug.getSubdomain()) ) {
-            return null;
-        } else {
-            return humbug.getSubdomain();
-        }
-    }
-
-    public String getConfiguredToken() {
-        if ( DESCRIPTOR.getToken().equals(humbug.getToken()) ) {
-            return null;
-        } else {
-            return humbug.getToken();
+            return stream;
         }
     }
 
@@ -60,9 +44,9 @@ public class HumbugNotifier extends Notifier {
         initialize();
     }
 
-    public HumbugNotifier(String subdomain, String token, String room, String hudsonUrl, boolean smartNotify) {
+    public HumbugNotifier(String email, String apiKey, String subdomain, String stream, String hudsonUrl, boolean smartNotify) {
         super();
-        initialize(subdomain, token, room, hudsonUrl, smartNotify);
+        initialize(email, apiKey, subdomain, stream, hudsonUrl, smartNotify);
     }
 
     public BuildStepMonitor getRequiredMonitorService() {
@@ -117,7 +101,9 @@ public class HumbugNotifier extends Notifier {
         if (hudsonUrl != null && hudsonUrl.length() > 1 && (smartNotify || result != Result.SUCCESS)) {
             message = message + " (" + hudsonUrl + build.getUrl() + ")";
         }
-        room.speak(message);
+        // TODO: Set subject.
+        String subject = stream;
+        humbug.sendStreamMessage(stream, subject, message);
     }
 
     private String getCommitHash(String changeLogPath) throws IOException {
@@ -141,15 +127,12 @@ public class HumbugNotifier extends Notifier {
     }
 
     private void initialize()  {
-        initialize(DESCRIPTOR.getSubdomain(), DESCRIPTOR.getToken(), room.getName(), DESCRIPTOR.getHudsonUrl(), DESCRIPTOR.getSmartNotify());
+        initialize(DESCRIPTOR.getEmail(), DESCRIPTOR.getApiKey(), DESCRIPTOR.getSubdomain(), stream, DESCRIPTOR.getHudsonUrl(), DESCRIPTOR.getSmartNotify());
     }
 
-    private void initialize(String subdomain, String token, String roomName, String hudsonUrl, boolean smartNotify) {
-        humbug = new Humbug(subdomain, token);
-        this.room = humbug.findRoomByName(roomName);
-        if ( this.room == null ) {
-            throw new RuntimeException("Room '" + roomName + "' not found - verify name and room permissions");
-        }
+    private void initialize(String email, String apiKey, String subdomain, String streamName, String hudsonUrl, boolean smartNotify) {
+        humbug = new Humbug(email, apiKey, subdomain);
+        this.stream = streamName;
         this.hudsonUrl = hudsonUrl;
         this.smartNotify = smartNotify;
     }

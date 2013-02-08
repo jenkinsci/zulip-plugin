@@ -21,23 +21,26 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 
 import hudson.model.Hudson;
 import hudson.ProxyConfiguration;
 
 public class Humbug {
+    private String email;
+    private String apiKey;
     private String subdomain;
-    private String token;
 
-    public Humbug(String subdomain, String token) {
+    public Humbug(String email, String apiKey, String subdomain) {
         super();
+        this.email = email;
+        this.apiKey = apiKey;
         this.subdomain = subdomain;
-        this.token = token;
     }
 
     protected HttpClient getClient() {
       HttpClient client = new HttpClient();
-      Credentials defaultcreds = new UsernamePasswordCredentials(this.token, "x");
+      Credentials defaultcreds = new UsernamePasswordCredentials(this.apiKey, "x");
       client.getState().setCredentials(new AuthScope(getHost(), -1, AuthScope.ANY_REALM), defaultcreds);
       client.getParams().setAuthenticationPreemptive(true);
       client.getParams().setParameter("http.useragent", "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_4; en-us) AppleWebKit/533.16 (KHTML, like Gecko) Version/5.0 Safari/533.16");
@@ -56,16 +59,17 @@ public class Humbug {
       return this.subdomain;
     }
 
-    public String getToken() {
-      return this.token;
+    public String getApiKey() {
+      return this.apiKey;
     }
 
-    protected String getProtocol() {
-      return "https://";
-    }
+    public String getEmail() {
+        return this.email;
+      }
+
 
     public int post(String url, String body) {
-        PostMethod post = new PostMethod(getProtocol() + getHost() + "/" + url);
+        PostMethod post = new PostMethod("https://" + getHost() + "/" + url);
         post.setRequestHeader("Content-Type", "application/xml");
         try {
             post.setRequestEntity(new StringRequestEntity(body, "application/xml", "UTF8"));
@@ -78,7 +82,7 @@ public class Humbug {
     }
 
     public String get(String url) {
-        GetMethod get = new GetMethod(getProtocol() + getHost() + "/" + url);
+        GetMethod get = new GetMethod("https://" + getHost() + "/" + url);
         get.setFollowRedirects(true);
         get.setRequestHeader("Content-Type", "application/xml");
         try {
@@ -99,62 +103,8 @@ public class Humbug {
         return true;
     }
 
-    private List<Room> getRooms(){
-        String body = get("rooms.xml");
-
-        List<Room> rooms;
-        try {
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            factory.setNamespaceAware(true);
-            DocumentBuilder builder = factory.newDocumentBuilder();
-            StringReader reader = new StringReader(body);
-            InputSource inputSource = new InputSource( reader );
-            Document doc = builder.parse(inputSource);
-
-            XPath xpath = XPathFactory.newInstance().newXPath();
-            XPathExpression roomExpr = xpath.compile("//room");
-            XPathExpression nameExpr = xpath.compile(".//name");
-            XPathExpression idExpr = xpath.compile(".//id");
-
-            NodeList roomNodeList = (NodeList) roomExpr.evaluate(doc, XPathConstants.NODESET);
-            rooms = new ArrayList<Room>();
-            for (int i = 0; i < roomNodeList.getLength(); i++) {
-                Node roomNode = roomNodeList.item(i);
-                String name = ((NodeList) nameExpr.evaluate(roomNode, XPathConstants.NODESET)).item(0).getFirstChild().getNodeValue();
-                String id = ((NodeList) idExpr.evaluate(roomNode, XPathConstants.NODESET)).item(0).getFirstChild().getNodeValue();
-                rooms.add(new Room(this, name.trim(), id.trim()));
-            }
-        } catch (ParserConfigurationException e) {
-            throw new RuntimeException(e);
-        } catch (SAXException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (XPathExpressionException e) {
-            throw new RuntimeException(e);
-        }
-        return rooms;
-    }
-
-    public Room findRoomByName(String name) {
-        for (Room room : getRooms()) {
-            if (room.getName().equals(name)) {
-                return room;
-            }
-        }
-        return null;
-    }
-
-    private Room createRoom(String name) {
-        verify(post("rooms.xml", "<request><room><name>" + name + "</name><topic></topic></room></request>"));
-        return findRoomByName(name);
-    }
-
-    public Room findOrCreateRoomByName(String name) {
-        Room room = findRoomByName(name);
-        if (room != null) {
-            return room;
-        }
-        return createRoom(name);
+    public boolean sendStreamMessage(String stream, String subject, String message) {
+        // TODO
+        return true;
     }
 }
