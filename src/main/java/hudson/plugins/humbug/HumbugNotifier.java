@@ -111,7 +111,7 @@ public class HumbugNotifier extends Notifier {
         message += ": ";
         message += "**" + resultString + "**";
         if (changeString.length() > 0 ) {
-            message += "\n";
+            message += "\n\n";
             message += changeString;
         }
         humbug.sendStreamMessage(stream, build.getProject().getName(), message);
