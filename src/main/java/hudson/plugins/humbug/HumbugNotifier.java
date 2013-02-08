@@ -56,7 +56,7 @@ public class HumbugNotifier extends Notifier {
     private void publish(AbstractBuild<?, ?> build) throws IOException {
         checkHumbugConnection();
         Result result = build.getResult();
-        String changeString = "No changes since last build.";
+        String changeString = "";
         if (!build.hasChangeSetComputed()) {
             changeString = "Could not determine changes since last build.";
         } else if (build.getChangeSet().iterator().hasNext()) {
@@ -110,8 +110,10 @@ public class HumbugNotifier extends Notifier {
         }
         message += ": ";
         message += "**" + resultString + "**";
-        message += "\n";
-        message += changeString;
+        if (changeString.length() > 0 ) {
+            message += "\n";
+            message += changeString;
+        }
         humbug.sendStreamMessage(stream, build.getProject().getName(), message);
     }
 
