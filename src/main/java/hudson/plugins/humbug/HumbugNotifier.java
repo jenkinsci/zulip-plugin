@@ -17,6 +17,8 @@ import java.lang.reflect.Method;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.apache.commons.lang.StringUtils;
+
 public class HumbugNotifier extends Notifier {
 
     private Humbug humbug;
@@ -77,14 +79,18 @@ public class HumbugNotifier extends Notifier {
             }
         }
         String resultString = result.toString();
-        if (!smartNotify && result == Result.SUCCESS) resultString = resultString.toLowerCase();
-
         String message = "Build " + build.getDisplayName();
-        if (hudsonUrl != null && hudsonUrl.length() > 1 && (smartNotify || result != Result.SUCCESS)) {
+        if (hudsonUrl != null && hudsonUrl.length() > 1) {
             message = "[" + message + "](" + hudsonUrl + build.getUrl() + ")";
         }
         message += ": ";
-        message += "**" + resultString + "**";
+        if (!smartNotify && result == Result.SUCCESS) {
+            // SmartNotify is off, so a success is actually the common 
+            // case here; so don't yell about it.
+            message += StringUtils.capitalize(resultString.toLowerCase());
+        } else {
+            message += "**" + resultString + "**";
+        }
         if (changeString.length() > 0 ) {
             message += "\n\n";
             message += changeString;
