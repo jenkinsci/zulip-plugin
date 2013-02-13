@@ -18,6 +18,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.exception.ExceptionUtils;
 
 public class HumbugNotifier extends Notifier {
 
@@ -51,21 +52,28 @@ public class HumbugNotifier extends Notifier {
         initialize();
         Result result = build.getResult();
         String changeString = "";
-        if (!build.hasChangeSetComputed()) {
-            changeString = "Could not determine changes since last build.";
-        } else if (build.getChangeSet().iterator().hasNext()) {
-            if (!build.getChangeSet().isEmptySet()) {
-                // If there seems to be a commit message at all, try to list all the changes.
-                changeString = "Changes since last build:\n";
-                for (ChangeLogSet.Entry e: build.getChangeSet()) {
-                    String commitMsg = e.getMsg().trim();
-                    if (commitMsg.length() > 47) {
-                        commitMsg = commitMsg.substring(0, 46)  + "...";
+        try {
+            if (!build.hasChangeSetComputed()) {
+                changeString = "Could not determine changes since last build.";
+            } else if (build.getChangeSet().iterator().hasNext()) {
+                if (!build.getChangeSet().isEmptySet()) {
+                    // If there seems to be a commit message at all, try to list all the changes.
+                    changeString = "Changes since last build:\n";
+                    for (ChangeLogSet.Entry e: build.getChangeSet()) {
+                        String commitMsg = e.getMsg().trim();
+                        if (commitMsg.length() > 47) {
+                            commitMsg = commitMsg.substring(0, 46)  + "...";
+                        }
+                        String author = e.getAuthor().getDisplayName();
+                        changeString += "\n* `"+ author + "` " + commitMsg;
                     }
-                    String author = e.getAuthor().getDisplayName();
-                    changeString += "\n* `"+ author + "` " + commitMsg;
                 }
             }
+        } catch (Exception e) {
+            LOGGER.log(Level.WARNING,
+                      "Exception while computing changes since last build:\n"
+                       + ExceptionUtils.getStackTrace(e));
+            changeString += "\nError determining changes since last build - please contact support@humbughq.com.";
         }
         String resultString = result.toString();
         String message = "Build " + build.getDisplayName();
