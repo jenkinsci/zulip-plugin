@@ -54,8 +54,6 @@ public class HumbugNotifier extends Notifier {
         if (!build.hasChangeSetComputed()) {
             changeString = "Could not determine changes since last build.";
         } else if (build.getChangeSet().iterator().hasNext()) {
-            ChangeLogSet changeSet = build.getChangeSet();
-            ChangeLogSet.Entry entry = build.getChangeSet().iterator().next();
             if (!build.getChangeSet().isEmptySet()) {
                 // If there seems to be a commit message at all, try to list all the changes.
                 changeString = "Changes since last build:\n";
@@ -65,7 +63,6 @@ public class HumbugNotifier extends Notifier {
                         commitMsg = commitMsg.substring(0, 46)  + "...";
                     }
                     String author = e.getAuthor().getDisplayName();
-                    String id = e.getCommitId().substring(0,8);
                     changeString += "\n* `"+ author + "` " + commitMsg;
                 }
             }
@@ -88,20 +85,6 @@ public class HumbugNotifier extends Notifier {
             message += changeString;
         }
         humbug.sendStreamMessage(stream, build.getProject().getName(), message);
-    }
-
-    private String getCommitHash(String changeLogPath) throws IOException {
-        String sha = "";
-        BufferedReader reader = new BufferedReader(new FileReader(changeLogPath));
-        String line;
-        while((line = reader.readLine()) != null) {
-            if (line.matches("^commit [a-zA-Z0-9]+$")) {
-                sha = line.replace("commit ", "");
-                break;
-            }
-        }
-        reader.close();
-        return sha;
     }
 
     private void initialize()  {
