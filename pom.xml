@@ -16,11 +16,11 @@
   <licenses>
     <license><name>MIT license</name><comments>All source code is under the MIT license.</comments></license>
   </licenses>
-  <!-- <scm> -->
-  <!--   <connection>scm:git:git://github.com/jenkinsci/campfire-plugin.git</connection> -->
-  <!--   <developerConnection>scm:git:git@github.com:jenkinsci/campfire-plugin.git</developerConnection> -->
-  <!--   <url>http://github.com/jenkinsci/campfire-plugin</url> -->
-  <!-- </scm> -->
+  <scm>
+    <connection>scm:git:git://github.com/humbughq/humbug-jenkins-plugin.git</connection>
+    <developerConnection>scm:git:git@github.com:humbughq/humbug-jenkins-plugin.git</developerConnection>
+    <url>http://github.com/humbughq/humbug-jenkins-plugin</url>
+  </scm>
   <dependencies>
     <dependency>
       <groupId>org.jenkins-ci.main</groupId>
