@@ -17,9 +17,9 @@
     <license><name>MIT license</name><comments>All source code is under the MIT license.</comments></license>
   </licenses>
   <scm>
-    <connection>scm:git:git://github.com/humbughq/humbug-jenkins-plugin.git</connection>
-    <developerConnection>scm:git:git@github.com:humbughq/humbug-jenkins-plugin.git</developerConnection>
-    <url>http://github.com/humbughq/humbug-jenkins-plugin</url>
+    <connection>scm:git:git://github.com/jenkinsci/humbug-plugin.git</connection>
+    <developerConnection>scm:git:git@github.com:jenkinsci/humbug-plugin.git</developerConnection>
+    <url>http://github.com/jenkinsci/humbug-plugin</url>
   </scm>
   <dependencies>
     <dependency>
@@ -39,43 +39,6 @@
   </dependencies>
   <developers>
     <developer>
-      <id>jenslukowski</id>
-      <name>Jens Lukowski</name>
-      <email>jens.lukowski@softwareschneiderei.de</email>
-      <organization>Softwareschneiderei GmbH</organization>
-      <organizationUrl>http://www.softwareschneiderei.de</organizationUrl>
-    </developer>
-    <developer>
-      <id>thickpaddy</id>
-      <name>Mark Woods</name>
-      <url>https://github.com/thickpaddy</url>
-    </developer>
-    <developer>
-      <id>jkrall</id>
-      <name>Joshua Krall</name>
-      <url>https://github.com/jkrall</url>
-    </developer>
-    <developer>
-      <id>bgreenlee</id>
-      <name>Brad Greenlee</name>
-      <url>https://github.com/bgreenlee</url>
-    </developer>
-    <developer>
-      <id>hpoydar</id>
-      <name>Henry Poydar</name>
-      <url>https://github.com/hpoydar</url>
-    </developer>
-    <developer>
-      <id>mortice</id>
-      <name>Tom Stuart</name>
-      <url>https://github.com/mortice</url>
-    </developer>
-    <developer>
-      <id>dbriones</id>
-      <name>Dante Briones</name>
-      <url>https://github.com/dbriones</url>
-    </developer>
-    <developer>
       <id>wdaher</id>
       <name>Waseem Daher</name>
       <email>wdaher@humbughq.com</email>
@@ -84,29 +47,29 @@
     </developer>
   </developers>
 
-  <!-- <repositories> -->
-  <!--   <repository> -->
-  <!--     <id>repo.jenkins-ci.org</id> -->
-  <!--     <url>http://repo.jenkins-ci.org/public/</url> -->
-  <!--     <releases> -->
-  <!--       <enabled>true</enabled> -->
-  <!--     </releases> -->
-  <!--     <snapshots> -->
-  <!--       <enabled>false</enabled> -->
-  <!--     </snapshots> -->
-  <!--   </repository> -->
-  <!-- </repositories> -->
+  <repositories>
+    <repository>
+      <id>repo.jenkins-ci.org</id>
+      <url>http://repo.jenkins-ci.org/public/</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
 
-  <!-- <pluginRepositories> -->
-  <!--   <pluginRepository> -->
-  <!--     <id>repo.jenkins-ci.org</id> -->
-  <!--     <url>http://repo.jenkins-ci.org/public/</url> -->
-  <!--     <releases> -->
-  <!--       <enabled>true</enabled> -->
-  <!--     </releases> -->
-  <!--     <snapshots> -->
-  <!--       <enabled>false</enabled> -->
-  <!--     </snapshots> -->
-  <!--   </pluginRepository> -->
-  <!-- </pluginRepositories> -->
+  <pluginRepositories>
+    <pluginRepository>
+      <id>repo.jenkins-ci.org</id>
+      <url>http://repo.jenkins-ci.org/public/</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </pluginRepository>
+  </pluginRepositories>
 </project>
