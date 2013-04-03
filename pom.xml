@@ -9,7 +9,7 @@
 
   <artifactId>humbug</artifactId>
   <packaging>hpi</packaging>
-  <version>0.1.1</version>
+  <version>0.1.2-SNAPSHOT</version>
   <name>Jenkins Humbug Plugin</name>
   <description>A build status notifier that sends notifications to Humbug</description>
   <url>https://wiki.jenkins-ci.org/display/JENKINS/Humbug+Plugin</url>
