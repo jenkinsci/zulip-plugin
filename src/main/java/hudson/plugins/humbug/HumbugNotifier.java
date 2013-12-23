@@ -82,7 +82,7 @@ public class HumbugNotifier extends Notifier {
         }
         message += ": ";
         if (!smartNotify && result == Result.SUCCESS) {
-            // SmartNotify is off, so a success is actually the common 
+            // SmartNotify is off, so a success is actually the common
             // case here; so don't yell about it.
             message += StringUtils.capitalize(resultString.toLowerCase());
         } else {

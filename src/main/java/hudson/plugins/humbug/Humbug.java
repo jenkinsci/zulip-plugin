@@ -56,7 +56,7 @@ public class Humbug {
     public String getEmail() {
         return this.email;
     }
-    
+
     public String post(String url, NameValuePair[] parameters) {
         PostMethod post = new PostMethod("https://" + getHost() + "/api/v1/" + url);
         post.setRequestHeader("Content-Type", post.FORM_URL_ENCODED_CONTENT_TYPE);
