@@ -76,7 +76,7 @@ public class Humbug {
                 for (NameValuePair pair: parameters) {
                     params += "\n" + pair.getName() + ":" + pair.getValue();
                 }
-                LOGGER.log(Level.SEVERE, "Error sending Humbug message:\n" + response + "\n\n" +
+                LOGGER.log(Level.SEVERE, "Error sending Zulip message:\n" + response + "\n\n" +
                                          "We sent:" + params);
             }
             return response;

@@ -1,8 +1,8 @@
 <!--
   This view is used to render the plugin list page.
 
-  Since we don't really have anything dynamic here, let's just use static HTML. 
+  Since we don't really have anything dynamic here, let's just use static HTML.
 -->
 <div>
-  This plugin is a Humbug bot that can publish build statuses to Humbug streams.
+  This plugin is a Zulip bot that can publish build statuses to Zulip streams.
 </div>

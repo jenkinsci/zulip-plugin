@@ -10,8 +10,8 @@
   <artifactId>humbug</artifactId>
   <packaging>hpi</packaging>
   <version>0.1.2-SNAPSHOT</version>
-  <name>Jenkins Humbug Plugin</name>
-  <description>A build status notifier that sends notifications to Humbug</description>
+  <name>Jenkins Zulip Plugin</name>
+  <description>A build status notifier that sends notifications to Zulip</description>
   <url>https://wiki.jenkins-ci.org/display/JENKINS/Humbug+Plugin</url>
   <licenses>
     <license><name>MIT license</name><comments>All source code is under the MIT license.</comments></license>
@@ -41,9 +41,9 @@
     <developer>
       <id>wdaher</id>
       <name>Waseem Daher</name>
-      <email>wdaher@humbughq.com</email>
-      <organization>Humbug</organization>
-      <organizationUrl>https://humbughq.com/</organizationUrl>
+      <email>wdaher@zulip.com</email>
+      <organization>Zulip</organization>
+      <organizationUrl>https://zulip.com/</organizationUrl>
     </developer>
   </developers>
 

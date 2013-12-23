@@ -11,11 +11,11 @@
     tags they use. Views are always organized according to its owner class,
     so it should be straightforward to find them.
   -->
-<f:section title="Humbug Notification Settings">
-    <f:entry title="Humbug User Email" help="${rootURL}/plugin/humbug/help-globalConfig-email.html">
+<f:section title="Zulip Notification Settings">
+    <f:entry title="Zulip User Email" help="${rootURL}/plugin/humbug/help-globalConfig-email.html">
         <f:textbox name="humbugEmail" value="${descriptor.getEmail()}" />
     </f:entry>
-    <f:entry title="Humbug API Key" help="${rootURL}/plugin/humbug/help-globalConfig-apiKey.html">
+    <f:entry title="Zulip API Key" help="${rootURL}/plugin/humbug/help-globalConfig-apiKey.html">
         <f:textbox name="humbugApiKey" value="${descriptor.getApiKey()}" />
     </f:entry>
     <f:entry title="Default Stream Name" help="${rootURL}/plugin/humbug/help-globalConfig-stream.html">
@@ -27,8 +27,8 @@
     <f:entry title="Jenkins URL" help="${rootURL}/plugin/humbug/help-globalConfig-hudsonUrl.html">
         <f:textbox name="humbugHudsonUrl" value="${descriptor.getHudsonUrl()}" />
     </f:entry>
-    <f:entry title="Humbug Subdomain" help="${rootURL}/plugin/humbug/help-globalConfig-subdomain.html"
-             description="Optional. If you use a URL like yourcompany.humbughq.com, put 'yourcompany' here.">
+    <f:entry title="Zulip Subdomain" help="${rootURL}/plugin/humbug/help-globalConfig-subdomain.html"
+             description="Optional. If you use a URL like yourcompany.zulip.com, put 'yourcompany' here.">
         <f:textbox name="humbugSubdomain" value="${descriptor.getSubdomain()}" />
     </f:entry>
   </f:section>

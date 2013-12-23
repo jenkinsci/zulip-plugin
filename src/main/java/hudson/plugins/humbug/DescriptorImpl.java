@@ -64,7 +64,7 @@ public class DescriptorImpl extends BuildStepDescriptor<Publisher> {
         try {
             return new HumbugNotifier();
         } catch (Exception e) {
-            String message = "Failed to initialize humbug notifier - check your humbug notifier configuration settings: " + e.getMessage();
+            String message = "Failed to initialize zulip notifier - check your zulip notifier configuration settings: " + e.getMessage();
             LOGGER.log(Level.WARNING, message, e);
             throw new FormException(message, e, "");
         }
@@ -84,7 +84,7 @@ public class DescriptorImpl extends BuildStepDescriptor<Publisher> {
         try {
             new HumbugNotifier();
         } catch (Exception e) {
-            String message = "Failed to initialize humbug notifier - check your global humbug notifier configuration settings: " + e.getMessage();
+            String message = "Failed to initialize zulip notifier - check your global zulip notifier configuration settings: " + e.getMessage();
             LOGGER.log(Level.WARNING, message, e);
             throw new FormException(message, e, "");
         }
@@ -97,7 +97,7 @@ public class DescriptorImpl extends BuildStepDescriptor<Publisher> {
      */
     @Override
     public String getDisplayName() {
-        return "Humbug Notification";
+        return "Zulip Notification";
     }
 
     /**

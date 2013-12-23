@@ -73,7 +73,7 @@ public class HumbugNotifier extends Notifier {
             LOGGER.log(Level.WARNING,
                       "Exception while computing changes since last build:\n"
                        + ExceptionUtils.getStackTrace(e));
-            changeString += "\nError determining changes since last build - please contact support@humbughq.com.";
+            changeString += "\nError determining changes since last build - please contact support@zulip.com.";
         }
         String resultString = result.toString();
         String message = "Build " + build.getDisplayName();
