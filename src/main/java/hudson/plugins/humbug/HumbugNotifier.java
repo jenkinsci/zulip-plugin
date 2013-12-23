@@ -87,6 +87,11 @@ public class HumbugNotifier extends Notifier {
             message += StringUtils.capitalize(resultString.toLowerCase());
         } else {
             message += "**" + resultString + "**";
+            if (result == Result.SUCCESS) {
+                message += " :white_check_mark:";
+            } else {
+                message += " :x:";
+            }
         }
         if (changeString.length() > 0 ) {
             message += "\n\n";
