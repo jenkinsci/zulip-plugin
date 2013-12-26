@@ -31,7 +31,7 @@ public class Humbug {
       // TODO: It would be nice if this version number read from the Maven XML file
       // (which is possible, but annoying)
       // http://stackoverflow.com/questions/8829147/maven-version-number-in-java-file
-      client.getParams().setParameter("http.useragent", "humbug-jenkins bot v0.1");
+      client.getParams().setParameter("http.useragent", "ZulipJenkins/0.1.2");
       ProxyConfiguration proxy = Hudson.getInstance().proxy;
       if (proxy != null) {
           client.getHostConfiguration().setProxy(proxy.name, proxy.port);
