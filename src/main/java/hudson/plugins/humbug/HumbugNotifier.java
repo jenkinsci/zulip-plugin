@@ -89,6 +89,13 @@ public class HumbugNotifier extends Notifier {
             message += "**" + resultString + "**";
             if (result == Result.SUCCESS) {
                 message += " :white_check_mark:";
+            }
+            else if (result == Result.UNSTABLE) {
+                message += " :bangbang:";
+
+                int failCount = build.getTestResultAction().getFailCount();
+
+                message += " (" + failCount + " broken tests)";
             } else {
                 message += " :x:";
             }
