@@ -12,6 +12,9 @@
     so it should be straightforward to find them.
   -->
 <f:section title="Zulip Notification Settings">
+    <f:entry title="Zulip URL" help="${rootURL}/plugin/humbug/help-globalConfig-zulipUrl.html">
+        <f:textbox name="humbugUrl" value="${descriptor.getUrl()}" />
+    </f:entry>
     <f:entry title="Zulip User Email" help="${rootURL}/plugin/humbug/help-globalConfig-email.html">
         <f:textbox name="humbugEmail" value="${descriptor.getEmail()}" />
     </f:entry>
@@ -26,10 +29,6 @@
     </f:entry>
     <f:entry title="Jenkins URL" help="${rootURL}/plugin/humbug/help-globalConfig-hudsonUrl.html">
         <f:textbox name="humbugHudsonUrl" value="${descriptor.getHudsonUrl()}" />
-    </f:entry>
-    <f:entry title="Zulip Subdomain" help="${rootURL}/plugin/humbug/help-globalConfig-subdomain.html"
-             description="Optional. If you use a URL like yourcompany.zulip.com, put 'yourcompany' here.">
-        <f:textbox name="humbugSubdomain" value="${descriptor.getSubdomain()}" />
     </f:entry>
   </f:section>
 </j:jelly>

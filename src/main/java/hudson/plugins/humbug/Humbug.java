@@ -1,29 +1,31 @@
 package hudson.plugins.humbug;
 
+import hudson.ProxyConfiguration;
+import hudson.model.Hudson;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.methods.PostMethod;
+
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import hudson.model.Hudson;
-import hudson.ProxyConfiguration;
-
 public class Humbug {
+    private String url;
     private String email;
     private String apiKey;
-    private String subdomain;
     private static final Logger LOGGER = Logger.getLogger(Humbug.class.getName());
 
-    public Humbug(String email, String apiKey, String subdomain) {
+    public Humbug(String url, String email, String apiKey) {
         super();
+        if (url.length() > 0 && !url.endsWith("/") ) {
+            url = url + "/";
+        }
+        this.url = url;
         this.email = email;
         this.apiKey = apiKey;
-        this.subdomain = subdomain;
     }
 
     protected HttpClient getClient() {
@@ -39,15 +41,11 @@ public class Humbug {
       return client;
     }
 
-    protected String getHost() {
-        if (this.subdomain.length() > 0) {
-            return this.subdomain + ".zulip.com/api";
+    protected String getApiEndpoint() {
+        if (this.url.length() > 0) {
+            return this.url + "api/v1/";
         }
-        return "api.zulip.com";
-    }
-
-    public String getSubdomain() {
-      return this.subdomain;
+        return "https://api.zulip.com/v1/";
     }
 
     public String getApiKey() {
@@ -58,8 +56,8 @@ public class Humbug {
         return this.email;
     }
 
-    public String post(String url, NameValuePair[] parameters) {
-        PostMethod post = new PostMethod("https://" + getHost() + "/v1/" + url);
+    public String post(String method, NameValuePair[] parameters) {
+        PostMethod post = new PostMethod(getApiEndpoint() + method);
         post.setRequestHeader("Content-Type", post.FORM_URL_ENCODED_CONTENT_TYPE);
         String auth_info = this.getEmail() + ":" + this.getApiKey();
         String encoded_auth = new String(Base64.encodeBase64(auth_info.getBytes()));

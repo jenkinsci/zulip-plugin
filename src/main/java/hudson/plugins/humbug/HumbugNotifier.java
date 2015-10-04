@@ -8,17 +8,12 @@ import hudson.model.Result;
 import hudson.scm.ChangeLogSet;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Notifier;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.lang.reflect.Method;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
+
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class HumbugNotifier extends Notifier {
 
@@ -37,9 +32,9 @@ public class HumbugNotifier extends Notifier {
         initialize();
     }
 
-    public HumbugNotifier(String email, String apiKey, String subdomain, String stream, String hudsonUrl, boolean smartNotify) {
+    public HumbugNotifier(String url, String email, String apiKey, String stream, String hudsonUrl, boolean smartNotify) {
         super();
-        initialize(email, apiKey, subdomain, stream, hudsonUrl, smartNotify);
+        initialize(url, email, apiKey, stream, hudsonUrl, smartNotify);
     }
 
     public BuildStepMonitor getRequiredMonitorService() {
@@ -101,12 +96,15 @@ public class HumbugNotifier extends Notifier {
     }
 
     private void initialize()  {
-        initialize(DESCRIPTOR.getEmail(), DESCRIPTOR.getApiKey(), DESCRIPTOR.getSubdomain(), DESCRIPTOR.getStream(), DESCRIPTOR.getHudsonUrl(), DESCRIPTOR.getSmartNotify());
+        initialize(DESCRIPTOR.getUrl(), DESCRIPTOR.getEmail(), DESCRIPTOR.getApiKey(), DESCRIPTOR.getStream(), DESCRIPTOR.getHudsonUrl(), DESCRIPTOR.getSmartNotify());
     }
 
-    private void initialize(String email, String apiKey, String subdomain, String streamName, String hudsonUrl, boolean smartNotify) {
-        humbug = new Humbug(email, apiKey, subdomain);
+    private void initialize(String url, String email, String apiKey, String streamName, String hudsonUrl, boolean smartNotify) {
+        humbug = new Humbug(url, email, apiKey);
         this.stream = streamName;
+        if (hudsonUrl.length() > 0 && !hudsonUrl.endsWith("/") ) {
+            hudsonUrl = hudsonUrl + "/";
+        }
         this.hudsonUrl = hudsonUrl;
         this.smartNotify = smartNotify;
     }
