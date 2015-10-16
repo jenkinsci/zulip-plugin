@@ -9,7 +9,7 @@
 
   <artifactId>humbug</artifactId>
   <packaging>hpi</packaging>
-  <version>0.1.3</version>
+  <version>0.1.4-SNAPSHOT</version>
   <name>Jenkins Zulip Plugin</name>
   <description>A build status notifier that sends notifications to Zulip</description>
   <url>https://wiki.jenkins-ci.org/display/JENKINS/Humbug+Plugin</url>
@@ -20,7 +20,7 @@
     <connection>scm:git:git://github.com/jenkinsci/humbug-plugin.git</connection>
     <developerConnection>scm:git:git@github.com:jenkinsci/humbug-plugin.git</developerConnection>
     <url>http://github.com/jenkinsci/humbug-plugin</url>
-    <tag>humbug-0.1.3</tag>
+    <tag>HEAD</tag>
   </scm>
   <dependencies>
     <dependency>
