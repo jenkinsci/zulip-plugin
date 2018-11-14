@@ -1,3 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
   <!--
     This Jelly script is used to produce the global configuration option.
@@ -12,22 +14,22 @@
     so it should be straightforward to find them.
   -->
 <f:section title="Zulip Notification Settings">
-    <f:entry title="Zulip URL" help="${rootURL}/plugin/humbug/help-globalConfig-zulipUrl.html">
+    <f:entry title="Zulip URL" help="/plugin/humbug/help-globalConfig-zulipUrl.html">
         <f:textbox name="humbugUrl" value="${descriptor.getUrl()}" />
     </f:entry>
-    <f:entry title="Zulip User Email" help="${rootURL}/plugin/humbug/help-globalConfig-email.html">
+    <f:entry title="Zulip User Email" help="/plugin/humbug/help-globalConfig-email.html">
         <f:textbox name="humbugEmail" value="${descriptor.getEmail()}" />
     </f:entry>
-    <f:entry title="Zulip API Key" help="${rootURL}/plugin/humbug/help-globalConfig-apiKey.html">
+    <f:entry title="Zulip API Key" help="/plugin/humbug/help-globalConfig-apiKey.html">
         <f:textbox name="humbugApiKey" value="${descriptor.getApiKey()}" />
     </f:entry>
-    <f:entry title="Default Stream Name" help="${rootURL}/plugin/humbug/help-globalConfig-stream.html">
+    <f:entry title="Default Stream Name" help="/plugin/humbug/help-globalConfig-stream.html">
         <f:textbox name="humbugStream" value="${descriptor.getStream()}" />
     </f:entry>
-    <f:entry title="Enable Smart Notification" help="${rootURL}/plugin/humbug/help-globalConfig-smartNotify.html">
-        <f:checkbox name="humbugSmartNotify" checked="${descriptor.getSmartNotify()}" />
+    <f:entry title="Enable Smart Notification" help="/plugin/humbug/help-globalConfig-smartNotify.html">
+        <f:checkbox name="humbugSmartNotify" checked="${descriptor.isSmartNotify()}" />
     </f:entry>
-    <f:entry title="Jenkins URL" help="${rootURL}/plugin/humbug/help-globalConfig-hudsonUrl.html">
+    <f:entry title="Jenkins URL" help="/plugin/humbug/help-globalConfig-hudsonUrl.html">
         <f:textbox name="humbugHudsonUrl" value="${descriptor.getHudsonUrl()}" />
     </f:entry>
   </f:section>

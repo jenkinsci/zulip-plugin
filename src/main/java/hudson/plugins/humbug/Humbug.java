@@ -1,17 +1,20 @@
 package hudson.plugins.humbug;
 
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import hudson.ProxyConfiguration;
-import hudson.model.Hudson;
+import jenkins.model.Jenkins;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.methods.PostMethod;
 
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
+/**
+ * Sends message to Zulip stream
+ */
 public class Humbug {
     private String url;
     private String email;
@@ -34,7 +37,7 @@ public class Humbug {
       // (which is possible, but annoying)
       // http://stackoverflow.com/questions/8829147/maven-version-number-in-java-file
       client.getParams().setParameter("http.useragent", "ZulipJenkins/0.1.2");
-      ProxyConfiguration proxy = Hudson.getInstance().proxy;
+      ProxyConfiguration proxy = Jenkins.getInstance().proxy;
       if (proxy != null) {
           client.getHostConfiguration().setProxy(proxy.name, proxy.port);
       }
@@ -58,7 +61,7 @@ public class Humbug {
 
     public String post(String method, NameValuePair[] parameters) {
         PostMethod post = new PostMethod(getApiEndpoint() + method);
-        post.setRequestHeader("Content-Type", post.FORM_URL_ENCODED_CONTENT_TYPE);
+        post.setRequestHeader("Content-Type", PostMethod.FORM_URL_ENCODED_CONTENT_TYPE);
         String auth_info = this.getEmail() + ":" + this.getApiKey();
         String encoded_auth = new String(Base64.encodeBase64(auth_info.getBytes()));
         post.setRequestHeader("Authorization", "Basic " + encoded_auth);
@@ -84,28 +87,6 @@ public class Humbug {
             post.releaseConnection();
         }
     }
-
-//    public String get(String url) {
-//        GetMethod get = new GetMethod("https://" + getHost() + "/api/v1/" + url);
-//        get.setFollowRedirects(true);
-//        get.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-//        try {
-//            getClient().executeMethod(get);
-//            verify(get.getStatusCode());
-//            return get.getResponseBodyAsString();
-//        } catch (IOException e) {
-//            throw new RuntimeException(e);
-//        } finally {
-//            get.releaseConnection();
-//        }
-//    }
-//
-//    public boolean verify(int returnCode) {
-//        if (returnCode != 200) {
-//            throw new RuntimeException("Unexpected response code: " + Integer.toString(returnCode));
-//        }
-//        return true;
-//    }
 
     public String sendStreamMessage(String stream, String subject, String message) {
         NameValuePair[] body = {new NameValuePair("api-key", this.getApiKey()),

@@ -4,8 +4,14 @@
   <parent>
     <groupId>org.jenkins-ci.plugins</groupId>
     <artifactId>plugin</artifactId>
-    <version>1.544</version>
+    <version>3.19</version>
   </parent>
+
+  <properties>
+    <jenkins.version>1.653</jenkins.version>
+    <java.level>7</java.level>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
 
   <artifactId>humbug</artifactId>
   <packaging>hpi</packaging>
@@ -39,6 +45,20 @@
       <version>1.6</version>
     </dependency>
   </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.jenkins-ci.tools</groupId>
+        <artifactId>maven-hpi-plugin</artifactId>
+        <extensions>true</extensions>
+        <configuration>
+          <compatibleSinceVersion>2.0</compatibleSinceVersion>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
   <developers>
     <developer>
       <id>wdaher</id>

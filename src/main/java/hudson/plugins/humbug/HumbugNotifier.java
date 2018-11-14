@@ -1,5 +1,9 @@
 package hudson.plugins.humbug;
 
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import hudson.Extension;
 import hudson.Launcher;
 import hudson.model.AbstractBuild;
@@ -8,13 +12,11 @@ import hudson.model.Result;
 import hudson.scm.ChangeLogSet;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Notifier;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
+/**
+ * Sends build result notification to stream based on the configuration
+ */
 public class HumbugNotifier extends Notifier {
 
     private Humbug humbug;
@@ -76,17 +78,11 @@ public class HumbugNotifier extends Notifier {
             message = "[" + message + "](" + hudsonUrl + build.getUrl() + ")";
         }
         message += ": ";
-        if (!smartNotify && result == Result.SUCCESS) {
-            // SmartNotify is off, so a success is actually the common
-            // case here; so don't yell about it.
-            message += StringUtils.capitalize(resultString.toLowerCase());
+        message += "**" + resultString + "**";
+        if (result == Result.SUCCESS) {
+            message += " :check_mark:";
         } else {
-            message += "**" + resultString + "**";
-            if (result == Result.SUCCESS) {
-                message += " :white_check_mark:";
-            } else {
-                message += " :x:";
-            }
+            message += " :x:";
         }
         if (changeString.length() > 0 ) {
             message += "\n\n";
@@ -96,7 +92,7 @@ public class HumbugNotifier extends Notifier {
     }
 
     private void initialize()  {
-        initialize(DESCRIPTOR.getUrl(), DESCRIPTOR.getEmail(), DESCRIPTOR.getApiKey(), DESCRIPTOR.getStream(), DESCRIPTOR.getHudsonUrl(), DESCRIPTOR.getSmartNotify());
+        initialize(DESCRIPTOR.getUrl(), DESCRIPTOR.getEmail(), DESCRIPTOR.getApiKey(), DESCRIPTOR.getStream(), DESCRIPTOR.getHudsonUrl(), DESCRIPTOR.isSmartNotify());
     }
 
     private void initialize(String url, String email, String apiKey, String streamName, String hudsonUrl, boolean smartNotify) {
@@ -116,7 +112,7 @@ public class HumbugNotifier extends Notifier {
         //  (1) there was no previous build, or
         //  (2) the current build did not succeed, or
         //  (3) the previous build failed and the current build succeeded.
-        smartNotify = DESCRIPTOR.getSmartNotify();
+        smartNotify = DESCRIPTOR.isSmartNotify();
         if (smartNotify) {
             AbstractBuild previousBuild = build.getPreviousBuild();
             if (previousBuild == null ||
@@ -130,4 +126,5 @@ public class HumbugNotifier extends Notifier {
         }
         return true;
     }
+
 }
