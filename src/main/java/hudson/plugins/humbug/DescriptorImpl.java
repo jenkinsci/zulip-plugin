@@ -7,8 +7,13 @@ import hudson.model.AbstractProject;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Publisher;
 import net.sf.json.JSONObject;
+import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.StaplerRequest;
 
+/**
+ * Descriptor for {@link HumbugNotifier}
+ */
+@Symbol("zulipNotification")
 public class DescriptorImpl extends BuildStepDescriptor<Publisher> {
     private boolean enabled = false;
     private String url;
