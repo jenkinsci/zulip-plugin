@@ -1,8 +1,5 @@
 package hudson.plugins.humbug;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import hudson.model.AbstractProject;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Publisher;
@@ -22,7 +19,6 @@ public class DescriptorImpl extends BuildStepDescriptor<Publisher> {
     private String stream;
     private String hudsonUrl;
     private boolean smartNotify;
-    private static final Logger LOGGER = Logger.getLogger(DescriptorImpl.class.getName());
 
     public DescriptorImpl() {
         super(HumbugNotifier.class);
@@ -97,13 +93,6 @@ public class DescriptorImpl extends BuildStepDescriptor<Publisher> {
         stream = req.getParameter("humbugStream");
         hudsonUrl = req.getParameter("humbugHudsonUrl");
         smartNotify = req.getParameter("humbugSmartNotify") != null;
-        try {
-            new HumbugNotifier();
-        } catch (Exception e) {
-            String message = "Failed to initialize zulip notifier - check your global zulip notifier configuration settings: " + e.getMessage();
-            LOGGER.log(Level.WARNING, message, e);
-            throw new FormException(message, e, "");
-        }
         save();
         return super.configure(req, json);
     }
