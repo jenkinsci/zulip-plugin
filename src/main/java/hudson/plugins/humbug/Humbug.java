@@ -23,7 +23,7 @@ public class Humbug {
 
     public Humbug(String url, String email, String apiKey) {
         super();
-        if (url.length() > 0 && !url.endsWith("/") ) {
+        if (url != null && url.length() > 0 && !url.endsWith("/") ) {
             url = url + "/";
         }
         this.url = url;
