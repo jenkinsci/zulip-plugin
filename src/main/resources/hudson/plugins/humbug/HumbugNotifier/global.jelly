@@ -26,6 +26,9 @@
     <f:entry title="Default Stream Name" help="/plugin/humbug/help-globalConfig-stream.html">
         <f:textbox name="humbugStream" value="${descriptor.getStream()}" />
     </f:entry>
+    <f:entry title="Default Topic Name" help="/plugin/humbug/help-globalConfig-topic.html">
+        <f:textbox name="humbugTopic" value="${descriptor.getTopic()}" />
+    </f:entry>
     <f:entry title="Enable Smart Notification" help="/plugin/humbug/help-globalConfig-smartNotify.html">
         <f:checkbox name="humbugSmartNotify" checked="${descriptor.isSmartNotify()}" />
     </f:entry>

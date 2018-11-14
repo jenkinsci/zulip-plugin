@@ -30,6 +30,7 @@ public class HumbugNotifier extends Publisher implements SimpleBuildStep {
     private static final Logger logger = Logger.getLogger(HumbugNotifier.class.getName());
 
     private String stream;
+    private String topic;
 
     @Extension
     public static final DescriptorImpl DESCRIPTOR = new DescriptorImpl();
@@ -47,6 +48,14 @@ public class HumbugNotifier extends Publisher implements SimpleBuildStep {
         this.stream = stream;
     }
 
+    public String getTopic() {
+        return topic;
+    }
+
+    @DataBoundSetter
+    public void setTopic(String topic) {
+        this.topic = topic;
+    }
 
     @Override
     public BuildStepMonitor getRequiredMonitorService() {
@@ -66,6 +75,7 @@ public class HumbugNotifier extends Publisher implements SimpleBuildStep {
 
     private boolean publish(Run<?, ?> build) {
         if (shouldPublish(build)) {
+            String configuredTopic = topic != null ? topic : DESCRIPTOR.getTopic();
             Result result = getBuildResult(build);
             String changeString = "";
             try {
@@ -79,6 +89,9 @@ public class HumbugNotifier extends Publisher implements SimpleBuildStep {
             String resultString = result.toString();
             String message = "";
             // If we are sending to fixed topic, we will want to add project name into the message
+            if (HumbugUtil.isValueSet(configuredTopic)) {
+                message += hundsonUrlMesssage("Project: ", build.getParent().getDisplayName(), build.getParent().getUrl(), DESCRIPTOR) + " : ";
+            }
             message += hundsonUrlMesssage("Build: ", build.getDisplayName(), build.getUrl(), DESCRIPTOR);
             message += ": ";
             message += "**" + resultString + "**";
@@ -92,8 +105,9 @@ public class HumbugNotifier extends Publisher implements SimpleBuildStep {
                 message += changeString;
             }
             String destinationStream = HumbugUtil.getDefaultValue(stream, DESCRIPTOR.getStream());
+            String destinationTopic = HumbugUtil.getDefaultValue(configuredTopic, build.getParent().getDisplayName());
             Humbug humbug = new Humbug(DESCRIPTOR.getUrl(), DESCRIPTOR.getEmail(), DESCRIPTOR.getApiKey());
-            humbug.sendStreamMessage(destinationStream, build.getParent().getDisplayName(), message);
+            humbug.sendStreamMessage(destinationStream, destinationTopic, message);
         }
         return true;
     }

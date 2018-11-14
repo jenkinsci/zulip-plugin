@@ -17,6 +17,7 @@ public class DescriptorImpl extends BuildStepDescriptor<Publisher> {
     private String email;
     private String apiKey;
     private String stream;
+    private String topic;
     private String hudsonUrl;
     private boolean smartNotify;
 
@@ -65,6 +66,14 @@ public class DescriptorImpl extends BuildStepDescriptor<Publisher> {
         this.stream = stream;
     }
 
+    public String getTopic() {
+        return topic;
+    }
+
+    public void setTopic(String topic) {
+        this.topic = topic;
+    }
+
     public String getHudsonUrl() {
         return hudsonUrl;
     }
@@ -91,6 +100,7 @@ public class DescriptorImpl extends BuildStepDescriptor<Publisher> {
         email = req.getParameter("humbugEmail");
         apiKey = req.getParameter("humbugApiKey");
         stream = req.getParameter("humbugStream");
+        topic = req.getParameter("humbugTopic");
         hudsonUrl = req.getParameter("humbugHudsonUrl");
         smartNotify = req.getParameter("humbugSmartNotify") != null;
         save();
