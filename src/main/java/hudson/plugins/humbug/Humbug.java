@@ -1,6 +1,7 @@
 package hudson.plugins.humbug;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -11,6 +12,7 @@ import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.util.EncodingUtil;
 
 /**
  * Sends message to Zulip stream
@@ -67,7 +69,7 @@ public class Humbug {
         post.setRequestHeader("Authorization", "Basic " + encoded_auth);
 
         try {
-            post.setRequestBody(parameters);
+            post.setRequestBody(EncodingUtil.formUrlEncode(parameters, Charset.defaultCharset().name()));
             HttpClient client = getClient();
 
             client.executeMethod(post);
