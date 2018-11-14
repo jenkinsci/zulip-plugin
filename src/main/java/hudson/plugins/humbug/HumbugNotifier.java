@@ -95,15 +95,12 @@ public class HumbugNotifier extends Publisher implements SimpleBuildStep {
     }
 
     private void initialize()  {
-        initialize(DESCRIPTOR.getUrl(), DESCRIPTOR.getEmail(), DESCRIPTOR.getApiKey(), DESCRIPTOR.getStream(), DESCRIPTOR.getHudsonUrl(), DESCRIPTOR.isSmartNotify());
+        initialize(DESCRIPTOR.getUrl(), DESCRIPTOR.getEmail(), DESCRIPTOR.getApiKey(), DESCRIPTOR.getStream(), HumbugUtil.getJenkinsUrl(DESCRIPTOR), DESCRIPTOR.isSmartNotify());
     }
 
     private void initialize(String url, String email, String apiKey, String streamName, String hudsonUrl, boolean smartNotify) {
         humbug = new Humbug(url, email, apiKey);
         this.stream = streamName;
-        if (hudsonUrl.length() > 0 && !hudsonUrl.endsWith("/")) {
-            hudsonUrl = hudsonUrl + "/";
-        }
     }
 
     private String getChangeSet(Run<?, ?> build) {
