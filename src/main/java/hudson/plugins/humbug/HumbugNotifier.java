@@ -19,6 +19,8 @@ import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Publisher;
 import jenkins.tasks.SimpleBuildStep;
 import org.apache.commons.lang.exception.ExceptionUtils;
+import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.DataBoundSetter;
 
 /**
  * Sends build result notification to stream based on the configuration
@@ -27,23 +29,24 @@ public class HumbugNotifier extends Publisher implements SimpleBuildStep {
 
     private static final Logger logger = Logger.getLogger(HumbugNotifier.class.getName());
 
-    private Humbug humbug;
     private String stream;
-    private String hudsonUrl;
-    private boolean smartNotify;
 
     @Extension
     public static final DescriptorImpl DESCRIPTOR = new DescriptorImpl();
 
+    @DataBoundConstructor
     public HumbugNotifier() {
-        super();
-        initialize();
     }
 
-    public HumbugNotifier(String url, String email, String apiKey, String stream, String hudsonUrl, boolean smartNotify) {
-        super();
-        initialize(url, email, apiKey, stream, hudsonUrl, smartNotify);
+    public String getStream() {
+        return stream;
     }
+
+    @DataBoundSetter
+    public void setStream(String stream) {
+        this.stream = stream;
+    }
+
 
     @Override
     public BuildStepMonitor getRequiredMonitorService() {
@@ -57,8 +60,8 @@ public class HumbugNotifier extends Publisher implements SimpleBuildStep {
     }
 
     @Override
-    public void perform(@Nonnull Run<?, ?> run, @Nonnull FilePath workspace, @Nonnull Launcher launcher, @Nonnull TaskListener listener)
-        throws InterruptedException, IOException {
+    public void perform(@Nonnull Run<?, ?> run, @Nonnull FilePath workspace, @Nonnull Launcher launcher, @Nonnull TaskListener listener) throws InterruptedException, IOException {
+        publish(run);
     }
 
     private boolean publish(Run<?, ?> build) {
@@ -74,10 +77,9 @@ public class HumbugNotifier extends Publisher implements SimpleBuildStep {
                 changeString += "\nError determining changes since last build - please contact support@zulip.com.";
             }
             String resultString = result.toString();
-            String message = "Build " + build.getDisplayName();	            message += ": ";
-            if (hudsonUrl != null && hudsonUrl.length() > 1) {
-                message = "[" + message + "](" + hudsonUrl + build.getUrl() + ")";
-            }
+            String message = "";
+            // If we are sending to fixed topic, we will want to add project name into the message
+            message += hundsonUrlMesssage("Build: ", build.getDisplayName(), build.getUrl(), DESCRIPTOR);
             message += ": ";
             message += "**" + resultString + "**";
             if (result == Result.SUCCESS) {
@@ -89,18 +91,11 @@ public class HumbugNotifier extends Publisher implements SimpleBuildStep {
                 message += "\n\n";
                 message += changeString;
             }
-            humbug.sendStreamMessage(stream, build.getParent().getDisplayName(), message);
+            String destinationStream = HumbugUtil.getDefaultValue(stream, DESCRIPTOR.getStream());
+            Humbug humbug = new Humbug(DESCRIPTOR.getUrl(), DESCRIPTOR.getEmail(), DESCRIPTOR.getApiKey());
+            humbug.sendStreamMessage(destinationStream, build.getParent().getDisplayName(), message);
         }
         return true;
-    }
-
-    private void initialize()  {
-        initialize(DESCRIPTOR.getUrl(), DESCRIPTOR.getEmail(), DESCRIPTOR.getApiKey(), DESCRIPTOR.getStream(), HumbugUtil.getJenkinsUrl(DESCRIPTOR), DESCRIPTOR.isSmartNotify());
-    }
-
-    private void initialize(String url, String email, String apiKey, String streamName, String hudsonUrl, boolean smartNotify) {
-        humbug = new Humbug(url, email, apiKey);
-        this.stream = streamName;
     }
 
     private String getChangeSet(Run<?, ?> build) {
@@ -148,6 +143,25 @@ public class HumbugNotifier extends Publisher implements SimpleBuildStep {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Helper method to format build parameter as link to Jenkins with prefix
+     *
+     * @param prefix       The prefix to add to the parameter (will be formatted as bold)
+     * @param display      The build parameter
+     * @param url          The Url to the Jenkins item
+     * @param globalConfig Global step config
+     * @return Formatted parameter
+     */
+    private static String hundsonUrlMesssage(String prefix, String display, String url, DescriptorImpl globalConfig) {
+        String message = display;
+        String jenkinsUrl = HumbugUtil.getJenkinsUrl(globalConfig);
+        if (HumbugUtil.isValueSet(jenkinsUrl)) {
+            message = "[" + message + "](" + jenkinsUrl + url + ")";
+        }
+        message = "**" + prefix + "**" + message;
+        return message;
     }
 
     /**
