@@ -4,4 +4,7 @@
     <f:entry title="Stream" field="stream" help="/plugin/humbug/help-notification-stream.html">
         <f:textbox />
     </f:entry>
+    <f:entry title="Topic" field="topic" help="/plugin/humbug/help-notification-topic.html">
+        <f:textbox />
+    </f:entry>
 </j:jelly>
