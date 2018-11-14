@@ -1,13 +1,13 @@
 package hudson.plugins.humbug;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import hudson.model.AbstractProject;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Publisher;
 import net.sf.json.JSONObject;
 import org.kohsuke.stapler.StaplerRequest;
-
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class DescriptorImpl extends BuildStepDescriptor<Publisher> {
     private boolean enabled = false;
@@ -28,46 +28,60 @@ public class DescriptorImpl extends BuildStepDescriptor<Publisher> {
         return enabled;
     }
 
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
     public String getUrl() {
         return url;
     }
 
-    public String getApiKey() {
-        return apiKey;
+    public void setUrl(String url) {
+        this.url = url;
     }
 
     public String getEmail() {
         return email;
     }
 
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getApiKey() {
+        return apiKey;
+    }
+
+    public void setApiKey(String apiKey) {
+        this.apiKey = apiKey;
+    }
+
     public String getStream() {
         return stream;
+    }
+
+    public void setStream(String stream) {
+        this.stream = stream;
     }
 
     public String getHudsonUrl() {
         return hudsonUrl;
     }
 
-    public boolean getSmartNotify() {
+    public void setHudsonUrl(String hudsonUrl) {
+        this.hudsonUrl = hudsonUrl;
+    }
+
+    public boolean isSmartNotify() {
         return smartNotify;
+    }
+
+    public void setSmartNotify(boolean smartNotify) {
+        this.smartNotify = smartNotify;
     }
 
     public boolean isApplicable(Class<? extends AbstractProject> aClass) {
         return true;
-    }
-
-    /**
-     * @see hudson.model.Descriptor#newInstance(org.kohsuke.stapler.StaplerRequest)
-     */
-    @Override
-    public Publisher newInstance(StaplerRequest req, JSONObject formData) throws FormException {
-        try {
-            return new HumbugNotifier();
-        } catch (Exception e) {
-            String message = "Failed to initialize zulip notifier - check your zulip notifier configuration settings: " + e.getMessage();
-            LOGGER.log(Level.WARNING, message, e);
-            throw new FormException(message, e, "");
-        }
     }
 
     @Override
@@ -89,19 +103,14 @@ public class DescriptorImpl extends BuildStepDescriptor<Publisher> {
         return super.configure(req, json);
     }
 
-    /**
-     * @see hudson.model.Descriptor#getDisplayName()
-     */
     @Override
     public String getDisplayName() {
         return "Zulip Notification";
     }
 
-    /**
-     * @see hudson.model.Descriptor#getHelpFile()
-     */
     @Override
     public String getHelpFile() {
         return "/plugin/humbug/help.html";
     }
+
 }
