@@ -20,6 +20,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.powermock.api.mockito.PowerMockito.verifyNew;
 import static org.powermock.api.mockito.PowerMockito.when;
@@ -92,6 +93,14 @@ public class HumbugSendStepTest {
         assertEquals("Should be default stream", "defaultStream", streamCaptor.getValue());
         assertEquals("Should be default topic", "defaultTopic", topicCaptor.getValue());
         assertEquals("message", messageCaptor.getValue());
+        //
+        reset(humbug);
+        sendStep.setStream("");
+        sendStep.setTopic("");
+        sendStep.perform(run, null, null, taskListener);
+        verify(humbug).sendStreamMessage(streamCaptor.capture(), topicCaptor.capture(), messageCaptor.capture());
+        assertEquals("Should be default stream", "defaultStream", streamCaptor.getValue());
+        assertEquals("Should be default topic", "defaultTopic", topicCaptor.getValue());
     }
 
     @Test

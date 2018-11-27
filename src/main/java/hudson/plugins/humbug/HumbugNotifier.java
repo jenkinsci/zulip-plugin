@@ -75,7 +75,7 @@ public class HumbugNotifier extends Publisher implements SimpleBuildStep {
 
     private boolean publish(Run<?, ?> build) {
         if (shouldPublish(build)) {
-            String configuredTopic = topic != null ? topic : DESCRIPTOR.getTopic();
+            String configuredTopic = HumbugUtil.getDefaultValue(topic, DESCRIPTOR.getTopic());
             Result result = getBuildResult(build);
             String changeString = "";
             try {
