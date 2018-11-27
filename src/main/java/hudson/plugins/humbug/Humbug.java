@@ -84,10 +84,11 @@ public class Humbug {
             }
             return response;
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            LOGGER.log(Level.SEVERE, "Error sending Zulip message: " + e.getMessage());
         } finally {
             post.releaseConnection();
         }
+        return null;
     }
 
     public String sendStreamMessage(String stream, String subject, String message) {
