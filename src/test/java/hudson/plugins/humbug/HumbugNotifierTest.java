@@ -103,6 +103,14 @@ public class HumbugNotifierTest {
         assertEquals("Should use default stream", "defaultStream", streamCaptor.getValue());
         assertEquals("Should use default topic", "defaultTopic", topicCaptor.getValue());
         assertEquals("Message should be successful build", "**Project: **TestJob : **Build: **#1: **SUCCESS** :check_mark:", messageCaptor.getValue());
+        // Test with blank values
+        reset(humbug);
+        notifier.setStream("");
+        notifier.setTopic("");
+        notifier.perform(build, null, null);
+        verify(humbug).sendStreamMessage(streamCaptor.capture(), topicCaptor.capture(), messageCaptor.capture());
+        assertEquals("Should use default stream", "defaultStream", streamCaptor.getValue());
+        assertEquals("Should use default topic", "defaultTopic", topicCaptor.getValue());
     }
 
     @Test
