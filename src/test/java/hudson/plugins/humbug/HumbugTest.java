@@ -75,10 +75,24 @@ public class HumbugTest {
     }
 
     @Test
-    public void testFailGracefully() {
+    public void testFailGracefullyOnError() {
         mockServer.reset();
         mockServer.when(request().withPath("/api/v1/messages")).respond(response().withStatusCode(500));
         Humbug humbug = new Humbug("http://localhost:1080", "jenkins-bot@zulip.com", "secret");
+        // Test that this does not throw exception
+        humbug.sendStreamMessage("testStream", "testTopic", "testMessage");
+    }
+
+    @Test
+    public void testFailGracefullyWhenUnreachable() {
+        Humbug humbug = new Humbug("http://localhost:1081", "jenkins-bot@zulip.com", "secret");
+        // Test that this does not throw exception
+        humbug.sendStreamMessage("testStream", "testTopic", "testMessage");
+    }
+
+    @Test
+    public void testFailGracefullyUnknonwHost() {
+        Humbug humbug = new Humbug("http://unreachable:1080", "jenkins-bot@zulip.com", "secret");
         // Test that this does not throw exception
         humbug.sendStreamMessage("testStream", "testTopic", "testMessage");
     }
