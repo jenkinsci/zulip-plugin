@@ -99,7 +99,7 @@ public class HumbugNotifier extends Publisher implements SimpleBuildStep {
                 message += " :check_mark:";
             }
             else if (result == Result.UNSTABLE) {
-                message += " :bangbang:";
+                message += " :warning:";
 
                 int failCount = build.getTestResultAction().getFailCount();
 
