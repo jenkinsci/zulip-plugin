@@ -134,6 +134,11 @@
       <organization>Zulip</organization>
       <organizationUrl>https://zulip.com/</organizationUrl>
     </developer>
+    <developer>
+      <id>butchyyyy</id>
+      <name>Milan Koníř</name>
+      <email>Konir.M@gmail.com</email>
+    </developer>
   </developers>
 
   <repositories>
