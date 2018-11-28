@@ -12,6 +12,7 @@ It began its life as a fork of the [Jenkins Campfire plugin](https://github.com/
 1. [Global Configuration](#global-configuration)
 1. [Zulip Notification](#zulip-notification)
 1. [Zulip Send](#zulip-send)
+1. [Job DSL](#job-dsl)
 1. [Troubleshooting](#troubleshooting)
 
 ## Global configuration
@@ -141,6 +142,32 @@ pipeline {
         }
         // ... Other build stages ...
     }
+}
+```
+
+## Job DSL
+
+There is no explicit support for the Job DSL Plugin, but Zulip Send
+step and Zulip Notification can be configured via [dynamically
+generated DSLs](https://github.com/jenkinsci/job-dsl-plugin/wiki/Dynamic-DSL).
+
+Example DSL creating a freestyle job using both Zulip Send and Zulip Notification:
+```jenkins
+
+job('DSL-Freestyle') {
+  steps {
+    zulipSend {
+      message('Hello via job DSL!')
+      stream('dslproject')
+      topic('jenkins')
+    }
+  }
+  publishers {
+    zulipNotification {
+      stream('dslproject')
+      topic('jenkins')
+    }
+  }
 }
 ```
 
