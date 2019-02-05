@@ -1,8 +1,16 @@
 package jenkins.plugins.zulip;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import hudson.XmlFile;
 import hudson.model.AbstractProject;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Publisher;
+import hudson.util.XStream2;
+import jenkins.model.Jenkins;
 import net.sf.json.JSONObject;
 import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.StaplerRequest;
@@ -12,26 +20,35 @@ import org.kohsuke.stapler.StaplerRequest;
  */
 @Symbol("zulipNotification")
 public class DescriptorImpl extends BuildStepDescriptor<Publisher> {
-    private boolean enabled = false;
+
+    private static final Logger logger = Logger.getLogger(DescriptorImpl.class.getName());
+
     private String url;
     private String email;
     private String apiKey;
     private String stream;
     private String topic;
+    private transient String hudsonUrl; // backwards compatibility
     private String jenkinsUrl;
     private boolean smartNotify;
 
     public DescriptorImpl() {
         super(ZulipNotifier.class);
-        load();
-    }
-
-    public boolean isEnabled() {
-        return enabled;
-    }
-
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
+        XmlFile newConfig = getConfigFile();
+        if (newConfig.exists()) {
+            load();
+        } else {
+            XStream2 xstream = new XStream2();
+            xstream.alias("hudson.plugins.humbug.DescriptorImpl", DescriptorImpl.class);
+            XmlFile oldConfig = new XmlFile(xstream, new File(Jenkins.getInstance().getRootDir(),"hudson.plugins.humbug.HumbugNotifier.xml"));
+            if (oldConfig.exists()) {
+                try {
+                    oldConfig.unmarshal(this);
+                } catch (IOException e) {
+                    logger.log(Level.WARNING, "Failed to load " + oldConfig, e);
+                }
+            }
+        }
     }
 
     public String getUrl() {
@@ -75,7 +92,7 @@ public class DescriptorImpl extends BuildStepDescriptor<Publisher> {
     }
 
     public String getJenkinsUrl() {
-        return jenkinsUrl;
+        return jenkinsUrl != null ? jenkinsUrl : hudsonUrl;
     }
 
     public void setJenkinsUrl(String jenkinsUrl) {
