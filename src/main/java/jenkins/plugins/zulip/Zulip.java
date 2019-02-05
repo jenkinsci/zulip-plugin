@@ -18,6 +18,9 @@ import org.apache.commons.httpclient.util.EncodingUtil;
  * Sends message to Zulip stream
  */
 public class Zulip {
+
+    private static final Charset encodingCharset = Charset.forName("UTF-8");
+
     private String url;
     private String email;
     private String apiKey;
@@ -65,7 +68,7 @@ public class Zulip {
         PostMethod post = new PostMethod(getApiEndpoint() + method);
         post.setRequestHeader("Content-Type", PostMethod.FORM_URL_ENCODED_CONTENT_TYPE);
         String auth_info = this.getEmail() + ":" + this.getApiKey();
-        String encoded_auth = new String(Base64.encodeBase64(auth_info.getBytes()));
+        String encoded_auth = new String(Base64.encodeBase64(auth_info.getBytes(encodingCharset)), encodingCharset);
         post.setRequestHeader("Authorization", "Basic " + encoded_auth);
 
         try {
@@ -75,12 +78,12 @@ public class Zulip {
             client.executeMethod(post);
             String response = post.getResponseBodyAsString();
             if (post.getStatusCode() != HttpStatus.SC_OK) {
-                String params = "";
+                StringBuilder params = new StringBuilder();
                 for (NameValuePair pair: parameters) {
-                    params += "\n" + pair.getName() + ":" + pair.getValue();
+                    params.append("\n").append(pair.getName()).append(":").append(pair.getValue());
                 }
                 LOGGER.log(Level.SEVERE, "Error sending Zulip message:\n" + response + "\n\n" +
-                                         "We sent:" + params);
+                                         "We sent:" + params.toString());
             }
             return response;
         } catch (IOException e) {

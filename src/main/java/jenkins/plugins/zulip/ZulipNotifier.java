@@ -120,13 +120,13 @@ public class ZulipNotifier extends Publisher implements SimpleBuildStep {
     }
 
     private String getChangeSet(Run<?, ?> build) {
-        String changeString = "";
+        StringBuilder changeString = new StringBuilder();
         RunChangeSetWrapper wrapper = new RunChangeSetWrapper(build);
         if (!wrapper.hasChangeSetComputed()) {
-            changeString = "Could not determine changes since last build.";
+            changeString.append("Could not determine changes since last build.");
         } else if (wrapper.hasChangeSet()) {
             // If there seems to be a commit message at all, try to list all the changes.
-            changeString = "Changes since last build:\n";
+            changeString.append("Changes since last build:\n");
             for (ChangeLogSet<? extends ChangeLogSet.Entry> changeLogSet : wrapper.getChangeSets()) {
                 for (ChangeLogSet.Entry e : changeLogSet) {
                     String commitMsg = e.getMsg().trim();
@@ -134,11 +134,11 @@ public class ZulipNotifier extends Publisher implements SimpleBuildStep {
                         commitMsg = commitMsg.substring(0, 46) + "...";
                     }
                     String author = e.getAuthor().getDisplayName();
-                    changeString += "\n* `" + author + "` " + commitMsg;
+                    changeString.append("\n* `").append(author).append("` ").append(commitMsg);
                 }
             }
         }
-        return changeString;
+        return changeString.toString();
     }
 
     /**
