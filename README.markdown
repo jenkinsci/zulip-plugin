@@ -185,7 +185,7 @@ zulipSend message: 'Test'
 ```
 with
 ```jenkins
-step([$class: 'HumbugSendStep', message: 'Test'])
+step([$class: 'ZulipSendStep', message: 'Test'])
 ```
 
 and
@@ -197,5 +197,5 @@ zulipNotification()
 with
 
 ```jenkins
-step([$class: 'HumbugNotifier'])
+step([$class: 'ZulipNotifier'])
 ```

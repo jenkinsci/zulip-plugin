@@ -1,12 +1,12 @@
-package hudson.plugins.humbug;
+package jenkins.plugins.zulip;
+
+import java.util.Collections;
+import java.util.List;
 
 import hudson.model.AbstractBuild;
 import hudson.model.Run;
 import hudson.scm.ChangeLogSet;
 import org.jenkinsci.plugins.workflow.job.WorkflowRun;
-
-import java.util.Collections;
-import java.util.List;
 
 /**
  * Wrapper that is allowed to pull change set since last build for both {@link AbstractBuild} and {@link WorkflowRun}

@@ -1,4 +1,4 @@
-package hudson.plugins.humbug;
+package jenkins.plugins.zulip;
 
 import com.gargoylesoftware.htmlunit.html.HtmlForm;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
@@ -47,13 +47,13 @@ public class IntegrationTest {
     public void testGlobalConfig() throws Exception {
         HtmlPage p = j.createWebClient().goTo("configure");
         HtmlForm f = p.getFormByName("config");
-        f.getInputByName("humbugUrl").setValueAttribute("ZulipUrl");
-        f.getInputByName("humbugEmail").setValueAttribute("jenkins-bot@zulip.com");
-        f.getInputByName("humbugApiKey").setValueAttribute("secret");
-        f.getInputByName("humbugStream").setValueAttribute("defaultStream");
-        f.getInputByName("humbugTopic").setValueAttribute("defaultTopic");
-        f.getInputByName("humbugSmartNotify").setChecked(true);
-        f.getInputByName("humbugHudsonUrl").setValueAttribute("HudsonUrl");
+        f.getInputByName("url").setValueAttribute("ZulipUrl");
+        f.getInputByName("email").setValueAttribute("jenkins-bot@zulip.com");
+        f.getInputByName("apiKey").setValueAttribute("secret");
+        f.getInputByName("stream").setValueAttribute("defaultStream");
+        f.getInputByName("topic").setValueAttribute("defaultTopic");
+        f.getInputByName("smartNotify").setChecked(true);
+        f.getInputByName("jenkinsUrl").setValueAttribute("JenkinsUrl");
         j.submit(f);
         verifyGlobalConfig();
         // Do a round-trip to verify settings load & save correctly
@@ -67,12 +67,12 @@ public class IntegrationTest {
     public void testFreestyle() throws Exception {
         // Initialize project with send and notification step
         FreeStyleProject project = j.createFreeStyleProject();
-        HumbugSendStep sendStep = new HumbugSendStep();
+        ZulipSendStep sendStep = new ZulipSendStep();
         sendStep.setStream("testStream");
         sendStep.setTopic("testTopic");
         sendStep.setMessage("testMessage");
         project.getBuildersList().add(sendStep);
-        HumbugNotifier notifier = new HumbugNotifier();
+        ZulipNotifier notifier = new ZulipNotifier();
         notifier.setStream("testStream");
         notifier.setTopic("testTopic");
         project.getPublishersList().add(notifier);
@@ -81,11 +81,11 @@ public class IntegrationTest {
         HtmlPage p = webClient.getPage(project, "configure");
         HtmlForm f = p.getFormByName("config");
         j.submit(f);
-        HumbugSendStep assertStep = project.getBuildersList().get(HumbugSendStep.class);
+        ZulipSendStep assertStep = project.getBuildersList().get(ZulipSendStep.class);
         assertEquals("testStream", assertStep.getStream());
         assertEquals("testTopic", assertStep.getTopic());
         assertEquals("testMessage", assertStep.getMessage());
-        HumbugNotifier assertNotifier = project.getPublishersList().get(HumbugNotifier.class);
+        ZulipNotifier assertNotifier = project.getPublishersList().get(ZulipNotifier.class);
         assertEquals("testStream", assertNotifier.getStream());
         assertEquals("testTopic", assertNotifier.getTopic());
         // Perform build and verify it's successful
@@ -98,8 +98,8 @@ public class IntegrationTest {
         WorkflowJob project = j.createProject(WorkflowJob.class);
         project.setDefinition(new CpsFlowDefinition(
                 "node {\n" +
-                        "step([$class: 'HumbugSendStep', stream: 'someStream', topic: 'someTopic', message: 'Hello Zulip'])\n" +
-                        "step([$class: 'HumbugNotifier', stream: 'someStream', topic: 'someTopic'])\n" +
+                        "step([$class: 'ZulipSendStep', stream: 'someStream', topic: 'someTopic', message: 'Hello Zulip'])\n" +
+                        "step([$class: 'ZulipNotifier', stream: 'someStream', topic: 'someTopic'])\n" +
                         "}", true));
         j.buildAndAssertSuccess(project);
         verifyNotificationsSent(2);
@@ -113,7 +113,7 @@ public class IntegrationTest {
         assertEquals("defaultStream", globalConfig.getStream());
         assertEquals("defaultTopic", globalConfig.getTopic());
         assertTrue(globalConfig.isSmartNotify());
-        assertEquals("HudsonUrl", globalConfig.getHudsonUrl());
+        assertEquals("JenkinsUrl", globalConfig.getJenkinsUrl());
     }
 
     private void verifyNotificationsSent(int count) {

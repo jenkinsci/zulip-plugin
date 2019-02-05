@@ -1,4 +1,4 @@
-package hudson.plugins.humbug;
+package jenkins.plugins.zulip;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -17,13 +17,13 @@ import org.apache.commons.httpclient.util.EncodingUtil;
 /**
  * Sends message to Zulip stream
  */
-public class Humbug {
+public class Zulip {
     private String url;
     private String email;
     private String apiKey;
-    private static final Logger LOGGER = Logger.getLogger(Humbug.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(Zulip.class.getName());
 
-    public Humbug(String url, String email, String apiKey) {
+    public Zulip(String url, String email, String apiKey) {
         super();
         if (url != null && url.length() > 0 && !url.endsWith("/") ) {
             url = url + "/";

@@ -1,4 +1,4 @@
-package hudson.plugins.humbug;
+package jenkins.plugins.zulip;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,15 +33,15 @@ import static org.powermock.api.mockito.PowerMockito.verifyNew;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({Jenkins.class, User.class, HumbugNotifier.class, DescriptorImpl.class,
+@PrepareForTest({Jenkins.class, User.class, ZulipNotifier.class, DescriptorImpl.class,
         AbstractBuild.class, Job.class})
-public class HumbugNotifierTest {
+public class ZulipNotifierTest {
 
     @Mock
     private Jenkins jenkins;
 
     @Mock
-    private Humbug humbug;
+    private Zulip zulip;
 
     @Mock
     private DescriptorImpl descMock;
@@ -66,7 +66,7 @@ public class HumbugNotifierTest {
 
     @Before
     public void setUp() throws Exception {
-        PowerMockito.whenNew(Humbug.class).withAnyArguments().thenReturn(humbug);
+        PowerMockito.whenNew(Zulip.class).withAnyArguments().thenReturn(zulip);
         PowerMockito.mockStatic(Jenkins.class);
         when(Jenkins.getInstance()).thenReturn(jenkins);
         PowerMockito.mockStatic(User.class);
@@ -96,39 +96,39 @@ public class HumbugNotifierTest {
 
     @Test
     public void testShouldUseDefaults() throws Exception {
-        HumbugNotifier notifier = new HumbugNotifier();
+        ZulipNotifier notifier = new ZulipNotifier();
         notifier.perform(build, null, null);
-        verifyNew(Humbug.class).withArguments("zulipUrl", "jenkins-bot@zulip.com", "secret");
-        verify(humbug).sendStreamMessage(streamCaptor.capture(), topicCaptor.capture(), messageCaptor.capture());
+        verifyNew(Zulip.class).withArguments("zulipUrl", "jenkins-bot@zulip.com", "secret");
+        verify(zulip).sendStreamMessage(streamCaptor.capture(), topicCaptor.capture(), messageCaptor.capture());
         assertEquals("Should use default stream", "defaultStream", streamCaptor.getValue());
         assertEquals("Should use default topic", "defaultTopic", topicCaptor.getValue());
         assertEquals("Message should be successful build", "**Project: **TestJob : **Build: **#1: **SUCCESS** :check_mark:", messageCaptor.getValue());
         // Test with blank values
-        reset(humbug);
+        reset(zulip);
         notifier.setStream("");
         notifier.setTopic("");
         notifier.perform(build, null, null);
-        verify(humbug).sendStreamMessage(streamCaptor.capture(), topicCaptor.capture(), messageCaptor.capture());
+        verify(zulip).sendStreamMessage(streamCaptor.capture(), topicCaptor.capture(), messageCaptor.capture());
         assertEquals("Should use default stream", "defaultStream", streamCaptor.getValue());
         assertEquals("Should use default topic", "defaultTopic", topicCaptor.getValue());
     }
 
     @Test
     public void testFailedBuild() throws Exception {
-        HumbugNotifier notifier = new HumbugNotifier();
+        ZulipNotifier notifier = new ZulipNotifier();
         when(build.getResult()).thenReturn(Result.FAILURE);
         notifier.perform(build, null, null);
-        verify(humbug).sendStreamMessage(streamCaptor.capture(), topicCaptor.capture(), messageCaptor.capture());
+        verify(zulip).sendStreamMessage(streamCaptor.capture(), topicCaptor.capture(), messageCaptor.capture());
         assertEquals("Message should be failed build", "**Project: **TestJob : **Build: **#1: **FAILURE** :x:", messageCaptor.getValue());
     }
 
     @Test
     public void testShouldUseProjectConfig() throws Exception {
-        HumbugNotifier notifier = new HumbugNotifier();
+        ZulipNotifier notifier = new ZulipNotifier();
         notifier.setStream("projectStream");
         notifier.setTopic("projectTopic");
         notifier.perform(build, null, null);
-        verify(humbug).sendStreamMessage(streamCaptor.capture(), topicCaptor.capture(), messageCaptor.capture());
+        verify(zulip).sendStreamMessage(streamCaptor.capture(), topicCaptor.capture(), messageCaptor.capture());
         assertEquals("Should use project stream", "projectStream", streamCaptor.getValue());
         assertEquals("Should use topic stream", "projectTopic", topicCaptor.getValue());
     }
@@ -136,17 +136,17 @@ public class HumbugNotifierTest {
     @Test
     public void testShouldUseProjectNameAsTopic() throws Exception {
         try {
-            HumbugNotifier notifier = new HumbugNotifier();
+            ZulipNotifier notifier = new ZulipNotifier();
             when(descMock.getTopic()).thenReturn("");
-            Whitebox.setInternalState(HumbugNotifier.class, descMock);
+            Whitebox.setInternalState(ZulipNotifier.class, descMock);
             notifier.perform(build, null, null);
-            verify(humbug).sendStreamMessage(streamCaptor.capture(), topicCaptor.capture(), messageCaptor.capture());
+            verify(zulip).sendStreamMessage(streamCaptor.capture(), topicCaptor.capture(), messageCaptor.capture());
             assertEquals("Topic should be project display name", "TestJob", topicCaptor.getValue());
             assertEquals("Message should not contain project name", "**Build: **#1: **SUCCESS** :check_mark:", messageCaptor.getValue());
         } finally {
             // Be sure to return global setting back to original setup so other tests dont fail
             when(descMock.getTopic()).thenReturn("defaultTopic");
-            Whitebox.setInternalState(HumbugNotifier.class, descMock);
+            Whitebox.setInternalState(ZulipNotifier.class, descMock);
         }
     }
 
@@ -157,9 +157,9 @@ public class HumbugNotifierTest {
         changes.add(createChange("Author 2", "This is a very long commit message that will get truncated in the Zulip message"));
         FakeChangeLogSCM.FakeChangeLogSet changeLogSet = new FakeChangeLogSCM.FakeChangeLogSet(build, changes);
         when(build.getChangeSet()).thenReturn(changeLogSet);
-        HumbugNotifier notifier = new HumbugNotifier();
+        ZulipNotifier notifier = new ZulipNotifier();
         notifier.perform(build, null, null);
-        verify(humbug).sendStreamMessage(streamCaptor.capture(), topicCaptor.capture(), messageCaptor.capture());
+        verify(zulip).sendStreamMessage(streamCaptor.capture(), topicCaptor.capture(), messageCaptor.capture());
         assertEquals("Message should contain change log", "**Project: **TestJob : **Build: **#1: **SUCCESS** :check_mark:\n" +
                 "\n" +
                 "Changes since last build:\n" +
@@ -171,55 +171,55 @@ public class HumbugNotifierTest {
     @Test
     public void testJenkinsUrl() throws Exception {
         try {
-            HumbugNotifier notifier = new HumbugNotifier();
-            when(descMock.getHudsonUrl()).thenReturn("JenkinsUrl");
-            Whitebox.setInternalState(HumbugNotifier.class, descMock);
+            ZulipNotifier notifier = new ZulipNotifier();
+            when(descMock.getJenkinsUrl()).thenReturn("JenkinsUrl");
+            Whitebox.setInternalState(ZulipNotifier.class, descMock);
             notifier.perform(build, null, null);
-            verify(humbug).sendStreamMessage(streamCaptor.capture(), topicCaptor.capture(), messageCaptor.capture());
+            verify(zulip).sendStreamMessage(streamCaptor.capture(), topicCaptor.capture(), messageCaptor.capture());
             assertEquals("Message should contain links to Jenkins", "**Project: **[TestJob](JenkinsUrl/job/TestJob) : **Build: **[#1](JenkinsUrl/job/TestJob/1): **SUCCESS** :check_mark:", messageCaptor.getValue());
         } finally {
             // Be sure to return global setting back to original setup so other tests dont fail
-            when(descMock.getHudsonUrl()).thenReturn("");
-            Whitebox.setInternalState(HumbugNotifier.class, descMock);
+            when(descMock.getJenkinsUrl()).thenReturn("");
+            Whitebox.setInternalState(ZulipNotifier.class, descMock);
         }
     }
 
     @Test
     public void testSmartNotify() throws Exception {
         try {
-            HumbugNotifier notifier = new HumbugNotifier();
+            ZulipNotifier notifier = new ZulipNotifier();
             when(descMock.isSmartNotify()).thenReturn(true);
-            Whitebox.setInternalState(HumbugNotifier.class, descMock);
+            Whitebox.setInternalState(ZulipNotifier.class, descMock);
             // If there was no previous build, notification should be sent no matter the result
-            reset(humbug);
+            reset(zulip);
             when(build.getPreviousBuild()).thenReturn(null);
             when(build.getResult()).thenReturn(Result.SUCCESS);
             notifier.perform(build, null, null);
             when(build.getResult()).thenReturn(Result.FAILURE);
             notifier.perform(build, null, null);
-            verify(humbug, times(2)).sendStreamMessage(anyString(), anyString(), anyString());
+            verify(zulip, times(2)).sendStreamMessage(anyString(), anyString(), anyString());
             // If the previous build was a failure, notification should be sent no matter what
-            reset(humbug);
+            reset(zulip);
             when(build.getPreviousBuild()).thenReturn(previousBuild);
             when(previousBuild.getResult()).thenReturn(Result.FAILURE);
             when(build.getResult()).thenReturn(Result.SUCCESS);
             notifier.perform(build, null, null);
             when(build.getResult()).thenReturn(Result.FAILURE);
             notifier.perform(build, null, null);
-            verify(humbug, times(2)).sendStreamMessage(anyString(), anyString(), anyString());
+            verify(zulip, times(2)).sendStreamMessage(anyString(), anyString(), anyString());
             // If the previous build was a success, notification should be sent only for failed builds
-            reset(humbug);
+            reset(zulip);
             when(build.getPreviousBuild()).thenReturn(previousBuild);
             when(previousBuild.getResult()).thenReturn(Result.SUCCESS);
             when(build.getResult()).thenReturn(Result.SUCCESS);
             notifier.perform(build, null, null);
             when(build.getResult()).thenReturn(Result.FAILURE);
             notifier.perform(build, null, null);
-            verify(humbug, times(1)).sendStreamMessage(anyString(), anyString(), anyString());
+            verify(zulip, times(1)).sendStreamMessage(anyString(), anyString(), anyString());
         } finally {
             // Be sure to return global setting back to original setup so other tests dont fail
             when(descMock.isSmartNotify()).thenReturn(false);
-            Whitebox.setInternalState(HumbugNotifier.class, descMock);
+            Whitebox.setInternalState(ZulipNotifier.class, descMock);
         }
     }
 

@@ -1,4 +1,4 @@
-package hudson.plugins.humbug;
+package jenkins.plugins.zulip;
 
 import jenkins.model.Jenkins;
 import org.junit.Before;
@@ -16,7 +16,7 @@ import static org.mockito.Mockito.when;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(Jenkins.class)
-public class HumbugUtilTest {
+public class ZulipUtilTest {
 
     @Mock
     private Jenkins jenkins;
@@ -34,23 +34,23 @@ public class HumbugUtilTest {
 
     @Test
     public void testIsValueSet() {
-        assertTrue(HumbugUtil.isValueSet("Test"));
-        assertFalse(HumbugUtil.isValueSet(""));
-        assertFalse(HumbugUtil.isValueSet(null));
+        assertTrue(ZulipUtil.isValueSet("Test"));
+        assertFalse(ZulipUtil.isValueSet(""));
+        assertFalse(ZulipUtil.isValueSet(null));
     }
 
     @Test
     public void testGetDefaultValue() {
-        assertEquals("Expect value", "Test", HumbugUtil.getDefaultValue("Test", "Default"));
-        assertEquals("Expect default", "Default", HumbugUtil.getDefaultValue("", "Default"));
-        assertEquals("Expect default", "Default", HumbugUtil.getDefaultValue(null, "Default"));
+        assertEquals("Expect value", "Test", ZulipUtil.getDefaultValue("Test", "Default"));
+        assertEquals("Expect default", "Default", ZulipUtil.getDefaultValue("", "Default"));
+        assertEquals("Expect default", "Default", ZulipUtil.getDefaultValue(null, "Default"));
     }
 
     @Test
     public void testGetJenkinsUrl() {
-        assertEquals("Expect Jenkins Configured Url", "http://JenkinsConfigUrl/", HumbugUtil.getJenkinsUrl(descMock));
-        when(descMock.getHudsonUrl()).thenReturn("http://ZulipConfigUrl/");
-        assertEquals("Expect Zulip config Url", "http://ZulipConfigUrl/", HumbugUtil.getJenkinsUrl(descMock));
+        assertEquals("Expect Jenkins Configured Url", "http://JenkinsConfigUrl/", ZulipUtil.getJenkinsUrl(descMock));
+        when(descMock.getJenkinsUrl()).thenReturn("http://ZulipConfigUrl/");
+        assertEquals("Expect Zulip config Url", "http://ZulipConfigUrl/", ZulipUtil.getJenkinsUrl(descMock));
     }
 
 }

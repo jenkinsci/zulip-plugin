@@ -1,4 +1,4 @@
-package hudson.plugins.humbug;
+package jenkins.plugins.zulip;
 
 import hudson.Plugin;
 

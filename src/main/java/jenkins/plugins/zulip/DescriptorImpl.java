@@ -1,4 +1,4 @@
-package hudson.plugins.humbug;
+package jenkins.plugins.zulip;
 
 import hudson.model.AbstractProject;
 import hudson.tasks.BuildStepDescriptor;
@@ -8,7 +8,7 @@ import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.StaplerRequest;
 
 /**
- * Descriptor for {@link HumbugNotifier}
+ * Descriptor for {@link ZulipNotifier}
  */
 @Symbol("zulipNotification")
 public class DescriptorImpl extends BuildStepDescriptor<Publisher> {
@@ -18,11 +18,11 @@ public class DescriptorImpl extends BuildStepDescriptor<Publisher> {
     private String apiKey;
     private String stream;
     private String topic;
-    private String hudsonUrl;
+    private String jenkinsUrl;
     private boolean smartNotify;
 
     public DescriptorImpl() {
-        super(HumbugNotifier.class);
+        super(ZulipNotifier.class);
         load();
     }
 
@@ -74,12 +74,12 @@ public class DescriptorImpl extends BuildStepDescriptor<Publisher> {
         this.topic = topic;
     }
 
-    public String getHudsonUrl() {
-        return hudsonUrl;
+    public String getJenkinsUrl() {
+        return jenkinsUrl;
     }
 
-    public void setHudsonUrl(String hudsonUrl) {
-        this.hudsonUrl = hudsonUrl;
+    public void setJenkinsUrl(String jenkinsUrl) {
+        this.jenkinsUrl = jenkinsUrl;
     }
 
     public boolean isSmartNotify() {
@@ -96,13 +96,13 @@ public class DescriptorImpl extends BuildStepDescriptor<Publisher> {
 
     @Override
     public boolean configure(StaplerRequest req, JSONObject json) throws FormException {
-        url = req.getParameter("humbugUrl");
-        email = req.getParameter("humbugEmail");
-        apiKey = req.getParameter("humbugApiKey");
-        stream = req.getParameter("humbugStream");
-        topic = req.getParameter("humbugTopic");
-        hudsonUrl = req.getParameter("humbugHudsonUrl");
-        smartNotify = req.getParameter("humbugSmartNotify") != null;
+        url = req.getParameter("url");
+        email = req.getParameter("email");
+        apiKey = req.getParameter("apiKey");
+        stream = req.getParameter("stream");
+        topic = req.getParameter("topic");
+        jenkinsUrl = req.getParameter("jenkinsUrl");
+        smartNotify = req.getParameter("smartNotify") != null;
         save();
         return super.configure(req, json);
     }
@@ -114,7 +114,7 @@ public class DescriptorImpl extends BuildStepDescriptor<Publisher> {
 
     @Override
     public String getHelpFile() {
-        return "/plugin/humbug/help.html";
+        return "/plugin/zulip/help.html";
     }
 
 }

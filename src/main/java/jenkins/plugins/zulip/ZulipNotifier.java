@@ -1,4 +1,4 @@
-package hudson.plugins.humbug;
+package jenkins.plugins.zulip;
 
 import java.io.IOException;
 import java.util.logging.Level;
@@ -25,9 +25,9 @@ import org.kohsuke.stapler.DataBoundSetter;
 /**
  * Sends build result notification to stream based on the configuration
  */
-public class HumbugNotifier extends Publisher implements SimpleBuildStep {
+public class ZulipNotifier extends Publisher implements SimpleBuildStep {
 
-    private static final Logger logger = Logger.getLogger(HumbugNotifier.class.getName());
+    private static final Logger logger = Logger.getLogger(ZulipNotifier.class.getName());
 
     private String stream;
     private String topic;
@@ -36,7 +36,7 @@ public class HumbugNotifier extends Publisher implements SimpleBuildStep {
     public static final DescriptorImpl DESCRIPTOR = new DescriptorImpl();
 
     @DataBoundConstructor
-    public HumbugNotifier() {
+    public ZulipNotifier() {
     }
 
     public String getStream() {
@@ -75,7 +75,7 @@ public class HumbugNotifier extends Publisher implements SimpleBuildStep {
 
     private boolean publish(Run<?, ?> build) {
         if (shouldPublish(build)) {
-            String configuredTopic = HumbugUtil.getDefaultValue(topic, DESCRIPTOR.getTopic());
+            String configuredTopic = ZulipUtil.getDefaultValue(topic, DESCRIPTOR.getTopic());
             Result result = getBuildResult(build);
             String changeString = "";
             try {
@@ -89,7 +89,7 @@ public class HumbugNotifier extends Publisher implements SimpleBuildStep {
             String resultString = result.toString();
             String message = "";
             // If we are sending to fixed topic, we will want to add project name into the message
-            if (HumbugUtil.isValueSet(configuredTopic)) {
+            if (ZulipUtil.isValueSet(configuredTopic)) {
                 message += hundsonUrlMesssage("Project: ", build.getParent().getDisplayName(), build.getParent().getUrl(), DESCRIPTOR) + " : ";
             }
             message += hundsonUrlMesssage("Build: ", build.getDisplayName(), build.getUrl(), DESCRIPTOR);
@@ -101,9 +101,9 @@ public class HumbugNotifier extends Publisher implements SimpleBuildStep {
             else if (result == Result.UNSTABLE) {
                 message += " :warning:";
 
-                int failCount = build.getTestResultAction().getFailCount();
+                /*int failCount = build.getTestResultAction().getFailCount();
 
-                message += " (" + failCount + " broken tests)";
+                message += " (" + failCount + " broken tests)";*/
             } else {
                 message += " :x:";
             }
@@ -111,10 +111,10 @@ public class HumbugNotifier extends Publisher implements SimpleBuildStep {
                 message += "\n\n";
                 message += changeString;
             }
-            String destinationStream = HumbugUtil.getDefaultValue(stream, DESCRIPTOR.getStream());
-            String destinationTopic = HumbugUtil.getDefaultValue(configuredTopic, build.getParent().getDisplayName());
-            Humbug humbug = new Humbug(DESCRIPTOR.getUrl(), DESCRIPTOR.getEmail(), DESCRIPTOR.getApiKey());
-            humbug.sendStreamMessage(destinationStream, destinationTopic, message);
+            String destinationStream = ZulipUtil.getDefaultValue(stream, DESCRIPTOR.getStream());
+            String destinationTopic = ZulipUtil.getDefaultValue(configuredTopic, build.getParent().getDisplayName());
+            Zulip zulip = new Zulip(DESCRIPTOR.getUrl(), DESCRIPTOR.getEmail(), DESCRIPTOR.getApiKey());
+            zulip.sendStreamMessage(destinationStream, destinationTopic, message);
         }
         return true;
     }
@@ -177,8 +177,8 @@ public class HumbugNotifier extends Publisher implements SimpleBuildStep {
      */
     private static String hundsonUrlMesssage(String prefix, String display, String url, DescriptorImpl globalConfig) {
         String message = display;
-        String jenkinsUrl = HumbugUtil.getJenkinsUrl(globalConfig);
-        if (HumbugUtil.isValueSet(jenkinsUrl)) {
+        String jenkinsUrl = ZulipUtil.getJenkinsUrl(globalConfig);
+        if (ZulipUtil.isValueSet(jenkinsUrl)) {
             message = "[" + message + "](" + jenkinsUrl + url + ")";
         }
         message = "**" + prefix + "**" + message;

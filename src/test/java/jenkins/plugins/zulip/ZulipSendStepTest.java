@@ -1,4 +1,4 @@
-package hudson.plugins.humbug;
+package jenkins.plugins.zulip;
 
 import hudson.EnvVars;
 import hudson.model.Job;
@@ -26,14 +26,14 @@ import static org.powermock.api.mockito.PowerMockito.verifyNew;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({Jenkins.class, HumbugSendStep.class})
-public class HumbugSendStepTest {
+@PrepareForTest({Jenkins.class, ZulipSendStep.class})
+public class ZulipSendStepTest {
 
     @Mock
     private Jenkins jenkins;
 
     @Mock
-    private Humbug humbug;
+    private Zulip zulip;
 
     @Mock
     private DescriptorImpl descMock;
@@ -61,7 +61,7 @@ public class HumbugSendStepTest {
 
     @Before
     public void setUp() throws Exception {
-        PowerMockito.whenNew(Humbug.class).withAnyArguments().thenReturn(humbug);
+        PowerMockito.whenNew(Zulip.class).withAnyArguments().thenReturn(zulip);
         PowerMockito.mockStatic(Jenkins.class);
         when(Jenkins.getInstance()).thenReturn(jenkins);
         when(jenkins.getDescriptorByType(DescriptorImpl.class)).thenReturn(descMock);
@@ -83,44 +83,44 @@ public class HumbugSendStepTest {
 
     @Test
     public void testShouldUseDefaults() throws Exception {
-        HumbugSendStep sendStep = new HumbugSendStep();
+        ZulipSendStep sendStep = new ZulipSendStep();
         sendStep.setMessage("message");
         sendStep.perform(run, null, null, taskListener);
-        verifyNew(Humbug.class).withArguments("zulipUrl", "jenkins-bot@zulip.com", "secret");
+        verifyNew(Zulip.class).withArguments("zulipUrl", "jenkins-bot@zulip.com", "secret");
         verify(envVars).expand(messageCaptor.capture());
         assertEquals("Should expand message", "message", messageCaptor.getValue());
-        verify(humbug).sendStreamMessage(streamCaptor.capture(), topicCaptor.capture(), messageCaptor.capture());
+        verify(zulip).sendStreamMessage(streamCaptor.capture(), topicCaptor.capture(), messageCaptor.capture());
         assertEquals("Should be default stream", "defaultStream", streamCaptor.getValue());
         assertEquals("Should be default topic", "defaultTopic", topicCaptor.getValue());
         assertEquals("message", messageCaptor.getValue());
         //
-        reset(humbug);
+        reset(zulip);
         sendStep.setStream("");
         sendStep.setTopic("");
         sendStep.perform(run, null, null, taskListener);
-        verify(humbug).sendStreamMessage(streamCaptor.capture(), topicCaptor.capture(), messageCaptor.capture());
+        verify(zulip).sendStreamMessage(streamCaptor.capture(), topicCaptor.capture(), messageCaptor.capture());
         assertEquals("Should be default stream", "defaultStream", streamCaptor.getValue());
         assertEquals("Should be default topic", "defaultTopic", topicCaptor.getValue());
     }
 
     @Test
     public void testShouldUseProjectConfig() throws Exception {
-        HumbugSendStep sendStep = new HumbugSendStep();
+        ZulipSendStep sendStep = new ZulipSendStep();
         sendStep.setStream("projectStream");
         sendStep.setTopic("projectTopic");
         sendStep.perform(run, null, null, taskListener);
-        verify(humbug).sendStreamMessage(streamCaptor.capture(), topicCaptor.capture(), messageCaptor.capture());
+        verify(zulip).sendStreamMessage(streamCaptor.capture(), topicCaptor.capture(), messageCaptor.capture());
         assertEquals("Should be project stream", "projectStream", streamCaptor.getValue());
         assertEquals("Should be project topic", "projectTopic", topicCaptor.getValue());
         assertNull("Should be null message", messageCaptor.getValue());
     }
 
     public void testShouldUseProjectNameAsTopic() throws Exception {
-        HumbugSendStep sendStep = new HumbugSendStep();
+        ZulipSendStep sendStep = new ZulipSendStep();
         // Override default topic config
         when(descMock.getTopic()).thenReturn("");
         sendStep.perform(run, null, null, taskListener);
-        verify(humbug).sendStreamMessage(streamCaptor.capture(), topicCaptor.capture(), messageCaptor.capture());
+        verify(zulip).sendStreamMessage(streamCaptor.capture(), topicCaptor.capture(), messageCaptor.capture());
         assertEquals("Topic should be project display name", "TestJob", topicCaptor.getValue());
     }
 

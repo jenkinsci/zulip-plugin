@@ -1,4 +1,4 @@
-package hudson.plugins.humbug;
+package jenkins.plugins.zulip;
 
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
@@ -25,7 +25,7 @@ import static org.powermock.api.mockito.PowerMockito.when;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(Jenkins.class)
-public class HumbugTest {
+public class ZulipTest {
 
     private static ClientAndServer mockServer;
 
@@ -52,8 +52,8 @@ public class HumbugTest {
     public void testSendStreamMessage() throws Exception {
         mockServer.reset();
         mockServer.when(request().withPath("/api/v1/messages")).respond(response().withStatusCode(200));
-        Humbug humbug = new Humbug("http://localhost:1080", "jenkins-bot@zulip.com", "secret");
-        humbug.sendStreamMessage("testStreamůř", "testTopic", "testMessage");
+        Zulip zulip = new Zulip("http://localhost:1080", "jenkins-bot@zulip.com", "secret");
+        zulip.sendStreamMessage("testStreamůř", "testTopic", "testMessage");
         mockServer.verify(
                 request()
                         .withMethod("POST")
@@ -78,23 +78,23 @@ public class HumbugTest {
     public void testFailGracefullyOnError() {
         mockServer.reset();
         mockServer.when(request().withPath("/api/v1/messages")).respond(response().withStatusCode(500));
-        Humbug humbug = new Humbug("http://localhost:1080", "jenkins-bot@zulip.com", "secret");
+        Zulip zulip = new Zulip("http://localhost:1080", "jenkins-bot@zulip.com", "secret");
         // Test that this does not throw exception
-        humbug.sendStreamMessage("testStream", "testTopic", "testMessage");
+        zulip.sendStreamMessage("testStream", "testTopic", "testMessage");
     }
 
     @Test
     public void testFailGracefullyWhenUnreachable() {
-        Humbug humbug = new Humbug("http://localhost:1081", "jenkins-bot@zulip.com", "secret");
+        Zulip zulip = new Zulip("http://localhost:1081", "jenkins-bot@zulip.com", "secret");
         // Test that this does not throw exception
-        humbug.sendStreamMessage("testStream", "testTopic", "testMessage");
+        zulip.sendStreamMessage("testStream", "testTopic", "testMessage");
     }
 
     @Test
     public void testFailGracefullyUnknonwHost() {
-        Humbug humbug = new Humbug("http://unreachable:1080", "jenkins-bot@zulip.com", "secret");
+        Zulip zulip = new Zulip("http://unreachable:1080", "jenkins-bot@zulip.com", "secret");
         // Test that this does not throw exception
-        humbug.sendStreamMessage("testStream", "testTopic", "testMessage");
+        zulip.sendStreamMessage("testStream", "testTopic", "testMessage");
     }
 
     private Body buildBody(NameValuePair... valuePairs) throws Exception {

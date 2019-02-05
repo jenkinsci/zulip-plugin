@@ -1,4 +1,4 @@
-package hudson.plugins.humbug;
+package jenkins.plugins.zulip;
 
 import java.io.IOException;
 import java.util.logging.Logger;
@@ -22,31 +22,31 @@ import org.kohsuke.stapler.DataBoundSetter;
 /**
  * Sends arbitrary message to Zulip stream
  */
-public class HumbugSendStep extends Builder implements SimpleBuildStep {
+public class ZulipSendStep extends Builder implements SimpleBuildStep {
 
-    private static final Logger logger = Logger.getLogger(HumbugSendStep.class.getName());
+    private static final Logger logger = Logger.getLogger(ZulipSendStep.class.getName());
 
     private String stream;
     private String topic;
     private String message;
 
     @DataBoundConstructor
-    public HumbugSendStep() {
+    public ZulipSendStep() {
     }
 
     @Override
     public void perform(@Nonnull Run<?, ?> run, @Nonnull FilePath workspace, @Nonnull Launcher launcher, @Nonnull TaskListener listener) throws InterruptedException, IOException {
-        hudson.plugins.humbug.DescriptorImpl globalConfig = Jenkins.getInstance().getDescriptorByType(hudson.plugins.humbug.DescriptorImpl.class);
-        Humbug humbug = new Humbug(globalConfig.getUrl(), globalConfig.getEmail(), globalConfig.getApiKey());
-        String stream = HumbugUtil.getDefaultValue(getStream(), globalConfig.getStream());
-        String topic = HumbugUtil.getDefaultValue(HumbugUtil.getDefaultValue(getTopic(), globalConfig.getTopic()), run.getParent().getDisplayName());
+        jenkins.plugins.zulip.DescriptorImpl globalConfig = Jenkins.getInstance().getDescriptorByType(jenkins.plugins.zulip.DescriptorImpl.class);
+        Zulip zulip = new Zulip(globalConfig.getUrl(), globalConfig.getEmail(), globalConfig.getApiKey());
+        String stream = ZulipUtil.getDefaultValue(getStream(), globalConfig.getStream());
+        String topic = ZulipUtil.getDefaultValue(ZulipUtil.getDefaultValue(getTopic(), globalConfig.getTopic()), run.getParent().getDisplayName());
         String expandedMessage = getMessage();
         try {
             expandedMessage = run.getEnvironment(listener).expand(expandedMessage);
         } catch (IOException ex) {
             logger.severe("Failed to expand message variables: " + ex.getMessage());
         }
-        humbug.sendStreamMessage(stream, topic, expandedMessage);
+        zulip.sendStreamMessage(stream, topic, expandedMessage);
     }
 
     public String getStream() {
@@ -93,7 +93,7 @@ public class HumbugSendStep extends Builder implements SimpleBuildStep {
 
         @Override
         public String getHelpFile() {
-            return "/plugin/humbug/help.html";
+            return "/plugin/zulip/help.html";
         }
     }
 

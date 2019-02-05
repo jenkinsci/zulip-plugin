@@ -1,11 +1,11 @@
-package hudson.plugins.humbug;
+package jenkins.plugins.zulip;
 
 import jenkins.model.Jenkins;
 
 /**
  * Static helper methods
  */
-public class HumbugUtil {
+public class ZulipUtil {
 
     /**
      * Tests if value is filled (not null or blank)
@@ -39,7 +39,7 @@ public class HumbugUtil {
      * @return The Jenkins instance Url
      */
     public static String getJenkinsUrl(DescriptorImpl globalConfig) {
-        String jenkinsUrl = getDefaultValue(globalConfig.getHudsonUrl(), Jenkins.getInstance().getRootUrl());
+        String jenkinsUrl = getDefaultValue(globalConfig.getJenkinsUrl(), Jenkins.getInstance().getRootUrl());
         if (jenkinsUrl != null && jenkinsUrl.length() > 0 && !jenkinsUrl.endsWith("/")) {
             jenkinsUrl = jenkinsUrl + "/";
         }

@@ -20,19 +20,19 @@
     <mockserver.version>5.4.1</mockserver.version>
   </properties>
 
-  <artifactId>humbug</artifactId>
+  <artifactId>zulip</artifactId>
   <packaging>hpi</packaging>
   <version>1.0.0-SNAPSHOT</version>
   <name>Jenkins Zulip Plugin</name>
   <description>A build status notifier that sends notifications to Zulip</description>
-  <url>https://wiki.jenkins-ci.org/display/JENKINS/Humbug+Plugin</url>
+  <url>https://wiki.jenkins.io/display/JENKINS/Zulip+Plugin</url>
   <licenses>
     <license><name>MIT license</name><comments>All source code is under the MIT license.</comments></license>
   </licenses>
   <scm>
-    <connection>scm:git:git://github.com/jenkinsci/humbug-plugin.git</connection>
-    <developerConnection>scm:git:git@github.com:jenkinsci/humbug-plugin.git</developerConnection>
-    <url>http://github.com/jenkinsci/humbug-plugin</url>
+    <connection>scm:git:git://github.com/jenkinsci/zulip-plugin</connection>
+    <developerConnection>scm:git:git@github.com:jenkinsci/zulip-plugin.git</developerConnection>
+    <url>https://github.com/jenkinsci/zulip-plugin</url>
     <tag>HEAD</tag>
   </scm>
   <dependencies>
