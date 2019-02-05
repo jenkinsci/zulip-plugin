@@ -9,6 +9,7 @@ import hudson.model.Result;
 import hudson.model.Run;
 import hudson.model.User;
 import hudson.scm.ChangeLogSet;
+import hudson.tasks.test.AbstractTestResultAction;
 import jenkins.model.Jenkins;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,6 +37,9 @@ import static org.powermock.api.mockito.PowerMockito.when;
 @PrepareForTest({Jenkins.class, User.class, ZulipNotifier.class, DescriptorImpl.class,
         AbstractBuild.class, Job.class})
 public class ZulipNotifierTest {
+
+    private static final int TOTAL_TEST_COUNT = 100;
+    private static final int FAILED_TEST_COUNT = 50;
 
     @Mock
     private Jenkins jenkins;
@@ -120,6 +124,16 @@ public class ZulipNotifierTest {
         notifier.perform(build, null, null);
         verify(zulip).sendStreamMessage(streamCaptor.capture(), topicCaptor.capture(), messageCaptor.capture());
         assertEquals("Message should be failed build", "**Project: **TestJob : **Build: **#1: **FAILURE** :x:", messageCaptor.getValue());
+    }
+
+    @Test
+    public void testUnstableBuild() throws Exception {
+        ZulipNotifier notifier = new ZulipNotifier();
+        when(build.getResult()).thenReturn(Result.UNSTABLE);
+        when(build.getAction(AbstractTestResultAction.class)).thenReturn(new FakeTestResultAction());
+        notifier.perform(build, null, null);
+        verify(zulip).sendStreamMessage(streamCaptor.capture(), topicCaptor.capture(), messageCaptor.capture());
+        assertEquals("Message should be unstable build", "**Project: **TestJob : **Build: **#1: **UNSTABLE** :warning: (50 broken tests)", messageCaptor.getValue());
     }
 
     @Test
@@ -225,6 +239,23 @@ public class ZulipNotifierTest {
 
     private FakeChangeLogSCM.EntryImpl createChange(String author, String msg) {
         return new FakeChangeLogSCM.EntryImpl().withAuthor(author).withMsg(msg);
+    }
+
+    private class FakeTestResultAction extends AbstractTestResultAction {
+        @Override
+        public int getFailCount() {
+            return FAILED_TEST_COUNT;
+        }
+
+        @Override
+        public int getTotalCount() {
+            return TOTAL_TEST_COUNT;
+        }
+
+        @Override
+        public Object getResult() {
+            return null;
+        }
     }
 
 }

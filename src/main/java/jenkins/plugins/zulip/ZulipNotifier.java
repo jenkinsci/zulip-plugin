@@ -17,6 +17,7 @@ import hudson.model.TaskListener;
 import hudson.scm.ChangeLogSet;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Publisher;
+import hudson.tasks.test.AbstractTestResultAction;
 import jenkins.tasks.SimpleBuildStep;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -100,10 +101,9 @@ public class ZulipNotifier extends Publisher implements SimpleBuildStep {
             }
             else if (result == Result.UNSTABLE) {
                 message += " :warning:";
-
-                /*int failCount = build.getTestResultAction().getFailCount();
-
-                message += " (" + failCount + " broken tests)";*/
+                AbstractTestResultAction testResultAction = build.getAction(AbstractTestResultAction.class);
+                String failCount = testResultAction != null ? Integer.toString(testResultAction.getFailCount()) : "?";
+                message += " (" + failCount + " broken tests)";
             } else {
                 message += " :x:";
             }
