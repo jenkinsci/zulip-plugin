@@ -1,9 +1,5 @@
 ## Zulip notifier plugin for Jenkins
 
-Please fork and send pull requests to [zulip/zulip-jenkins-plugin](https://github.com/zulip/zulip-jenkins-plugin)
-
-----
-
 This plugin sends [messages](#zulip-send) and [notifications](#zulip-notification) of build statuses to Zulip.
 
 It began its life as a fork of the [Jenkins Campfire plugin](https://github.com/jenkinsci/campfire-plugin).
@@ -20,28 +16,27 @@ It began its life as a fork of the [Jenkins Campfire plugin](https://github.com/
 The Zulip server is configured globally for the whole Jenkins instance.
 
 Minimal configuration is:
-* **Zulip Url** = The Url of your Zulip installation visible from Jenkins instance
-* **Zulip User Email** = E-mail of Zulip bot that will be used to send messages to streams
-* **Zulip API key** = The API key of bot that will be used to send messages to streams
+* **Zulip Url** = The Url of your Zulip installation visible from Jenkins instance.
+* **Zulip User Email** = E-mail of Zulip bot that will be used to send messages to streams.
+* **Zulip API key** = The API key of bot that will be used to send messages to streams.
 
 Other attributes are optional:
 * **Default Stream Name** = The stream messages will be sent to by default.
-You can override this setting per project, but be not to leave it blank in both places
+You can override this setting per project, but be sure not to leave it blank in both places
 or your messages will fail to send.
 * **Default Topic Name** = The topic messages will be sent to by default.
 You can override this setting per project. If you leave it blank at both places,
-Jenkins job name will be used as a topic instead
+Jenkins job name will be used as a topic instead.
 * **Enable Smart Notification** = If enabled, successful build notification will be sent out only if
 one of following criteria is met:
     * There was no previous build
     * The current build failed
+    * The current build is unstable (failed tests)
     * Previous build failed
     
-    In another words, the notifications will not be sent for continuously succesful builds.
+    In another words, the notifications will not be sent for continuously successful builds.
 * **Jenkins URL** = :warning: This parameter is kept just for the sake of backward compatibility.:warning:
 Instead of setting this, configure Jenkins URL in "Manage Jenkins" > "Configure System" > "Jenkins Location" > "Jenkins URL" 
-
-
 
 ![Global Settings](docs/global-settings.png)
 
@@ -64,7 +59,7 @@ and optionally configure destination stream and topic.
 #### Scripted Pipeline
 
 Scripted pipeline have no concept of post build actions, but you can still use the ```zulipNotification```
-step in the try/catch or preferably using the ```catchError``` step
+step in the try/catch or preferably using the ```catchError``` step.
 
 ```jenkins
 node {
@@ -77,7 +72,7 @@ node {
 
 #### Declarative Pipeline
 
-In declarative pipeline, simply use the ```zulipNotification``` step inside your post actions
+In declarative pipeline, simply use the ```zulipNotification``` step inside your post actions.
 
 ```jenkins
 pipeline {
@@ -100,7 +95,7 @@ Zulip send is a build step, that allows you to post arbitrary messages to Zulip 
 You can use this e.g. to notify Zulip that build has started or about various phases the build goes through.
 The step allows you to configure:
 * **Stream** = Optional stream the message will be sent to for this job. Will override default stream from global settings.
-Be sure not to leave it blank in both places 
+Be sure not to leave it blank in both places .
 * **Topic** = Optional topic the message will be sent to for this job. Will override default topic from global settings.
 If blank in both places, job name will be used as topic.
 * **Message** = The message that will sent out. You can use build variables inside the message.
@@ -114,7 +109,7 @@ Optionally configure destination stream and topic.
 
 #### Scripted Pipeline
 
-In scripted pipeline, simply use the ```zulipSend``` step in any stage of the build
+In scripted pipeline, simply use the ```zulipSend``` step in any stage of the build.
 
 ```jenkins
 node {
@@ -128,7 +123,7 @@ node {
 
 #### Declarative Pipeline
 
-In declaretive pipeline, simply use the ```zulipSend``` step in any stage of the build
+In declaretive pipeline, simply use the ```zulipSend``` step in any stage of the build.
 
 ```jenkins
 pipeline {
