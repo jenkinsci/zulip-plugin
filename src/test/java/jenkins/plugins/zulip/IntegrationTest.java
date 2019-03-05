@@ -15,6 +15,7 @@ import org.mockserver.integration.ClientAndServer;
 import org.mockserver.verify.VerificationTimes;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
@@ -61,6 +62,16 @@ public class IntegrationTest {
         f = p.getFormByName("config");
         j.submit(f);
         verifyGlobalConfig();
+    }
+
+    @Test
+    public void testGlobalConfigUncheckedSmartNotifiations() throws Exception {
+        HtmlPage p = j.createWebClient().goTo("configure");
+        HtmlForm f = p.getFormByName("config");
+        f.getInputByName("smartNotify").setChecked(false);
+        j.submit(f);
+        DescriptorImpl globalConfig = j.jenkins.getDescriptorByType(DescriptorImpl.class);
+        assertFalse(globalConfig.isSmartNotify());
     }
 
     @Test

@@ -119,7 +119,7 @@ public class DescriptorImpl extends BuildStepDescriptor<Publisher> {
         stream = (String) json.get("stream");
         topic = (String) json.get("topic");
         jenkinsUrl = (String) json.get("jenkinsUrl");
-        smartNotify = json.get("smartNotify") != null;
+        smartNotify = Boolean.TRUE.equals(json.get("smartNotify"));
         save();
         return super.configure(req, json);
     }
