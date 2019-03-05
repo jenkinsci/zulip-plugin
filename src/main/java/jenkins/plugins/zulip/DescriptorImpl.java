@@ -113,13 +113,13 @@ public class DescriptorImpl extends BuildStepDescriptor<Publisher> {
 
     @Override
     public boolean configure(StaplerRequest req, JSONObject json) throws FormException {
-        url = req.getParameter("url");
-        email = req.getParameter("email");
-        apiKey = req.getParameter("apiKey");
-        stream = req.getParameter("stream");
-        topic = req.getParameter("topic");
-        jenkinsUrl = req.getParameter("jenkinsUrl");
-        smartNotify = req.getParameter("smartNotify") != null;
+        url = (String) json.get("url");
+        email = (String) json.get("email");
+        apiKey = (String) json.get("apiKey");
+        stream = (String) json.get("stream");
+        topic = (String) json.get("topic");
+        jenkinsUrl = (String) json.get("jenkinsUrl");
+        smartNotify = json.get("smartNotify") != null;
         save();
         return super.configure(req, json);
     }
