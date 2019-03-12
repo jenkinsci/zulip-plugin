@@ -87,7 +87,7 @@ public class Zulip {
             }
             return response;
         } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, "Error sending Zulip message: " + e.getMessage());
+            LOGGER.log(Level.SEVERE, "Error sending Zulip message: ", e);
         } finally {
             post.releaseConnection();
         }
