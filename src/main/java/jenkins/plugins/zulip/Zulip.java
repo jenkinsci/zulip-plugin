@@ -1,6 +1,10 @@
 package jenkins.plugins.zulip;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.MalformedURLException;
+import java.net.Proxy;
+import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -11,6 +15,8 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.NameValuePair;
+import org.apache.commons.httpclient.UsernamePasswordCredentials;
+import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.util.EncodingUtil;
 
@@ -36,16 +42,43 @@ public class Zulip {
         this.apiKey = apiKey;
     }
 
-    protected HttpClient getClient() {
+    /**
+     * Configures proxy connection on {@link HttpClient} based on Jenkins settings
+     *
+     * @param httpClient
+     */
+    protected void configureProxy(HttpClient httpClient) throws MalformedURLException {
+        LOGGER.log(Level.FINE, "Setting up HttpClient proxy");
+        ProxyConfiguration proxyConfiguration = Jenkins.getInstance().proxy;
+        if (proxyConfiguration != null && ZulipUtil.isValueSet(proxyConfiguration.name)) {
+            URL urlObj = new URL(url);
+            Proxy proxy = proxyConfiguration.createProxy(urlObj.getHost());
+            if (proxy != Proxy.NO_PROXY) {
+                // Set proxy on http client
+                InetSocketAddress addr = (InetSocketAddress) proxy.address();
+                LOGGER.log(Level.FINE, "Using configured Jenkins proxy host: {0}, port: {1}", new Object[] {addr.getHostName(), addr.getPort()} );
+                httpClient.getHostConfiguration().setProxy(addr.getHostName(), addr.getPort());
+                // Setup user name password credentials
+                if (ZulipUtil.isValueSet(proxyConfiguration.getUserName())) {
+                    LOGGER.log(Level.FINE, "Using proxy authentication username: {0}, password: ******", proxyConfiguration.getUserName());
+                    httpClient.getState().setProxyCredentials(AuthScope.ANY,
+                        new UsernamePasswordCredentials(proxyConfiguration.getUserName(), proxyConfiguration.getPassword()));
+                }
+            } else {
+                LOGGER.log(Level.FINE, "Target url {0} is a no proxy host", url);
+            }
+        } else {
+            LOGGER.fine("Proxy not configured for the Jenkins instance");
+        }
+    }
+
+    protected HttpClient getClient() throws MalformedURLException {
       HttpClient client = new HttpClient();
       // TODO: It would be nice if this version number read from the Maven XML file
       // (which is possible, but annoying)
       // http://stackoverflow.com/questions/8829147/maven-version-number-in-java-file
       client.getParams().setParameter("http.useragent", "ZulipJenkins/0.1.2");
-      ProxyConfiguration proxy = Jenkins.getInstance().proxy;
-      if (proxy != null) {
-          client.getHostConfiguration().setProxy(proxy.name, proxy.port);
-      }
+      configureProxy(client);
       return client;
     }
 
