@@ -23,7 +23,7 @@
 
   <artifactId>zulip</artifactId>
   <packaging>hpi</packaging>
-  <version>1.1.0-SNAPSHOT</version>
+  <version>1.1.0</version>
   <name>Jenkins Zulip Plugin</name>
   <description>A build status notifier that sends notifications to Zulip</description>
   <url>https://wiki.jenkins.io/display/JENKINS/Zulip+Plugin</url>
@@ -34,7 +34,7 @@
     <connection>scm:git:git://github.com/jenkinsci/zulip-plugin</connection>
     <developerConnection>scm:git:git@github.com:jenkinsci/zulip-plugin.git</developerConnection>
     <url>https://github.com/jenkinsci/zulip-plugin</url>
-    <tag>HEAD</tag>
+    <tag>1.1.0</tag>
   </scm>
   <dependencies>
     <dependency>
