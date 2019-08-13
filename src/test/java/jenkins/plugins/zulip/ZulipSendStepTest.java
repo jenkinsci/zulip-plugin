@@ -1,5 +1,7 @@
 package jenkins.plugins.zulip;
 
+import java.util.Arrays;
+
 import hudson.EnvVars;
 import hudson.model.Job;
 import hudson.model.Run;
@@ -17,10 +19,13 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.powermock.api.mockito.PowerMockito.verifyNew;
 import static org.powermock.api.mockito.PowerMockito.when;
@@ -49,6 +54,9 @@ public class ZulipSendStepTest {
 
     @Mock
     private EnvVars envVars;
+
+    @Captor
+    private ArgumentCaptor<String> expandCaptor;
 
     @Captor
     private ArgumentCaptor<String> streamCaptor;
@@ -87,8 +95,9 @@ public class ZulipSendStepTest {
         sendStep.setMessage("message");
         sendStep.perform(run, null, null, taskListener);
         verifyNew(Zulip.class).withArguments("zulipUrl", "jenkins-bot@zulip.com", "secret");
-        verify(envVars).expand(messageCaptor.capture());
-        assertEquals("Should expand message", "message", messageCaptor.getValue());
+        verify(envVars, times(3)).expand(expandCaptor.capture());
+        assertThat("Should expand stream, topic and message", expandCaptor.getAllValues(),
+                is(Arrays.asList("defaultStream", "defaultTopic", "message")));
         verify(zulip).sendStreamMessage(streamCaptor.capture(), topicCaptor.capture(), messageCaptor.capture());
         assertEquals("Should be default stream", "defaultStream", streamCaptor.getValue());
         assertEquals("Should be default topic", "defaultTopic", topicCaptor.getValue());

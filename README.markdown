@@ -24,9 +24,11 @@ Other attributes are optional:
 * **Default Stream Name** = The stream messages will be sent to by default.
 You can override this setting per project, but be sure not to leave it blank in both places
 or your messages will fail to send.
+You can use build variables in default stream name.
 * **Default Topic Name** = The topic messages will be sent to by default.
 You can override this setting per project. If you leave it blank at both places,
 Jenkins job name will be used as a topic instead.
+You can use build variables in default topic name.
 * **Enable Smart Notification** = If enabled, successful build notification will be sent out only if
 one of following criteria is met:
     * There was no previous build
@@ -45,9 +47,11 @@ Instead of setting this, configure Jenkins URL in "Manage Jenkins" > "Configure 
 Zulip notification is a post build action step, that posts notification about build statuses to Zulip Streams.
 The step allows you to configure two optional parameters:
 * **Stream** = The stream messages will be sent to for this job. Will override default stream from global settings.
-Be sure not to leave it blank in both places 
+Be sure not to leave it blank in both places.
+You can use build variables in stream name.
 * **Topic** = The topic messages will be sent to for this job. Will override default topic from global settings.
-If blank in both places, job name will be used as topic. 
+If blank in both places, job name will be used as topic.
+You can use build variables in topic name.
 
 #### Freestyle project 
 
@@ -95,9 +99,11 @@ Zulip send is a build step, that allows you to post arbitrary messages to Zulip 
 You can use this e.g. to notify Zulip that build has started or about various phases the build goes through.
 The step allows you to configure:
 * **Stream** = Optional stream the message will be sent to for this job. Will override default stream from global settings.
-Be sure not to leave it blank in both places .
+Be sure not to leave it blank in both places.
+You can use build variables in the stream name.
 * **Topic** = Optional topic the message will be sent to for this job. Will override default topic from global settings.
 If blank in both places, job name will be used as topic.
+You can use build variables in the topic name.
 * **Message** = The message that will sent out. You can use build variables inside the message.
 
 #### Freestyle project

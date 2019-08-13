@@ -35,18 +35,17 @@ public class ZulipSendStep extends Builder implements SimpleBuildStep {
     }
 
     @Override
-    public void perform(@Nonnull Run<?, ?> run, @Nonnull FilePath workspace, @Nonnull Launcher launcher, @Nonnull TaskListener listener) throws InterruptedException, IOException {
-        jenkins.plugins.zulip.DescriptorImpl globalConfig = Jenkins.getInstance().getDescriptorByType(jenkins.plugins.zulip.DescriptorImpl.class);
+    public void perform(@Nonnull Run<?, ?> run, @Nonnull FilePath workspace, @Nonnull Launcher launcher, @Nonnull TaskListener listener)
+            throws InterruptedException, IOException {
+        jenkins.plugins.zulip.DescriptorImpl globalConfig =
+                Jenkins.getInstance().getDescriptorByType(jenkins.plugins.zulip.DescriptorImpl.class);
         Zulip zulip = new Zulip(globalConfig.getUrl(), globalConfig.getEmail(), globalConfig.getApiKey());
-        String stream = ZulipUtil.getDefaultValue(getStream(), globalConfig.getStream());
-        String topic = ZulipUtil.getDefaultValue(ZulipUtil.getDefaultValue(getTopic(), globalConfig.getTopic()), run.getParent().getDisplayName());
-        String expandedMessage = getMessage();
-        try {
-            expandedMessage = run.getEnvironment(listener).expand(expandedMessage);
-        } catch (IOException ex) {
-            logger.severe("Failed to expand message variables: " + ex.getMessage());
-        }
-        zulip.sendStreamMessage(stream, topic, expandedMessage);
+        String stream = ZulipUtil.expandVariables(run, listener, ZulipUtil.getDefaultValue(getStream(), globalConfig.getStream()));
+        String topic = ZulipUtil.expandVariables(run, listener,
+                ZulipUtil.getDefaultValue(ZulipUtil.getDefaultValue(getTopic(), globalConfig.getTopic()),
+                        run.getParent().getDisplayName()));
+        String message = ZulipUtil.expandVariables(run, listener, getMessage());
+        zulip.sendStreamMessage(stream, topic, message);
     }
 
     public String getStream() {

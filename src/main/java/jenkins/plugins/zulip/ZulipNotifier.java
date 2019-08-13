@@ -66,15 +66,15 @@ public class ZulipNotifier extends Publisher implements SimpleBuildStep {
     @Override
     public boolean perform(AbstractBuild<?, ?> build, Launcher launcher,
                            BuildListener listener) throws InterruptedException, IOException {
-        return publish(build);
+        return publish(build, listener);
     }
 
     @Override
     public void perform(@Nonnull Run<?, ?> run, @Nonnull FilePath workspace, @Nonnull Launcher launcher, @Nonnull TaskListener listener) throws InterruptedException, IOException {
-        publish(run);
+        publish(run, listener);
     }
 
-    private boolean publish(Run<?, ?> build) {
+    private boolean publish(@Nonnull Run<?, ?> build, @Nonnull TaskListener listener) throws InterruptedException {
         if (shouldPublish(build)) {
             String configuredTopic = ZulipUtil.getDefaultValue(topic, DESCRIPTOR.getTopic());
             Result result = getBuildResult(build);
@@ -111,8 +111,10 @@ public class ZulipNotifier extends Publisher implements SimpleBuildStep {
                 message += "\n\n";
                 message += changeString;
             }
-            String destinationStream = ZulipUtil.getDefaultValue(stream, DESCRIPTOR.getStream());
-            String destinationTopic = ZulipUtil.getDefaultValue(configuredTopic, build.getParent().getDisplayName());
+            String destinationStream =
+                    ZulipUtil.expandVariables(build, listener, ZulipUtil.getDefaultValue(stream, DESCRIPTOR.getStream()));
+            String destinationTopic = ZulipUtil.expandVariables(build, listener,
+                    ZulipUtil.getDefaultValue(configuredTopic, build.getParent().getDisplayName()));
             Zulip zulip = new Zulip(DESCRIPTOR.getUrl(), DESCRIPTOR.getEmail(), DESCRIPTOR.getApiKey());
             zulip.sendStreamMessage(destinationStream, destinationTopic, message);
         }
