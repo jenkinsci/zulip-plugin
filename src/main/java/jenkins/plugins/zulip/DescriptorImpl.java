@@ -9,6 +9,7 @@ import hudson.XmlFile;
 import hudson.model.AbstractProject;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Publisher;
+import hudson.util.Secret;
 import hudson.util.XStream2;
 import jenkins.model.Jenkins;
 import net.sf.json.JSONObject;
@@ -23,9 +24,11 @@ public class DescriptorImpl extends BuildStepDescriptor<Publisher> {
 
     private static final Logger logger = Logger.getLogger(DescriptorImpl.class.getName());
 
+    private static final String OLD_CONFIG_FILE_NAME = "hudson.plugins.humbug.HumbugNotifier.xml";
+
     private String url;
     private String email;
-    private String apiKey;
+    private Secret apiKey;
     private String stream;
     private String topic;
     private transient String hudsonUrl; // backwards compatibility
@@ -40,7 +43,7 @@ public class DescriptorImpl extends BuildStepDescriptor<Publisher> {
         } else {
             XStream2 xstream = new XStream2();
             xstream.alias("hudson.plugins.humbug.DescriptorImpl", DescriptorImpl.class);
-            XmlFile oldConfig = new XmlFile(xstream, new File(Jenkins.getInstance().getRootDir(),"hudson.plugins.humbug.HumbugNotifier.xml"));
+            XmlFile oldConfig = new XmlFile(xstream, new File(Jenkins.getInstance().getRootDir(), OLD_CONFIG_FILE_NAME));
             if (oldConfig.exists()) {
                 try {
                     oldConfig.unmarshal(this);
@@ -67,11 +70,11 @@ public class DescriptorImpl extends BuildStepDescriptor<Publisher> {
         this.email = email;
     }
 
-    public String getApiKey() {
+    public Secret getApiKey() {
         return apiKey;
     }
 
-    public void setApiKey(String apiKey) {
+    public void setApiKey(Secret apiKey) {
         this.apiKey = apiKey;
     }
 
@@ -115,12 +118,23 @@ public class DescriptorImpl extends BuildStepDescriptor<Publisher> {
     public boolean configure(StaplerRequest req, JSONObject json) throws FormException {
         url = (String) json.get("url");
         email = (String) json.get("email");
-        apiKey = (String) json.get("apiKey");
+        apiKey = Secret.fromString((String) json.get("apiKey"));
         stream = (String) json.get("stream");
         topic = (String) json.get("topic");
         jenkinsUrl = (String) json.get("jenkinsUrl");
         smartNotify = Boolean.TRUE.equals(json.get("smartNotify"));
         save();
+
+        // Cleanup the configuration file from previous plugin id - humbug
+        File oldConfig = new File(Jenkins.getInstance().getRootDir(), OLD_CONFIG_FILE_NAME);
+        if (oldConfig.exists()) {
+            if (oldConfig.delete()) {
+                logger.log(Level.INFO, "Old humbug configuration file successfully cleaned up.");
+            } else {
+                logger.log(Level.WARNING, "Failed to cleanup old humbug configuration file.");
+            }
+        }
+
         return super.configure(req, json);
     }
 

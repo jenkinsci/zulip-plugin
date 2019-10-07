@@ -13,6 +13,7 @@ import hudson.model.Run;
 import hudson.model.User;
 import hudson.scm.ChangeLogSet;
 import hudson.tasks.test.AbstractTestResultAction;
+import hudson.util.Secret;
 import jenkins.model.Jenkins;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,7 +32,10 @@ import org.powermock.reflect.Whitebox;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -40,7 +44,7 @@ import static org.powermock.api.mockito.PowerMockito.when;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({Jenkins.class, User.class, ZulipNotifier.class, DescriptorImpl.class,
-        AbstractBuild.class, Job.class})
+        AbstractBuild.class, Job.class, Secret.class})
 public class ZulipNotifierTest {
 
     private static final int TOTAL_TEST_COUNT = 100;
@@ -48,6 +52,9 @@ public class ZulipNotifierTest {
 
     @Mock
     private Jenkins jenkins;
+
+    @Mock
+    private Secret secret;
 
     @Mock
     private Zulip zulip;
@@ -99,7 +106,7 @@ public class ZulipNotifierTest {
         });
         when(descMock.getUrl()).thenReturn("zulipUrl");
         when(descMock.getEmail()).thenReturn("jenkins-bot@zulip.com");
-        when(descMock.getApiKey()).thenReturn("secret");
+        when(descMock.getApiKey()).thenReturn(secret);
         when(descMock.getStream()).thenReturn("defaultStream");
         when(descMock.getTopic()).thenReturn("defaultTopic");
         PowerMockito.whenNew(DescriptorImpl.class).withAnyArguments().thenReturn(descMock);
@@ -123,7 +130,7 @@ public class ZulipNotifierTest {
     public void testShouldUseDefaults() throws Exception {
         ZulipNotifier notifier = new ZulipNotifier();
         notifier.perform(build, null, buildListener);
-        verifyNew(Zulip.class).withArguments("zulipUrl", "jenkins-bot@zulip.com", "secret");
+        verifyNew(Zulip.class).withArguments(eq("zulipUrl"), eq("jenkins-bot@zulip.com"), any(Secret.class));
         verify(envVars, times(2)).expand(expandCaptor.capture());
         assertThat("Should expand stream, topic and message", expandCaptor.getAllValues(),
                 is(Arrays.asList("defaultStream", "defaultTopic")));

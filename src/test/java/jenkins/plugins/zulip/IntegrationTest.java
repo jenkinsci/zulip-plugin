@@ -3,6 +3,7 @@ package jenkins.plugins.zulip;
 import com.gargoylesoftware.htmlunit.html.HtmlForm;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import hudson.model.FreeStyleProject;
+import hudson.util.Secret;
 import org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
 import org.junit.AfterClass;
@@ -120,7 +121,7 @@ public class IntegrationTest {
         DescriptorImpl globalConfig = j.jenkins.getDescriptorByType(DescriptorImpl.class);
         assertEquals("ZulipUrl", globalConfig.getUrl());
         assertEquals("jenkins-bot@zulip.com", globalConfig.getEmail());
-        assertEquals("secret", globalConfig.getApiKey());
+        assertEquals("secret", Secret.toString(globalConfig.getApiKey()));
         assertEquals("defaultStream", globalConfig.getStream());
         assertEquals("defaultTopic", globalConfig.getTopic());
         assertTrue(globalConfig.isSmartNotify());

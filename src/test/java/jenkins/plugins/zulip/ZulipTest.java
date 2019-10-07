@@ -4,6 +4,7 @@ import java.net.URLEncoder;
 import java.nio.charset.Charset;
 
 import com.google.common.net.HttpHeaders;
+import hudson.util.Secret;
 import jenkins.model.Jenkins;
 import org.apache.commons.httpclient.NameValuePair;
 import org.junit.AfterClass;
@@ -18,19 +19,23 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import static org.mockito.Matchers.any;
 import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
 import static org.mockserver.model.StringBody.exact;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(Jenkins.class)
+@PrepareForTest({Jenkins.class, Secret.class})
 public class ZulipTest {
 
     private static ClientAndServer mockServer;
 
     @Mock
     private Jenkins jenkins;
+
+    @Mock
+    private Secret secret;
 
     @BeforeClass
     public static void startMockServer() {
@@ -46,13 +51,15 @@ public class ZulipTest {
     public void setUp() {
         PowerMockito.mockStatic(Jenkins.class);
         when(Jenkins.getInstance()).thenReturn(jenkins);
+        PowerMockito.mockStatic(Secret.class);
+        when(Secret.toString(any(Secret.class))).thenReturn("secret");
     }
 
     @Test
     public void testSendStreamMessage() throws Exception {
         mockServer.reset();
         mockServer.when(request().withPath("/api/v1/messages")).respond(response().withStatusCode(200));
-        Zulip zulip = new Zulip("http://localhost:1080", "jenkins-bot@zulip.com", "secret");
+        Zulip zulip = new Zulip("http://localhost:1080", "jenkins-bot@zulip.com", secret);
         zulip.sendStreamMessage("testStreamůř", "testTopic", "testMessage");
         mockServer.verify(
                 request()
@@ -78,21 +85,21 @@ public class ZulipTest {
     public void testFailGracefullyOnError() {
         mockServer.reset();
         mockServer.when(request().withPath("/api/v1/messages")).respond(response().withStatusCode(500));
-        Zulip zulip = new Zulip("http://localhost:1080", "jenkins-bot@zulip.com", "secret");
+        Zulip zulip = new Zulip("http://localhost:1080", "jenkins-bot@zulip.com", secret);
         // Test that this does not throw exception
         zulip.sendStreamMessage("testStream", "testTopic", "testMessage");
     }
 
     @Test
     public void testFailGracefullyWhenUnreachable() {
-        Zulip zulip = new Zulip("http://localhost:1081", "jenkins-bot@zulip.com", "secret");
+        Zulip zulip = new Zulip("http://localhost:1081", "jenkins-bot@zulip.com", secret);
         // Test that this does not throw exception
         zulip.sendStreamMessage("testStream", "testTopic", "testMessage");
     }
 
     @Test
     public void testFailGracefullyUnknonwHost() {
-        Zulip zulip = new Zulip("http://unreachable:1080", "jenkins-bot@zulip.com", "secret");
+        Zulip zulip = new Zulip("http://unreachable:1080", "jenkins-bot@zulip.com", secret);
         // Test that this does not throw exception
         zulip.sendStreamMessage("testStream", "testTopic", "testMessage");
     }

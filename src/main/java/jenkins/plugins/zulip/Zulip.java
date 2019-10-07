@@ -10,6 +10,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import hudson.ProxyConfiguration;
+import hudson.util.Secret;
 import jenkins.model.Jenkins;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.httpclient.HttpClient;
@@ -32,14 +33,14 @@ public class Zulip {
     private String apiKey;
     private static final Logger LOGGER = Logger.getLogger(Zulip.class.getName());
 
-    public Zulip(String url, String email, String apiKey) {
+    public Zulip(String url, String email, Secret apiKey) {
         super();
         if (url != null && url.length() > 0 && !url.endsWith("/") ) {
             url = url + "/";
         }
         this.url = url;
         this.email = email;
-        this.apiKey = apiKey;
+        this.apiKey = Secret.toString(apiKey);
     }
 
     /**

@@ -21,7 +21,7 @@
         <f:textbox name="email" value="${descriptor.getEmail()}" />
     </f:entry>
     <f:entry title="Zulip API Key" help="/plugin/zulip/help-globalConfig-apiKey.html">
-        <f:textbox name="apiKey" value="${descriptor.getApiKey()}" />
+        <f:password name="apiKey" value="${descriptor.getApiKey()}" />
     </f:entry>
     <f:entry title="Default Stream Name" help="/plugin/zulip/help-globalConfig-stream.html">
         <f:textbox name="stream" value="${descriptor.getStream()}" />
