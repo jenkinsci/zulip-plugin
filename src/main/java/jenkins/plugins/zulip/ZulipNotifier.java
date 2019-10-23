@@ -1,8 +1,14 @@
 package jenkins.plugins.zulip;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.annotation.Nonnull;
 
@@ -36,6 +42,18 @@ public class ZulipNotifier extends Publisher implements SimpleBuildStep {
 
     @Extension
     public static final DescriptorImpl DESCRIPTOR = new DescriptorImpl();
+
+    // Read this great article about matching e-mails with regexps.
+    // https://fightingforalostcause.net/content/misc/2006/compare-email-regex.php
+    // In general, it always depends on what you need and doing it the most generic way is hard.
+    // However, for this particular task we want to allow as many email addresses as possible.
+    // Even if the address that we match is incorrect we better let it through as we not
+    // a Zulip server and it's not our responsibility to validate those addresses.
+    // BTW, Zulip uses django.core.validators.validate_email for validating email addresses.
+    private static final String NAME_CHAR_GROUP = "[\\w!#$%&'*+/=?^`{|}~-]+";
+    public static final Pattern EMAIL_PATTERN =
+            Pattern.compile("((<?\\s*)(?<email>" + NAME_CHAR_GROUP + "(?:\\." + NAME_CHAR_GROUP + ")*@" +
+                            "(?!-)(?:[\\w-]+\\.)*[\\w-]+)(\\s*>)?)");
 
     @DataBoundConstructor
     public ZulipNotifier() {
@@ -89,68 +107,113 @@ public class ZulipNotifier extends Publisher implements SimpleBuildStep {
             String configuredTopic = ZulipUtil.getDefaultValue(topic, DESCRIPTOR.getTopic());
             Result result = getBuildResult(build);
             String changeString = "";
+            List<CommitInfo> changes = null;
             try {
-                changeString = getChangeSet(build);
+                changes = getChangeSet(build);
+                changeString = buildChangeString(changes);
             } catch (Exception e) {
                 logger.log(Level.WARNING,
-                        "Exception while computing changes since last build:\n"
+                        "Exception while computing changes since the last build:\n"
                                 + ExceptionUtils.getStackTrace(e));
-                changeString += "\nError determining changes since last build - please contact support@zulip.com.";
+                changeString = "\nError determining changes since the last build - please contact support@zulip.com.";
             }
-            String resultString = result.toString();
-            String message = "";
+
+            StringBuilder message = new StringBuilder();
             // If we are sending to fixed topic, we will want to add project name into the message
             if (ZulipUtil.isValueSet(configuredTopic)) {
-                message += hundsonUrlMesssage("Project: ", build.getParent().getDisplayName(), build.getParent().getUrl(), DESCRIPTOR) + " : ";
+                message.append(hundsonUrlMesssage("Project: ", build.getParent().getDisplayName(), build.getParent().getUrl(), DESCRIPTOR));
+                message.append(" : ");
             }
-            message += hundsonUrlMesssage("Build: ", build.getDisplayName(), build.getUrl(), DESCRIPTOR);
-            message += ": ";
-            message += "**" + resultString + "**";
+            message.append(hundsonUrlMesssage("Build: ", build.getDisplayName(), build.getUrl(), DESCRIPTOR));
+            message.append(": **").append(result.toString()).append("**");
             if (result == Result.SUCCESS) {
-                message += " :check_mark:";
-            }
-            else if (result == Result.UNSTABLE) {
-                message += " :warning:";
+                message.append(" :check_mark:");
+            } else if (result == Result.UNSTABLE) {
+                message.append(" :warning:");
                 AbstractTestResultAction testResultAction = build.getAction(AbstractTestResultAction.class);
                 String failCount = testResultAction != null ? Integer.toString(testResultAction.getFailCount()) : "?";
-                message += " (" + failCount + " broken tests)";
+                message.append(" (").append(failCount).append(" broken tests)");
             } else {
-                message += " :cross_mark:";
+                message.append(" :cross_mark:");
             }
+
             if (changeString.length() > 0) {
-                message += "\n\n";
-                message += changeString;
+                message.append("\n\n").append(changeString);
             }
+
             String destinationStream =
                     ZulipUtil.expandVariables(build, listener, ZulipUtil.getDefaultValue(stream, DESCRIPTOR.getStream()));
             String destinationTopic = ZulipUtil.expandVariables(build, listener,
                     ZulipUtil.getDefaultValue(configuredTopic, build.getParent().getDisplayName()));
             Zulip zulip = new Zulip(DESCRIPTOR.getUrl(), DESCRIPTOR.getEmail(), DESCRIPTOR.getApiKey());
-            zulip.sendStreamMessage(destinationStream, destinationTopic, message);
+            zulip.sendStreamMessage(destinationStream, destinationTopic, message.toString());
+
+            if (DESCRIPTOR.isPersonalNotify() && changes != null && !changes.isEmpty()) {
+                Set<String> notifiedAuthors = new HashSet<String>();
+                for (CommitInfo change : changes) {
+                    if (ZulipUtil.isValueSet(change.email) && !notifiedAuthors.contains(change.email)) {
+                        notifiedAuthors.add(change.email);
+                        zulip.sendPrivateMessage(change.email, message.toString());
+                    }
+                }
+            }
         }
         return true;
     }
 
-    private String getChangeSet(Run<?, ?> build) {
+    private String buildChangeString(List<CommitInfo> changes) {
         StringBuilder changeString = new StringBuilder();
+        if (changes == null) {
+            changeString.append("Could not determine changes since the last build.");
+        } else if (!changes.isEmpty()) {
+            // If there seems to be a commit message at all, try to list all the changes.
+            changeString.append("Changes since the last build:\n");
+            for (CommitInfo change : changes) {
+                changeString.append("\n* `").append(change.author).append("` ").append(change.message);
+            }
+        }
+        return changeString.toString();
+    }
+
+    private List<CommitInfo> getChangeSet(Run<?, ?> build) {
+        List<CommitInfo> result = new ArrayList<CommitInfo>();
         RunChangeSetWrapper wrapper = new RunChangeSetWrapper(build);
         if (!wrapper.hasChangeSetComputed()) {
-            changeString.append("Could not determine changes since last build.");
+            return null;
         } else if (wrapper.hasChangeSet()) {
-            // If there seems to be a commit message at all, try to list all the changes.
-            changeString.append("Changes since last build:\n");
             for (ChangeLogSet<? extends ChangeLogSet.Entry> changeLogSet : wrapper.getChangeSets()) {
                 for (ChangeLogSet.Entry e : changeLogSet) {
                     String commitMsg = e.getMsg().trim();
                     if (commitMsg.length() > 47) {
                         commitMsg = commitMsg.substring(0, 46) + "...";
                     }
+                    String email = getEmail(e);
                     String author = e.getAuthor().getDisplayName();
-                    changeString.append("\n* `").append(author).append("` ").append(commitMsg);
+                    result.add(new CommitInfo(author, email.toLowerCase(), commitMsg));
                 }
             }
         }
-        return changeString.toString();
+        return result;
+    }
+
+    private static String getEmail(ChangeLogSet.Entry entry) {
+        String email = "";
+        // GitChangeSet uses email as author's ID.
+        if (ZulipUtil.isValueSet(entry.getAuthor().getId())) {
+            email = entry.getAuthor().getId();
+        }
+        Matcher matcher = EMAIL_PATTERN.matcher(email);
+        if (!matcher.find()) {
+            // If ID doesn't look like an email then reset it.
+            email = "";
+        }
+        // MercurialChangeSet leaves email in the display name.
+        matcher = EMAIL_PATTERN.matcher(entry.getAuthor().getDisplayName());
+        if (matcher.find()) {
+            email = matcher.group("email");
+        }
+        // Subversion doesn't normally use emails for authors identification, so "email" can be empty.
+        return email;
     }
 
     /**

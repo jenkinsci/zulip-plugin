@@ -34,6 +34,7 @@ public class DescriptorImpl extends BuildStepDescriptor<Publisher> {
     private transient String hudsonUrl; // backwards compatibility
     private String jenkinsUrl;
     private boolean smartNotify;
+    private boolean personalNotify;
 
     public DescriptorImpl() {
         super(ZulipNotifier.class);
@@ -110,6 +111,14 @@ public class DescriptorImpl extends BuildStepDescriptor<Publisher> {
         this.smartNotify = smartNotify;
     }
 
+    public boolean isPersonalNotify() {
+        return personalNotify;
+    }
+
+    public void setPersonalNotify(boolean personalNotify) {
+        this.personalNotify = personalNotify;
+    }
+
     public boolean isApplicable(Class<? extends AbstractProject> aClass) {
         return true;
     }
@@ -123,6 +132,7 @@ public class DescriptorImpl extends BuildStepDescriptor<Publisher> {
         topic = (String) json.get("topic");
         jenkinsUrl = (String) json.get("jenkinsUrl");
         smartNotify = Boolean.TRUE.equals(json.get("smartNotify"));
+        personalNotify = Boolean.TRUE.equals(json.get("personalNotify"));
         save();
 
         // Cleanup the configuration file from previous plugin id - humbug

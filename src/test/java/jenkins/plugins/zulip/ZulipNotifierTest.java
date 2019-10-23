@@ -87,6 +87,9 @@ public class ZulipNotifierTest {
     private ArgumentCaptor<String> topicCaptor;
 
     @Captor
+    private ArgumentCaptor<String> addresseeCaptor;
+
+    @Captor
     private ArgumentCaptor<String> messageCaptor;
 
     @Before
@@ -210,10 +213,30 @@ public class ZulipNotifierTest {
         verify(zulip).sendStreamMessage(streamCaptor.capture(), topicCaptor.capture(), messageCaptor.capture());
         assertEquals("Message should contain change log", "**Project: **TestJob : **Build: **#1: **SUCCESS** :check_mark:\n" +
                 "\n" +
-                "Changes since last build:\n" +
+                "Changes since the last build:\n" +
                 "\n" +
                 "* `Author 1` Short Commit Msg\n" +
                 "* `Author 2` This is a very long commit message that will g...", messageCaptor.getValue());
+    }
+
+    @Test
+    public void testChangeLogSetWithEmails() throws Exception {
+        List<FakeChangeLogSCM.EntryImpl> changes = new ArrayList<>();
+        changes.add(createChange("Author 1", "Short Commit Msg"));
+        changes.add(createChange("Author 2 <author2@example.com>", "Commit Msg #2"));
+        changes.add(createChange("author1@example.com", "Commit Msg #3"));
+        FakeChangeLogSCM.FakeChangeLogSet changeLogSet = new FakeChangeLogSCM.FakeChangeLogSet(build, changes);
+        when(build.getChangeSet()).thenReturn(changeLogSet);
+        ZulipNotifier notifier = new ZulipNotifier();
+        notifier.perform(build, null, buildListener);
+        verify(zulip).sendStreamMessage(streamCaptor.capture(), topicCaptor.capture(), messageCaptor.capture());
+        assertEquals("Message should contain change log", "**Project: **TestJob : **Build: **#1: **SUCCESS** :check_mark:\n" +
+                "\n" +
+                "Changes since the last build:\n" +
+                "\n" +
+                "* `Author 1` Short Commit Msg\n" +
+                "* `Author 2 <author2@example.com>` Commit Msg #2\n" +
+                "* `author1@example.com` Commit Msg #3", messageCaptor.getValue());
     }
 
     @Test
@@ -268,6 +291,59 @@ public class ZulipNotifierTest {
         } finally {
             // Be sure to return global setting back to original setup so other tests dont fail
             when(SmartNotification.isSmartNotifyEnabled(anyString(), anyBoolean())).thenReturn(true);
+        }
+    }
+
+    @Test
+    public void testPersonalNotifyNoChanges() throws Exception {
+        try {
+            ZulipNotifier notifier = new ZulipNotifier();
+            when(descMock.isSmartNotify()).thenReturn(true);
+            when(descMock.isPersonalNotify()).thenReturn(true);
+            Whitebox.setInternalState(ZulipNotifier.class, descMock);
+            notifier.perform(build, null, buildListener);
+            verify(zulip, times(0)).sendPrivateMessage(addresseeCaptor.capture(), messageCaptor.capture());
+        } finally {
+            when(descMock.isSmartNotify()).thenReturn(false);
+            when(descMock.isPersonalNotify()).thenReturn(false);
+            Whitebox.setInternalState(ZulipNotifier.class, descMock);
+        }
+    }
+
+    @Test
+    public void testPersonalNotifyWithChanges() throws Exception {
+        List<FakeChangeLogSCM.EntryImpl> changes = new ArrayList<>();
+        changes.add(createChange("Author 1", "Commit Msg #1"));
+        changes.add(createChange("Author 2 <author2@example.com>", "Commit Msg #2"));
+        changes.add(createChange("author2@example.com", "Commit Msg #3"));
+        changes.add(createChange("<Author2@Example.Com>", "Commit Msg #4"));
+        changes.add(createChange("Author 2", "Commit Msg #5"));
+        FakeChangeLogSCM.FakeChangeLogSet changeLogSet = new FakeChangeLogSCM.FakeChangeLogSet(build, changes);
+        when(build.getChangeSet()).thenReturn(changeLogSet);
+
+        try {
+            ZulipNotifier notifier = new ZulipNotifier();
+            when(descMock.isSmartNotify()).thenReturn(true);
+            when(descMock.isPersonalNotify()).thenReturn(true);
+            Whitebox.setInternalState(ZulipNotifier.class, descMock);
+            notifier.perform(build, null, buildListener);
+            verify(zulip).sendPrivateMessage(addresseeCaptor.capture(), messageCaptor.capture());
+            assertEquals("Message should have an addressee", "author2@example.com", addresseeCaptor.getValue());
+            assertEquals("Message should contain change log",
+                    "**Project: **TestJob : **Build: **#1: **SUCCESS** :check_mark:\n" +
+                    "\n" +
+                    "Changes since the last build:\n" +
+                    "\n" +
+                    "* `Author 1` Commit Msg #1\n" +
+                    "* `Author 2 <author2@example.com>` Commit Msg #2\n" +
+                    "* `author2@example.com` Commit Msg #3\n" +
+                    "* `<Author2@Example.Com>` Commit Msg #4\n" +
+                    "* `Author 2` Commit Msg #5",
+                    messageCaptor.getValue());
+        } finally {
+            when(descMock.isSmartNotify()).thenReturn(false);
+            when(descMock.isPersonalNotify()).thenReturn(false);
+            Whitebox.setInternalState(ZulipNotifier.class, descMock);
         }
     }
 

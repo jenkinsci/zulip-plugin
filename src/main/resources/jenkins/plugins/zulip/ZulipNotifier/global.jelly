@@ -32,6 +32,9 @@
     <f:entry title="Enable Smart Notification" help="/plugin/zulip/help-globalConfig-smartNotify.html">
         <f:checkbox name="smartNotify" checked="${descriptor.isSmartNotify()}" />
     </f:entry>
+    <f:entry title="Send Notifications Personally" help="/plugin/zulip/help-globalConfig-personalNotify.html">
+        <f:checkbox name="personalNotify" checked="${descriptor.isPersonalNotify()}" />
+    </f:entry>
     <f:entry title="Jenkins URL" help="/plugin/zulip/help-globalConfig-jenkinsUrl.html">
         <f:textbox name="jenkinsUrl" value="${descriptor.getJenkinsUrl()}" />
     </f:entry>

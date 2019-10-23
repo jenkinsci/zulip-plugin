@@ -137,4 +137,13 @@ public class Zulip {
                                 new NameValuePair("content", message)};
         return post("messages", body);
     }
+
+    public String sendPrivateMessage(String addressee, String message) {
+        NameValuePair[] body = {new NameValuePair("api-key", this.getApiKey()),
+                                new NameValuePair("email",   this.getEmail()),
+                                new NameValuePair("type",    "private"),
+                                new NameValuePair("to",      addressee),
+                                new NameValuePair("content", message)};
+        return post("messages", body);
+    }
 }
