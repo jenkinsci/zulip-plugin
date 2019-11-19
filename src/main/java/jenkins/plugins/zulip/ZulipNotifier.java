@@ -60,7 +60,7 @@ public class ZulipNotifier extends Publisher implements SimpleBuildStep {
 
     @Override
     public BuildStepMonitor getRequiredMonitorService() {
-        return BuildStepMonitor.BUILD;
+        return BuildStepMonitor.NONE;
     }
 
     @Override
