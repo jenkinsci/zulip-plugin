@@ -52,6 +52,8 @@ You can use build variables in stream name.
 * **Topic** = The topic messages will be sent to for this job. Will override default topic from global settings.
 If blank in both places, job name will be used as topic.
 You can use build variables in topic name.
+* **Smart Notification** = Allows you override global smart notification setting and enable / disabled
+smart notification for this job. The job uses global smart notification seting by default. 
 
 #### Freestyle project 
 
@@ -70,7 +72,7 @@ node {
     catchError {
         // ... Your build stages ...
     }
-    zulipNotification stream: 'coolproject', topic: 'jenkins'
+    zulipNotification stream: 'coolproject', topic: 'jenkins', smartNotification: 'enabled'
 }
 ```
 

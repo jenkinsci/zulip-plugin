@@ -33,9 +33,9 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -44,7 +44,7 @@ import static org.powermock.api.mockito.PowerMockito.when;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({Jenkins.class, User.class, ZulipNotifier.class, DescriptorImpl.class,
-        AbstractBuild.class, Job.class, Secret.class})
+        AbstractBuild.class, Job.class, Secret.class, SmartNotification.class})
 public class ZulipNotifierTest {
 
     private static final int TOTAL_TEST_COUNT = 100;
@@ -124,6 +124,8 @@ public class ZulipNotifierTest {
                 return (String) invocation.getArguments()[0];
             }
         });
+        PowerMockito.mockStatic(SmartNotification.class);
+        when(SmartNotification.isSmartNotifyEnabled(anyString(), anyBoolean())).thenReturn(false);
     }
 
     @Test
@@ -236,8 +238,7 @@ public class ZulipNotifierTest {
     public void testSmartNotify() throws Exception {
         try {
             ZulipNotifier notifier = new ZulipNotifier();
-            when(descMock.isSmartNotify()).thenReturn(true);
-            Whitebox.setInternalState(ZulipNotifier.class, descMock);
+            when(SmartNotification.isSmartNotifyEnabled(anyString(), anyBoolean())).thenReturn(true);
             // If there was no previous build, notification should be sent no matter the result
             reset(zulip);
             when(build.getPreviousBuild()).thenReturn(null);
@@ -266,8 +267,7 @@ public class ZulipNotifierTest {
             verify(zulip, times(1)).sendStreamMessage(anyString(), anyString(), anyString());
         } finally {
             // Be sure to return global setting back to original setup so other tests dont fail
-            when(descMock.isSmartNotify()).thenReturn(false);
-            Whitebox.setInternalState(ZulipNotifier.class, descMock);
+            when(SmartNotification.isSmartNotifyEnabled(anyString(), anyBoolean())).thenReturn(true);
         }
     }
 

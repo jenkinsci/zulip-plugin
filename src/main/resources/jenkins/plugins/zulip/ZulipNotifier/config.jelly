@@ -7,4 +7,11 @@
     <f:entry title="Topic" field="topic" help="/plugin/zulip/help-notification-topic.html">
         <f:textbox />
     </f:entry>
+    <f:entry title="Smart Notification" name="smartNotification" field="smartNotification" help="/plugin/zulip/help-notification-smart.html">
+        <select name="smartNotification">
+            <f:option value="global" selected="${instance.smartNotification.equalsIgnoreCase('global')}">Global Settings</f:option>
+            <f:option value="enabled" selected="${instance.smartNotification.equalsIgnoreCase('enabled')}">Enabled</f:option>
+            <f:option value="disabled" selected="${instance.smartNotification.equalsIgnoreCase('disabled')}">Disabled</f:option>
+        </select>
+    </f:entry>
 </j:jelly>

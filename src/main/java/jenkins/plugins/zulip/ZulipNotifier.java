@@ -32,6 +32,7 @@ public class ZulipNotifier extends Publisher implements SimpleBuildStep {
 
     private String stream;
     private String topic;
+    private String smartNotification;
 
     @Extension
     public static final DescriptorImpl DESCRIPTOR = new DescriptorImpl();
@@ -56,6 +57,15 @@ public class ZulipNotifier extends Publisher implements SimpleBuildStep {
     @DataBoundSetter
     public void setTopic(String topic) {
         this.topic = topic;
+    }
+
+    public String getSmartNotification() {
+        return smartNotification;
+    }
+
+    @DataBoundSetter
+    public void setSmartNotification(String smartNotification) {
+        this.smartNotification = smartNotification;
     }
 
     @Override
@@ -154,8 +164,8 @@ public class ZulipNotifier extends Publisher implements SimpleBuildStep {
      *
      * @return true if build should be published
      */
-    private static boolean shouldPublish(Run<?, ?> build) {
-        if (DESCRIPTOR.isSmartNotify()) {
+    private boolean shouldPublish(Run<?, ?> build) {
+        if (SmartNotification.isSmartNotifyEnabled(smartNotification, DESCRIPTOR.isSmartNotify())) {
             Run<?, ?> previousBuild = build.getPreviousBuild();
             if (previousBuild == null ||
                     getBuildResult(build) != Result.SUCCESS ||
