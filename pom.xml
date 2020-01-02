@@ -31,7 +31,7 @@
     <license><name>MIT license</name><comments>All source code is under the MIT license.</comments></license>
   </licenses>
   <scm>
-    <connection>scm:git:git://github.com/jenkinsci/zulip-plugin</connection>
+    <connection>scm:git:git@github.com:jenkinsci/zulip-plugin.git</connection>
     <developerConnection>scm:git:git@github.com:jenkinsci/zulip-plugin.git</developerConnection>
     <url>https://github.com/jenkinsci/zulip-plugin</url>
     <tag>HEAD</tag>
