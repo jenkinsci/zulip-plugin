@@ -156,7 +156,7 @@ public class ZulipNotifierTest {
         when(build.getResult()).thenReturn(Result.FAILURE);
         notifier.perform(build, null, buildListener);
         verify(zulip).sendStreamMessage(streamCaptor.capture(), topicCaptor.capture(), messageCaptor.capture());
-        assertEquals("Message should be failed build", "**Project: **TestJob : **Build: **#1: **FAILURE** :x:", messageCaptor.getValue());
+        assertEquals("Message should be failed build", "**Project: **TestJob : **Build: **#1: **FAILURE** :cross_mark:", messageCaptor.getValue());
     }
 
     @Test

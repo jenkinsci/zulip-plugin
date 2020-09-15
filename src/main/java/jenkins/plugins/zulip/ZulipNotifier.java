@@ -115,7 +115,7 @@ public class ZulipNotifier extends Publisher implements SimpleBuildStep {
                 String failCount = testResultAction != null ? Integer.toString(testResultAction.getFailCount()) : "?";
                 message += " (" + failCount + " broken tests)";
             } else {
-                message += " :x:";
+                message += " :cross_mark:";
             }
             if (changeString.length() > 0) {
                 message += "\n\n";
