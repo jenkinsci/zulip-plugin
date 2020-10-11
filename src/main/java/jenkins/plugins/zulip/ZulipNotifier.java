@@ -167,9 +167,8 @@ public class ZulipNotifier extends Publisher implements SimpleBuildStep {
     private boolean shouldPublish(Run<?, ?> build) {
         if (SmartNotification.isSmartNotifyEnabled(smartNotification, DESCRIPTOR.isSmartNotify())) {
             Run<?, ?> previousBuild = build.getPreviousBuild();
-            if (previousBuild == null ||
-                    getBuildResult(build) != Result.SUCCESS ||
-                    getBuildResult(previousBuild) != Result.SUCCESS) {
+            
+            if (previousBuild == null || getBuildResult(build) != getBuildResult(previousBuild)) {
                 return true;
             }
         } else {
