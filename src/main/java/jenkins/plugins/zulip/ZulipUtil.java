@@ -5,6 +5,7 @@ import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
 
+import hudson.model.ModelObject;
 import hudson.model.Run;
 import hudson.model.TaskListener;
 import jenkins.model.Jenkins;
@@ -71,6 +72,25 @@ public class ZulipUtil {
             logger.severe("Failed to expand message variables: " + ex.getMessage());
         }
         return expandedMessage;
+    }
+
+    /**
+     * Helper method to display a Jenkins model object with a link.
+     *
+     * @param object       The Jenkins model object (item, run, ...)
+     * @param url          The Url to the Jenkins model object
+     * @param globalConfig Zulip global configuration
+     * @return A string representing the Jenkins model object, with a link if possible.
+     */
+    public static String displayObjectWithLink(ModelObject object, String url, DescriptorImpl globalConfig) {
+        String message = object.getDisplayName();
+        if (url != null) {
+            String jenkinsUrl = ZulipUtil.getJenkinsUrl(globalConfig);
+            if (ZulipUtil.isValueSet(jenkinsUrl)) {
+                message = "[" + message + "](" + jenkinsUrl + url + ")";
+            }
+        }
+        return message;
     }
 
 }

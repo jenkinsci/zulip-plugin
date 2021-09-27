@@ -1,11 +1,5 @@
 package jenkins.plugins.zulip;
 
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import javax.annotation.Nonnull;
-
 import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
@@ -22,6 +16,13 @@ import jenkins.tasks.SimpleBuildStep;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
+
+import javax.annotation.Nonnull;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import static jenkins.plugins.zulip.ZulipUtil.displayObjectWithLink;
 
 /**
  * Sends build result notification to stream based on the configuration
@@ -101,9 +102,9 @@ public class ZulipNotifier extends Publisher implements SimpleBuildStep {
             String message = "";
             // If we are sending to fixed topic, we will want to add project name into the message
             if (ZulipUtil.isValueSet(configuredTopic)) {
-                message += hundsonUrlMesssage("Project: ", build.getParent().getDisplayName(), build.getParent().getUrl(), DESCRIPTOR) + " : ";
+                message += "**Project: **" + displayObjectWithLink(build.getParent(), build.getParent().getUrl(), DESCRIPTOR) + " : ";
             }
-            message += hundsonUrlMesssage("Build: ", build.getDisplayName(), build.getUrl(), DESCRIPTOR);
+            message += "**Build: **" + displayObjectWithLink(build, build.getUrl(), DESCRIPTOR);
             message += ": ";
             message += "**" + resultString + "**";
             if (result == Result.SUCCESS) {
@@ -176,25 +177,6 @@ public class ZulipNotifier extends Publisher implements SimpleBuildStep {
             return true;
         }
         return false;
-    }
-
-    /**
-     * Helper method to format build parameter as link to Jenkins with prefix
-     *
-     * @param prefix       The prefix to add to the parameter (will be formatted as bold)
-     * @param display      The build parameter
-     * @param url          The Url to the Jenkins item
-     * @param globalConfig Global step config
-     * @return Formatted parameter
-     */
-    private static String hundsonUrlMesssage(String prefix, String display, String url, DescriptorImpl globalConfig) {
-        String message = display;
-        String jenkinsUrl = ZulipUtil.getJenkinsUrl(globalConfig);
-        if (ZulipUtil.isValueSet(jenkinsUrl)) {
-            message = "[" + message + "](" + jenkinsUrl + url + ")";
-        }
-        message = "**" + prefix + "**" + message;
-        return message;
     }
 
     /**

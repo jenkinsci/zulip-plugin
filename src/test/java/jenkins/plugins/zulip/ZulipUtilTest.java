@@ -1,5 +1,6 @@
 package jenkins.plugins.zulip;
 
+import hudson.model.Item;
 import jenkins.model.Jenkins;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,6 +24,9 @@ public class ZulipUtilTest {
 
     @Mock
     private DescriptorImpl descMock;
+
+    @Mock
+    private Item itemMock;
 
     @Before
     public void setUp() {
@@ -51,6 +55,26 @@ public class ZulipUtilTest {
         assertEquals("Expect Jenkins Configured Url", "http://JenkinsConfigUrl/", ZulipUtil.getJenkinsUrl(descMock));
         when(descMock.getJenkinsUrl()).thenReturn("http://ZulipConfigUrl/");
         assertEquals("Expect Zulip config Url", "http://ZulipConfigUrl/", ZulipUtil.getJenkinsUrl(descMock));
+    }
+
+    @Test
+    public void testDisplayObjectWithLink() {
+        when(itemMock.getDisplayName()).thenReturn("MyJobName");
+
+        // Default Jenkins root URL from the Jenkins class
+        assertEquals("[MyJobName](http://JenkinsConfigUrl/job/MyJob)", ZulipUtil.displayObjectWithLink(itemMock, "job/MyJob", descMock));
+        assertEquals("MyJobName", ZulipUtil.displayObjectWithLink(itemMock, null, descMock));
+
+        // Custom Jenkins root URL from plugin config
+        when(descMock.getJenkinsUrl()).thenReturn("http://ZulipConfigUrl/");
+        assertEquals("[MyJobName](http://ZulipConfigUrl/job/MyJob)", ZulipUtil.displayObjectWithLink(itemMock, "job/MyJob", descMock));
+        assertEquals("MyJobName", ZulipUtil.displayObjectWithLink(itemMock, null, descMock));
+
+        // No Jenkins root URL at all
+        PowerMockito.when(jenkins.getRootUrl()).thenReturn(null);
+        when(descMock.getJenkinsUrl()).thenReturn(null);
+        assertEquals("MyJobName", ZulipUtil.displayObjectWithLink(itemMock, "job/MyJob", descMock));
+        assertEquals("MyJobName", ZulipUtil.displayObjectWithLink(itemMock, null, descMock));
     }
 
 }
