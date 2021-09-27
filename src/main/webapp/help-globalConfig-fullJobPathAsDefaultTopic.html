@@ -1,0 +1,16 @@
+<div>
+    <p>When checked, the topic will default to the full path of the job, including parent directories and parent
+        jobs.</p>
+    <p>This only has an effect when no topic is configured explicitly.</p>
+    <p>This is especially useful for multi-branch pipelines: the topic will include both the name of the pipeline
+        and the name of the branch, instead of just the name of the branch.
+    </p>
+    <p>
+        For example in a multi-branch pipeline job named "My Job",
+        for a notification on branch "main":
+    </p>
+    <ul>
+        <li>with this option left unchecked, the topic will default to "main"</li>
+        <li>with this option checked, the topic will default to "My Job » main"</li>
+    </ul>
+</div>

@@ -19,6 +19,8 @@ import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 
+import static jenkins.plugins.zulip.ZulipUtil.displayItem;
+
 /**
  * Sends arbitrary message to Zulip stream
  */
@@ -41,9 +43,9 @@ public class ZulipSendStep extends Builder implements SimpleBuildStep {
                 Jenkins.getInstance().getDescriptorByType(jenkins.plugins.zulip.DescriptorImpl.class);
         Zulip zulip = new Zulip(globalConfig.getUrl(), globalConfig.getEmail(), globalConfig.getApiKey());
         String stream = ZulipUtil.expandVariables(run, listener, ZulipUtil.getDefaultValue(getStream(), globalConfig.getStream()));
+        String defaultTopic = displayItem(run.getParent(), globalConfig, globalConfig.isFullJobPathAsDefaultTopic(), false);
         String topic = ZulipUtil.expandVariables(run, listener,
-                ZulipUtil.getDefaultValue(ZulipUtil.getDefaultValue(getTopic(), globalConfig.getTopic()),
-                        run.getParent().getDisplayName()));
+                ZulipUtil.getDefaultValue(ZulipUtil.getDefaultValue(getTopic(), globalConfig.getTopic()), defaultTopic));
         String message = ZulipUtil.expandVariables(run, listener, getMessage());
         zulip.sendStreamMessage(stream, topic, message);
     }

@@ -29,6 +29,12 @@
     <f:entry title="Default Topic Name" help="/plugin/zulip/help-globalConfig-topic.html">
         <f:textbox name="topic" value="${descriptor.getTopic()}" />
     </f:entry>
+    <f:entry title="Use full job path in default topic name" help="/plugin/zulip/help-globalConfig-fullJobPathAsDefaultTopic.html">
+        <f:checkbox name="fullJobPathAsDefaultTopic" checked="${descriptor.isFullJobPathAsDefaultTopic()}" />
+    </f:entry>
+    <f:entry title="Use full job path in notification message" help="/plugin/zulip/help-globalConfig-fullJobPathInMessage.html">
+        <f:checkbox name="fullJobPathInMessage" checked="${descriptor.isFullJobPathInMessage()}" />
+    </f:entry>
     <f:entry title="Enable Smart Notification" help="/plugin/zulip/help-globalConfig-smartNotify.html">
         <f:checkbox name="smartNotify" checked="${descriptor.isSmartNotify()}" />
     </f:entry>

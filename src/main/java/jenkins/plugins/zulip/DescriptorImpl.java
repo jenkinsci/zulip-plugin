@@ -31,6 +31,8 @@ public class DescriptorImpl extends BuildStepDescriptor<Publisher> {
     private Secret apiKey;
     private String stream;
     private String topic;
+    private boolean fullJobPathAsDefaultTopic;
+    private boolean fullJobPathInMessage;
     private transient String hudsonUrl; // backwards compatibility
     private String jenkinsUrl;
     private boolean smartNotify;
@@ -92,6 +94,22 @@ public class DescriptorImpl extends BuildStepDescriptor<Publisher> {
 
     public void setTopic(String topic) {
         this.topic = topic;
+    }
+
+    public boolean isFullJobPathAsDefaultTopic() {
+        return fullJobPathAsDefaultTopic;
+    }
+
+    public void setFullJobPathAsDefaultTopic(boolean fullJobPathAsDefaultTopic) {
+        this.fullJobPathAsDefaultTopic = fullJobPathAsDefaultTopic;
+    }
+
+    public boolean isFullJobPathInMessage() {
+        return fullJobPathInMessage;
+    }
+
+    public void setFullJobPathInMessage(boolean fullJobPathInMessage) {
+        this.fullJobPathInMessage = fullJobPathInMessage;
     }
 
     public String getJenkinsUrl() {

@@ -1,0 +1,14 @@
+<div>
+    <p>When checked, notification messages will include the full path of the job, including parent directories and
+        parent jobs, with a link to each of them.</p>
+    <p>This is especially useful for multi-branch pipelines: the message will include both the name of the pipeline
+        and the name of the branch, instead of just the name of the branch.</p>
+    <p>
+        For example in a multi-branch pipeline job named "My Job",
+        for a notification on branch "main":
+    </p>
+    <ul>
+        <li>with this option left unchecked, the notification message will start with "Project: main"</li>
+        <li>with this option checked, the notification message will start with "Project: My Job » main"</li>
+    </ul>
+</div>

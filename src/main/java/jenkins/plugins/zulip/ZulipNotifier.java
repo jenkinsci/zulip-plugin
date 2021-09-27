@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static jenkins.plugins.zulip.ZulipUtil.displayItem;
 import static jenkins.plugins.zulip.ZulipUtil.displayObjectWithLink;
 
 /**
@@ -102,7 +103,9 @@ public class ZulipNotifier extends Publisher implements SimpleBuildStep {
             String message = "";
             // If we are sending to fixed topic, we will want to add project name into the message
             if (ZulipUtil.isValueSet(configuredTopic)) {
-                message += "**Project: **" + displayObjectWithLink(build.getParent(), build.getParent().getUrl(), DESCRIPTOR) + " : ";
+                message += "**Project: **"
+                        + displayItem(build.getParent(), DESCRIPTOR, DESCRIPTOR.isFullJobPathInMessage(), true)
+                        + " : ";
             }
             message += "**Build: **" + displayObjectWithLink(build, build.getUrl(), DESCRIPTOR);
             message += ": ";
@@ -124,8 +127,9 @@ public class ZulipNotifier extends Publisher implements SimpleBuildStep {
             }
             String destinationStream =
                     ZulipUtil.expandVariables(build, listener, ZulipUtil.getDefaultValue(stream, DESCRIPTOR.getStream()));
+            String defaultTopic = displayItem(build.getParent(), DESCRIPTOR, DESCRIPTOR.isFullJobPathAsDefaultTopic(), false);
             String destinationTopic = ZulipUtil.expandVariables(build, listener,
-                    ZulipUtil.getDefaultValue(configuredTopic, build.getParent().getDisplayName()));
+                    ZulipUtil.getDefaultValue(configuredTopic, defaultTopic));
             Zulip zulip = new Zulip(DESCRIPTOR.getUrl(), DESCRIPTOR.getEmail(), DESCRIPTOR.getApiKey());
             zulip.sendStreamMessage(destinationStream, destinationTopic, message);
         }
