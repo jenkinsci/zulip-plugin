@@ -139,6 +139,8 @@ public class DescriptorImpl extends BuildStepDescriptor<Publisher> {
         apiKey = Secret.fromString((String) json.get("apiKey"));
         stream = (String) json.get("stream");
         topic = (String) json.get("topic");
+        fullJobPathAsDefaultTopic = Boolean.TRUE.equals(json.get("fullJobPathAsDefaultTopic"));
+        fullJobPathInMessage = Boolean.TRUE.equals(json.get("fullJobPathInMessage"));
         jenkinsUrl = (String) json.get("jenkinsUrl");
         smartNotify = Boolean.TRUE.equals(json.get("smartNotify"));
         save();
