@@ -105,6 +105,10 @@ public class ZulipUtil {
      */
     private static void displayObject(StringBuilder builder, ModelObject object, String url, DescriptorImpl globalConfig,
                                       boolean fullPath, boolean displayLinks) {
+        // We never display Jenkins; it's implicit.
+        if (object instanceof jenkins.model.Jenkins) {
+            return;
+        }
         // The only common interface between Item and ItemGroup is ModelObject, which doesn't define getParent,
         // so we need to resort to instanceof + cast to crawl up the item tree.
         if (fullPath && object instanceof Item) {

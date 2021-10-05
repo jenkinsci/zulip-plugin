@@ -57,7 +57,7 @@ public class ZulipSendStepFullJobPathTest {
     private Job job;
 
     @Mock
-    private ItemGroup<?> folder;
+    private ItemAndItemGroup<?> folder;
 
     @Mock
     private TaskListener taskListener;
@@ -83,6 +83,7 @@ public class ZulipSendStepFullJobPathTest {
         PowerMockito.mockStatic(Jenkins.class);
         when(Jenkins.getInstance()).thenReturn(jenkins);
         when(jenkins.getDescriptorByType(DescriptorImpl.class)).thenReturn(descMock);
+        when(jenkins.getDisplayName()).thenReturn("Jenkins");
         when(descMock.getUrl()).thenReturn("zulipUrl");
         when(descMock.getEmail()).thenReturn("jenkins-bot@zulip.com");
         when(descMock.getApiKey()).thenReturn(secret);
@@ -94,6 +95,7 @@ public class ZulipSendStepFullJobPathTest {
         when(job.getParent()).thenReturn(folder);
         when(folder.getDisplayName()).thenReturn("Folder");
         when(folder.getUrl()).thenReturn("job/Folder");
+        when(folder.getParent()).thenReturn((ItemGroup)jenkins);
         when(run.getEnvironment(taskListener)).thenReturn(envVars);
         when(envVars.expand(anyString())).thenAnswer(new Answer<String>() {
             @Override

@@ -67,7 +67,7 @@ public class ZulipNotifierFullJobPathTest {
     private Job job;
 
     @Mock
-    private ItemGroup<?> folder;
+    private ItemAndItemGroup<?> folder;
 
     @Mock
     private BuildListener buildListener;
@@ -92,6 +92,7 @@ public class ZulipNotifierFullJobPathTest {
         PowerMockito.whenNew(Zulip.class).withAnyArguments().thenReturn(zulip);
         PowerMockito.mockStatic(Jenkins.class);
         when(Jenkins.getInstance()).thenReturn(jenkins);
+        when(jenkins.getDisplayName()).thenReturn("Jenkins");
         PowerMockito.mockStatic(User.class);
         when(User.get(anyString())).thenAnswer(new Answer<User>() {
             @Override
@@ -120,6 +121,7 @@ public class ZulipNotifierFullJobPathTest {
         when(job.getParent()).thenReturn(folder);
         when(folder.getDisplayName()).thenReturn("Folder");
         when(folder.getUrl()).thenReturn("job/Folder");
+        when(folder.getParent()).thenReturn((ItemGroup)jenkins);
         when(build.getEnvironment(buildListener)).thenReturn(envVars);
         when(envVars.expand(anyString())).thenAnswer(new Answer<String>() {
             @Override
