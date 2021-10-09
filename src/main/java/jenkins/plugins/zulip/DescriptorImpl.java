@@ -31,6 +31,8 @@ public class DescriptorImpl extends BuildStepDescriptor<Publisher> {
     private Secret apiKey;
     private String stream;
     private String topic;
+    private boolean fullJobPathAsDefaultTopic;
+    private boolean fullJobPathInMessage;
     private transient String hudsonUrl; // backwards compatibility
     private String jenkinsUrl;
     private boolean smartNotify;
@@ -94,6 +96,22 @@ public class DescriptorImpl extends BuildStepDescriptor<Publisher> {
         this.topic = topic;
     }
 
+    public boolean isFullJobPathAsDefaultTopic() {
+        return fullJobPathAsDefaultTopic;
+    }
+
+    public void setFullJobPathAsDefaultTopic(boolean fullJobPathAsDefaultTopic) {
+        this.fullJobPathAsDefaultTopic = fullJobPathAsDefaultTopic;
+    }
+
+    public boolean isFullJobPathInMessage() {
+        return fullJobPathInMessage;
+    }
+
+    public void setFullJobPathInMessage(boolean fullJobPathInMessage) {
+        this.fullJobPathInMessage = fullJobPathInMessage;
+    }
+
     public String getJenkinsUrl() {
         return jenkinsUrl != null ? jenkinsUrl : hudsonUrl;
     }
@@ -121,6 +139,8 @@ public class DescriptorImpl extends BuildStepDescriptor<Publisher> {
         apiKey = Secret.fromString((String) json.get("apiKey"));
         stream = (String) json.get("stream");
         topic = (String) json.get("topic");
+        fullJobPathAsDefaultTopic = Boolean.TRUE.equals(json.get("fullJobPathAsDefaultTopic"));
+        fullJobPathInMessage = Boolean.TRUE.equals(json.get("fullJobPathInMessage"));
         jenkinsUrl = (String) json.get("jenkinsUrl");
         smartNotify = Boolean.TRUE.equals(json.get("smartNotify"));
         save();

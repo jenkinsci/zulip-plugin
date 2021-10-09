@@ -1,13 +1,16 @@
 package jenkins.plugins.zulip;
 
-import java.io.IOException;
-import java.util.logging.Logger;
-
-import javax.annotation.Nonnull;
-
+import hudson.model.Item;
+import hudson.model.ItemGroup;
+import hudson.model.Job;
+import hudson.model.ModelObject;
 import hudson.model.Run;
 import hudson.model.TaskListener;
 import jenkins.model.Jenkins;
+
+import javax.annotation.Nonnull;
+import java.io.IOException;
+import java.util.logging.Logger;
 
 /**
  * Static helper methods
@@ -71,6 +74,75 @@ public class ZulipUtil {
             logger.severe("Failed to expand message variables: " + ex.getMessage());
         }
         return expandedMessage;
+    }
+
+    /**
+     * Helper method to display an item, optionally with links.
+     *
+     * @param item         The item to display.
+     * @param globalConfig Zulip global configuration.
+     * @param fullPath     Whether to display the full path including the display name of parent items
+     *                     ({@code true}) or just this item's display name ({@code false}).
+     * @param displayLinks Whether to display links to the item and (if relevant) its parent items.
+     * @return A string representing the item.
+     */
+    public static String displayItem(Item item, DescriptorImpl globalConfig, boolean fullPath, boolean displayLinks) {
+        StringBuilder builder = new StringBuilder();
+        // Don't call getUrl() unless necessary: the logic behind that method is complex.
+        displayObject(builder, item, displayLinks ? item.getUrl() : null, globalConfig, fullPath, displayLinks);
+        return builder.toString();
+    }
+
+    /**
+     * Helper method to display a model object, optionally with links.
+     *
+     * @param builder      The builder to append to.
+     * @param object       The object to display.
+     * @param globalConfig Zulip global configuration.
+     * @param fullPath     Whether to display the full path including the display name of parent items
+     *                     ({@code true}) or just this object's display name ({@code false}).
+     * @param displayLinks Whether to display links to the object and (if relevant) its parent items.
+     */
+    private static void displayObject(StringBuilder builder, ModelObject object, String url, DescriptorImpl globalConfig,
+                                      boolean fullPath, boolean displayLinks) {
+        // We never display Jenkins; it's implicit.
+        if (object instanceof jenkins.model.Jenkins) {
+            return;
+        }
+        // The only common interface between Item and ItemGroup is ModelObject, which doesn't define getParent,
+        // so we need to resort to instanceof + cast to crawl up the item tree.
+        if (fullPath && object instanceof Item) {
+            ItemGroup<?> parent = ((Item) object).getParent();
+            int lengthBefore = builder.length();
+            // Don't call getUrl() unless necessary: the logic behind that method is complex.
+            displayObject(builder, parent, displayLinks ? parent.getUrl() : null, globalConfig, fullPath, displayLinks);
+            if (builder.length() != lengthBefore) {
+                builder.append(" » ");
+            }
+        }
+        String displayName = object.getDisplayName();
+        if ( displayName != null && !displayName.isEmpty() ) {
+            builder.append(displayObjectWithLink(object, displayLinks ? url : null, globalConfig));
+        }
+    }
+
+    /**
+     * Helper method to display a Jenkins model object with a link.
+     *
+     * @param object       The Jenkins model object (item, run, ...)
+     * @param url          The Url to the Jenkins model object
+     * @param globalConfig Zulip global configuration
+     * @return A string representing the Jenkins model object, with a link if possible.
+     */
+    public static String displayObjectWithLink(ModelObject object, String url, DescriptorImpl globalConfig) {
+        String message = object.getDisplayName();
+        if (url != null) {
+            String jenkinsUrl = ZulipUtil.getJenkinsUrl(globalConfig);
+            if (ZulipUtil.isValueSet(jenkinsUrl)) {
+                message = "[" + message + "](" + jenkinsUrl + url + ")";
+            }
+        }
+        return message;
     }
 
 }
