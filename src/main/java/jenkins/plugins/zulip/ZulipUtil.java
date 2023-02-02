@@ -51,7 +51,7 @@ public class ZulipUtil {
      * @return The Jenkins instance Url
      */
     public static String getJenkinsUrl(DescriptorImpl globalConfig) {
-        String jenkinsUrl = getDefaultValue(globalConfig.getJenkinsUrl(), Jenkins.getInstance().getRootUrl());
+        String jenkinsUrl = getDefaultValue(globalConfig.getJenkinsUrl(), Jenkins.getInstanceOrNull().getRootUrl());
         if (jenkinsUrl != null && jenkinsUrl.length() > 0 && !jenkinsUrl.endsWith("/")) {
             jenkinsUrl = jenkinsUrl + "/";
         }

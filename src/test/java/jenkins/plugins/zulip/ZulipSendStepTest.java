@@ -24,9 +24,9 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -77,7 +77,7 @@ public class ZulipSendStepTest {
     public void setUp() throws Exception {
         PowerMockito.whenNew(Zulip.class).withAnyArguments().thenReturn(zulip);
         PowerMockito.mockStatic(Jenkins.class);
-        when(Jenkins.getInstance()).thenReturn(jenkins);
+        when(Jenkins.getInstanceOrNull()).thenReturn(jenkins);
         when(jenkins.getDescriptorByType(DescriptorImpl.class)).thenReturn(descMock);
         when(descMock.getUrl()).thenReturn("zulipUrl");
         when(descMock.getEmail()).thenReturn("jenkins-bot@zulip.com");

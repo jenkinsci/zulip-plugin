@@ -1,25 +1,14 @@
 package jenkins.plugins.zulip;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import hudson.EnvVars;
-import hudson.model.AbstractBuild;
-import hudson.model.BuildListener;
-import hudson.model.ItemGroup;
-import hudson.model.Job;
-import hudson.model.Result;
-import hudson.model.Run;
-import hudson.model.User;
+import hudson.Launcher;
+import hudson.model.*;
 import hudson.scm.ChangeLogSet;
-import hudson.tasks.test.AbstractTestResultAction;
 import hudson.util.Secret;
 import jenkins.model.Jenkins;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.jvnet.hudson.test.FakeChangeLogSCM;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
@@ -30,16 +19,13 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 
+import java.util.Arrays;
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 import static org.powermock.api.mockito.PowerMockito.verifyNew;
 import static org.powermock.api.mockito.PowerMockito.when;
 
@@ -91,10 +77,10 @@ public class ZulipNotifierFullJobPathTest {
     public void setUp() throws Exception {
         PowerMockito.whenNew(Zulip.class).withAnyArguments().thenReturn(zulip);
         PowerMockito.mockStatic(Jenkins.class);
-        when(Jenkins.getInstance()).thenReturn(jenkins);
+        when(Jenkins.getInstanceOrNull()).thenReturn(jenkins);
         when(jenkins.getDisplayName()).thenReturn("Jenkins");
         PowerMockito.mockStatic(User.class);
-        when(User.get(anyString())).thenAnswer(new Answer<User>() {
+        when(User.getOrCreateByIdOrFullName(anyString())).thenAnswer(new Answer<User>() {
             @Override
             public User answer(InvocationOnMock invocation) throws Throwable {
                 String arg = (String) invocation.getArguments()[0];
@@ -121,7 +107,7 @@ public class ZulipNotifierFullJobPathTest {
         when(job.getParent()).thenReturn(folder);
         when(folder.getDisplayName()).thenReturn("Folder");
         when(folder.getUrl()).thenReturn("job/Folder");
-        when(folder.getParent()).thenReturn((ItemGroup)jenkins);
+        when(folder.getParent()).thenReturn((ItemGroup) jenkins);
         when(build.getEnvironment(buildListener)).thenReturn(envVars);
         when(envVars.expand(anyString())).thenAnswer(new Answer<String>() {
             @Override
@@ -136,7 +122,7 @@ public class ZulipNotifierFullJobPathTest {
     @Test
     public void testShouldUseDefaults() throws Exception {
         ZulipNotifier notifier = new ZulipNotifier();
-        notifier.perform(build, null, buildListener);
+        notifier.perform(build, (Launcher) null, buildListener);
         verifyNew(Zulip.class).withArguments(eq("zulipUrl"), eq("jenkins-bot@zulip.com"), any(Secret.class));
         verify(envVars, times(2)).expand(expandCaptor.capture());
         assertThat("Should expand stream, topic and message", expandCaptor.getAllValues(),
@@ -149,7 +135,7 @@ public class ZulipNotifierFullJobPathTest {
         reset(zulip);
         notifier.setStream("");
         notifier.setTopic("");
-        notifier.perform(build, null, buildListener);
+        notifier.perform(build, (Launcher) null, buildListener);
         verify(zulip).sendStreamMessage(streamCaptor.capture(), topicCaptor.capture(), messageCaptor.capture());
         assertEquals("Should use default stream", "defaultStream", streamCaptor.getValue());
         assertEquals("Should use default topic", "defaultTopic", topicCaptor.getValue());
@@ -160,7 +146,7 @@ public class ZulipNotifierFullJobPathTest {
         ZulipNotifier notifier = new ZulipNotifier();
         notifier.setStream("projectStream");
         notifier.setTopic("projectTopic");
-        notifier.perform(build, null, buildListener);
+        notifier.perform(build, (Launcher) null, buildListener);
         verify(zulip).sendStreamMessage(streamCaptor.capture(), topicCaptor.capture(), messageCaptor.capture());
         assertEquals("Should use project stream", "projectStream", streamCaptor.getValue());
         assertEquals("Should use topic stream", "projectTopic", topicCaptor.getValue());
@@ -172,7 +158,7 @@ public class ZulipNotifierFullJobPathTest {
             ZulipNotifier notifier = new ZulipNotifier();
             when(descMock.getTopic()).thenReturn("");
             Whitebox.setInternalState(ZulipNotifier.class, descMock);
-            notifier.perform(build, null, buildListener);
+            notifier.perform(build, (Launcher) null, buildListener);
             verify(zulip).sendStreamMessage(streamCaptor.capture(), topicCaptor.capture(), messageCaptor.capture());
             assertEquals("Topic should be project's full job path", "Folder » TestJob", topicCaptor.getValue());
             assertEquals("Message should not contain project name", "**Build: **#1: **SUCCESS** :check_mark:", messageCaptor.getValue());
@@ -189,7 +175,7 @@ public class ZulipNotifierFullJobPathTest {
             ZulipNotifier notifier = new ZulipNotifier();
             when(descMock.getJenkinsUrl()).thenReturn("JenkinsUrl");
             Whitebox.setInternalState(ZulipNotifier.class, descMock);
-            notifier.perform(build, null, buildListener);
+            notifier.perform(build, (Launcher) null, buildListener);
             verify(zulip).sendStreamMessage(streamCaptor.capture(), topicCaptor.capture(), messageCaptor.capture());
             assertEquals("Message should contain links to Jenkins",
                     "**Project: **[Folder](JenkinsUrl/job/Folder) » [TestJob](JenkinsUrl/job/Folder/TestJob) : **Build: **[#1](JenkinsUrl/job/Folder/TestJob/1): **SUCCESS** :check_mark:",

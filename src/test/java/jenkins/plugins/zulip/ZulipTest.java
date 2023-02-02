@@ -19,7 +19,7 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
 import static org.mockserver.model.StringBody.exact;
@@ -50,7 +50,7 @@ public class ZulipTest {
     @Before
     public void setUp() {
         PowerMockito.mockStatic(Jenkins.class);
-        when(Jenkins.getInstance()).thenReturn(jenkins);
+        when(Jenkins.getInstanceOrNull()).thenReturn(jenkins);
         PowerMockito.mockStatic(Secret.class);
         when(Secret.toString(any(Secret.class))).thenReturn("secret");
     }

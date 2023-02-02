@@ -50,7 +50,7 @@ public class Zulip {
      */
     protected void configureProxy(HttpClient httpClient) throws MalformedURLException {
         LOGGER.log(Level.FINE, "Setting up HttpClient proxy");
-        ProxyConfiguration proxyConfiguration = Jenkins.getInstance().proxy;
+        ProxyConfiguration proxyConfiguration = Jenkins.getInstanceOrNull().proxy;
         if (proxyConfiguration != null && ZulipUtil.isValueSet(proxyConfiguration.name)) {
             URL urlObj = new URL(url);
             Proxy proxy = proxyConfiguration.createProxy(urlObj.getHost());

@@ -39,7 +39,7 @@ public class ZulipUtilTest {
     public void setUp() {
         // Mock Jenkins Instance
         PowerMockito.mockStatic(Jenkins.class);
-        PowerMockito.when(Jenkins.getInstance()).thenReturn(jenkins);
+        PowerMockito.when(Jenkins.getInstanceOrNull()).thenReturn(jenkins);
         PowerMockito.when(jenkins.getRootUrl()).thenReturn("http://JenkinsConfigUrl");
     }
 

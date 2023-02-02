@@ -40,7 +40,7 @@ public class ZulipSendStep extends Builder implements SimpleBuildStep {
     public void perform(@Nonnull Run<?, ?> run, @Nonnull FilePath workspace, @Nonnull Launcher launcher, @Nonnull TaskListener listener)
             throws InterruptedException, IOException {
         jenkins.plugins.zulip.DescriptorImpl globalConfig =
-                Jenkins.getInstance().getDescriptorByType(jenkins.plugins.zulip.DescriptorImpl.class);
+                Jenkins.getInstanceOrNull().getDescriptorByType(jenkins.plugins.zulip.DescriptorImpl.class);
         Zulip zulip = new Zulip(globalConfig.getUrl(), globalConfig.getEmail(), globalConfig.getApiKey());
         String stream = ZulipUtil.expandVariables(run, listener, ZulipUtil.getDefaultValue(getStream(), globalConfig.getStream()));
         String defaultTopic = displayItem(run.getParent(), globalConfig, globalConfig.isFullJobPathAsDefaultTopic(), false);

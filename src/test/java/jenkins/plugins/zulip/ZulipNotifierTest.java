@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import hudson.EnvVars;
+import hudson.Launcher;
 import hudson.model.AbstractBuild;
 import hudson.model.BuildListener;
 import hudson.model.Job;
@@ -32,10 +33,10 @@ import org.powermock.reflect.Whitebox;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -93,9 +94,9 @@ public class ZulipNotifierTest {
     public void setUp() throws Exception {
         PowerMockito.whenNew(Zulip.class).withAnyArguments().thenReturn(zulip);
         PowerMockito.mockStatic(Jenkins.class);
-        when(Jenkins.getInstance()).thenReturn(jenkins);
+        when(Jenkins.getInstanceOrNull()).thenReturn(jenkins);
         PowerMockito.mockStatic(User.class);
-        when(User.get(anyString())).thenAnswer(new Answer<User>() {
+        when(User.getOrCreateByIdOrFullName(anyString())).thenAnswer(new Answer<User>() {
             @Override
             public User answer(InvocationOnMock invocation) throws Throwable {
                 String arg = (String) invocation.getArguments()[0];
@@ -131,7 +132,7 @@ public class ZulipNotifierTest {
     @Test
     public void testShouldUseDefaults() throws Exception {
         ZulipNotifier notifier = new ZulipNotifier();
-        notifier.perform(build, null, buildListener);
+        notifier.perform(build, (Launcher) null, buildListener);
         verifyNew(Zulip.class).withArguments(eq("zulipUrl"), eq("jenkins-bot@zulip.com"), any(Secret.class));
         verify(envVars, times(2)).expand(expandCaptor.capture());
         assertThat("Should expand stream, topic and message", expandCaptor.getAllValues(),
@@ -144,7 +145,7 @@ public class ZulipNotifierTest {
         reset(zulip);
         notifier.setStream("");
         notifier.setTopic("");
-        notifier.perform(build, null, buildListener);
+        notifier.perform(build, (Launcher) null, buildListener);
         verify(zulip).sendStreamMessage(streamCaptor.capture(), topicCaptor.capture(), messageCaptor.capture());
         assertEquals("Should use default stream", "defaultStream", streamCaptor.getValue());
         assertEquals("Should use default topic", "defaultTopic", topicCaptor.getValue());
@@ -154,7 +155,7 @@ public class ZulipNotifierTest {
     public void testFailedBuild() throws Exception {
         ZulipNotifier notifier = new ZulipNotifier();
         when(build.getResult()).thenReturn(Result.FAILURE);
-        notifier.perform(build, null, buildListener);
+        notifier.perform(build, (Launcher) null, buildListener);
         verify(zulip).sendStreamMessage(streamCaptor.capture(), topicCaptor.capture(), messageCaptor.capture());
         assertEquals("Message should be failed build", "**Project: **TestJob : **Build: **#1: **FAILURE** :cross_mark:", messageCaptor.getValue());
     }
@@ -164,7 +165,7 @@ public class ZulipNotifierTest {
         ZulipNotifier notifier = new ZulipNotifier();
         when(build.getResult()).thenReturn(Result.UNSTABLE);
         when(build.getAction(AbstractTestResultAction.class)).thenReturn(new FakeTestResultAction());
-        notifier.perform(build, null, buildListener);
+        notifier.perform(build, (Launcher) null, buildListener);
         verify(zulip).sendStreamMessage(streamCaptor.capture(), topicCaptor.capture(), messageCaptor.capture());
         assertEquals("Message should be unstable build", "**Project: **TestJob : **Build: **#1: **UNSTABLE** :warning: (50 broken tests)",
                 messageCaptor.getValue());
@@ -175,7 +176,7 @@ public class ZulipNotifierTest {
         ZulipNotifier notifier = new ZulipNotifier();
         notifier.setStream("projectStream");
         notifier.setTopic("projectTopic");
-        notifier.perform(build, null, buildListener);
+        notifier.perform(build, (Launcher) null, buildListener);
         verify(zulip).sendStreamMessage(streamCaptor.capture(), topicCaptor.capture(), messageCaptor.capture());
         assertEquals("Should use project stream", "projectStream", streamCaptor.getValue());
         assertEquals("Should use topic stream", "projectTopic", topicCaptor.getValue());
@@ -187,7 +188,7 @@ public class ZulipNotifierTest {
             ZulipNotifier notifier = new ZulipNotifier();
             when(descMock.getTopic()).thenReturn("");
             Whitebox.setInternalState(ZulipNotifier.class, descMock);
-            notifier.perform(build, null, buildListener);
+            notifier.perform(build, (Launcher) null, buildListener);
             verify(zulip).sendStreamMessage(streamCaptor.capture(), topicCaptor.capture(), messageCaptor.capture());
             assertEquals("Topic should be project display name", "TestJob", topicCaptor.getValue());
             assertEquals("Message should not contain project name", "**Build: **#1: **SUCCESS** :check_mark:", messageCaptor.getValue());
@@ -206,7 +207,7 @@ public class ZulipNotifierTest {
         FakeChangeLogSCM.FakeChangeLogSet changeLogSet = new FakeChangeLogSCM.FakeChangeLogSet(build, changes);
         when(build.getChangeSet()).thenReturn(changeLogSet);
         ZulipNotifier notifier = new ZulipNotifier();
-        notifier.perform(build, null, buildListener);
+        notifier.perform(build, (Launcher) null, buildListener);
         verify(zulip).sendStreamMessage(streamCaptor.capture(), topicCaptor.capture(), messageCaptor.capture());
         assertEquals("Message should contain change log", "**Project: **TestJob : **Build: **#1: **SUCCESS** :check_mark:\n" +
                 "\n" +
@@ -222,7 +223,7 @@ public class ZulipNotifierTest {
             ZulipNotifier notifier = new ZulipNotifier();
             when(descMock.getJenkinsUrl()).thenReturn("JenkinsUrl");
             Whitebox.setInternalState(ZulipNotifier.class, descMock);
-            notifier.perform(build, null, buildListener);
+            notifier.perform(build, (Launcher) null, buildListener);
             verify(zulip).sendStreamMessage(streamCaptor.capture(), topicCaptor.capture(), messageCaptor.capture());
             assertEquals("Message should contain links to Jenkins",
                     "**Project: **[TestJob](JenkinsUrl/job/TestJob) : **Build: **[#1](JenkinsUrl/job/TestJob/1): **SUCCESS** :check_mark:",
@@ -243,27 +244,27 @@ public class ZulipNotifierTest {
             reset(zulip);
             when(build.getPreviousBuild()).thenReturn(null);
             when(build.getResult()).thenReturn(Result.SUCCESS);
-            notifier.perform(build, null, buildListener);
+            notifier.perform(build, (Launcher) null, buildListener);
             when(build.getResult()).thenReturn(Result.FAILURE);
-            notifier.perform(build, null, buildListener);
+            notifier.perform(build, (Launcher) null, buildListener);
             verify(zulip, times(2)).sendStreamMessage(anyString(), anyString(), anyString());
             // If the previous build was a failure, notification should be sent no matter what
             reset(zulip);
             when(build.getPreviousBuild()).thenReturn(previousBuild);
             when(previousBuild.getResult()).thenReturn(Result.FAILURE);
             when(build.getResult()).thenReturn(Result.SUCCESS);
-            notifier.perform(build, null, buildListener);
+            notifier.perform(build, (Launcher) null, buildListener);
             when(build.getResult()).thenReturn(Result.FAILURE);
-            notifier.perform(build, null, buildListener);
+            notifier.perform(build, (Launcher) null, buildListener);
             verify(zulip, times(2)).sendStreamMessage(anyString(), anyString(), anyString());
             // If the previous build was a success, notification should be sent only for failed builds
             reset(zulip);
             when(build.getPreviousBuild()).thenReturn(previousBuild);
             when(previousBuild.getResult()).thenReturn(Result.SUCCESS);
             when(build.getResult()).thenReturn(Result.SUCCESS);
-            notifier.perform(build, null, buildListener);
+            notifier.perform(build, (Launcher) null, buildListener);
             when(build.getResult()).thenReturn(Result.FAILURE);
-            notifier.perform(build, null, buildListener);
+            notifier.perform(build, (Launcher) null, buildListener);
             verify(zulip, times(1)).sendStreamMessage(anyString(), anyString(), anyString());
         } finally {
             // Be sure to return global setting back to original setup so other tests dont fail
