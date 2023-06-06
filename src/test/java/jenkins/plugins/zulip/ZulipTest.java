@@ -1,12 +1,14 @@
 package jenkins.plugins.zulip;
 
 import java.net.URLEncoder;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import com.google.common.net.HttpHeaders;
+
 import hudson.util.Secret;
 import jenkins.model.Jenkins;
-import org.apache.commons.httpclient.NameValuePair;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -19,14 +21,14 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
 import static org.mockserver.model.StringBody.exact;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({Jenkins.class, Secret.class})
+@PrepareForTest({ Jenkins.class, Secret.class })
 public class ZulipTest {
 
     private static ClientAndServer mockServer;
@@ -67,18 +69,16 @@ public class ZulipTest {
                         .withPath("/api/v1/messages")
                         .withBody(
                                 buildBody(
-                                        new NameValuePair("api-key", "secret"),
-                                        new NameValuePair("email", "jenkins-bot@zulip.com"),
-                                        new NameValuePair("type", "stream"),
-                                        new NameValuePair("to", "testStreamůř"),
-                                        new NameValuePair("subject", "testTopic"),
-                                        new NameValuePair("content", "testMessage")
-                                )
+                                        Map.of("api-key", "secret",
+                                                "email", "jenkins-bot@zulip.com",
+                                                "type", "stream",
+                                                "to", "testStreamůř",
+                                                "subject", "testTopic",
+                                                "content", "testMessage"))
 
                         )
                         .withHeader(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded")
-                        .withHeader(HttpHeaders.AUTHORIZATION, "Basic amVua2lucy1ib3RAenVsaXAuY29tOnNlY3JldA==")
-        );
+                        .withHeader(HttpHeaders.AUTHORIZATION, "Basic amVua2lucy1ib3RAenVsaXAuY29tOnNlY3JldA=="));
     }
 
     @Test
@@ -104,15 +104,13 @@ public class ZulipTest {
         zulip.sendStreamMessage("testStream", "testTopic", "testMessage");
     }
 
-    private Body buildBody(NameValuePair... valuePairs) throws Exception {
-        StringBuilder text = new StringBuilder();
-        for (NameValuePair pair : valuePairs) {
-            if (text.length() != 0) {
-                text.append("&");
-            }
-            text.append(pair.getName()).append("=").append(URLEncoder.encode(pair.getValue(), Charset.defaultCharset().name()));
-        }
-        return exact(text.toString());
+    private Body<String> buildBody(Map<String, String> parameters) throws Exception {
+        String body = parameters.entrySet()
+                .stream()
+                .map(e -> e.getKey() + "=" + URLEncoder.encode(e.getValue(), StandardCharsets.UTF_8))
+                .collect(Collectors.joining("&"));
+
+        return exact(body);
     }
 
 }
