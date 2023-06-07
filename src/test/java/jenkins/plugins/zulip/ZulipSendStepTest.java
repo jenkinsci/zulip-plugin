@@ -76,7 +76,6 @@ public class ZulipSendStepTest {
         zulipConstruction = Mockito.mockConstruction(Zulip.class, (zulio, context) -> {
             assertEquals("zulipUrl", context.arguments().get(0));
             assertEquals("jenkins-bot@zulip.com", context.arguments().get(1));
-
         });
 
         jenkinsStatic = Mockito.mockStatic(Jenkins.class);
