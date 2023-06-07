@@ -35,7 +35,7 @@ public class ZulipUtilTest {
     @Mock
     private Item itemMock;
 
-    MockedStatic<Jenkins> jenkinsStatic;
+    private MockedStatic<Jenkins> jenkinsStatic;
 
     @Before
     public void setUp() {
@@ -73,32 +73,33 @@ public class ZulipUtilTest {
         assertEquals("Expect Zulip config Url", "http://ZulipConfigUrl/", ZulipUtil.getJenkinsUrl(descMock));
     }
 
-  @Test
+    @Test
     public void testDisplayObjectWithLink() {
-            when(jenkins.getRootUrl()).thenReturn("http://JenkinsConfigUrl/");
-            when(itemMock.getDisplayName()).thenReturn("MyJobName");
+        when(jenkins.getRootUrl()).thenReturn("http://JenkinsConfigUrl/");
+        when(itemMock.getDisplayName()).thenReturn("MyJobName");
 
-            // Default Jenkins root URL from the Jenkins class
-            assertEquals("[MyJobName](http://JenkinsConfigUrl/job/MyJob)",
-                    ZulipUtil.displayObjectWithLink(itemMock, "job/MyJob", descMock));
-            assertEquals("MyJobName", ZulipUtil.displayObjectWithLink(itemMock, null, descMock));
+        // Default Jenkins root URL from the Jenkins class
+        assertEquals("[MyJobName](http://JenkinsConfigUrl/job/MyJob)",
+                ZulipUtil.displayObjectWithLink(itemMock, "job/MyJob", descMock));
+        assertEquals("MyJobName", ZulipUtil.displayObjectWithLink(itemMock, null, descMock));
 
-            // Custom Jenkins root URL from plugin config
-            when(descMock.getJenkinsUrl()).thenReturn("http://ZulipConfigUrl/");
-            assertEquals("[MyJobName](http://ZulipConfigUrl/job/MyJob)",
-                    ZulipUtil.displayObjectWithLink(itemMock, "job/MyJob", descMock));
-            assertEquals("MyJobName", ZulipUtil.displayObjectWithLink(itemMock, null, descMock));
+        // Custom Jenkins root URL from plugin config
+        when(descMock.getJenkinsUrl()).thenReturn("http://ZulipConfigUrl/");
+        assertEquals("[MyJobName](http://ZulipConfigUrl/job/MyJob)",
+                ZulipUtil.displayObjectWithLink(itemMock, "job/MyJob", descMock));
+        assertEquals("MyJobName", ZulipUtil.displayObjectWithLink(itemMock, null, descMock));
 
-            // No Jenkins root URL at all
-            when(jenkins.getRootUrl()).thenReturn(null);
-            when(descMock.getJenkinsUrl()).thenReturn(null);
-            assertEquals("MyJobName", ZulipUtil.displayObjectWithLink(itemMock, "job/MyJob", descMock));
-            assertEquals("MyJobName", ZulipUtil.displayObjectWithLink(itemMock, null, descMock));
+        // No Jenkins root URL at all
+        when(jenkins.getRootUrl()).thenReturn(null);
+        when(descMock.getJenkinsUrl()).thenReturn(null);
+        assertEquals("MyJobName", ZulipUtil.displayObjectWithLink(itemMock, "job/MyJob", descMock));
+        assertEquals("MyJobName", ZulipUtil.displayObjectWithLink(itemMock, null, descMock));
     }
 
     @Test
-    @SuppressWarnings("unchecked") // We need unchecked casts to ItemGroup (raw type) in order to mock methods that
-                                   // return ItemGroup<? extends Item>
+    // We need unchecked casts to ItemGroup (raw type) in order to mock methods that
+    // return ItemGroup<? extends Item>
+    @SuppressWarnings("unchecked")
     public void testDisplayJob() {
         jenkinsStatic.when(Jenkins::getInstance).thenReturn(jenkins);
         when(itemMock.getDisplayName()).thenReturn("MyJobName");
