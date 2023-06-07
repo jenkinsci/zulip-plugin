@@ -103,6 +103,7 @@ public class Zulip {
     protected HttpClient getClient() throws MalformedURLException {
         HttpClient.Builder httpClientBuilder = HttpClient.newBuilder();
         configureProxy(httpClientBuilder);
+        configureAuthenticator(httpClientBuilder);
         return httpClientBuilder.build();
     }
 
