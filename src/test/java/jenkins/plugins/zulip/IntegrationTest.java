@@ -110,9 +110,11 @@ public class IntegrationTest {
         WorkflowJob project = j.createProject(WorkflowJob.class);
         project.setDefinition(new CpsFlowDefinition(
                 "node {\n" +
-                        "step([$class: 'ZulipSendStep', stream: 'someStream', topic: 'someTopic', message: 'Hello Zulip'])\n" +
+                        "step([$class: 'ZulipSendStep', stream: 'someStream', topic: 'someTopic', message: 'Hello Zulip'])\n"
+                        +
                         "step([$class: 'ZulipNotifier', stream: 'someStream', topic: 'someTopic'])\n" +
-                        "}", true));
+                        "}",
+                true));
         j.buildAndAssertSuccess(project);
         verifyNotificationsSent(2);
     }
