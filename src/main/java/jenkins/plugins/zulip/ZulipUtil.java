@@ -113,7 +113,7 @@ public class ZulipUtil {
             DescriptorImpl globalConfig,
             boolean fullPath, boolean displayLinks) {
         // We never display Jenkins; it's implicit.
-        if (object instanceof jenkins.model.Jenkins) {
+        if (object == Jenkins.getInstance()) {
             return;
         }
         // The only common interface between Item and ItemGroup is ModelObject, which
