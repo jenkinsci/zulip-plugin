@@ -15,6 +15,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -91,8 +92,6 @@ public class Zulip {
                         }
 
                         return null;
-                    case SERVER:
-                        return new PasswordAuthentication(getEmail(), getApiKey().toCharArray());
                     default:
                         return null;
                 }
@@ -137,13 +136,17 @@ public class Zulip {
                     .map(e -> e.getKey() + "=" + URLEncoder.encode(e.getValue(), encodingCharset))
                     .collect(Collectors.joining("&"));
 
+            String auth_info = this.getEmail() + ":" + this.getApiKey();
+            String encoded_auth = new String(Base64.getEncoder().encodeToString(auth_info.getBytes(encodingCharset)));
+
             HttpRequest httpRequest = HttpRequest.newBuilder()
                     .uri(getApiEndpoint(method))
                     // TODO: It would be nice if this version number read from the Maven XML file
                     // (which is possible, but annoying)
                     // http://stackoverflow.com/questions/8829147/maven-version-number-in-java-file
-                    .header("http.useragent", "ZulipJenkins/0.1.2")
-                    .header("Content-Type", "www-form-urlencoded")
+                    .header("User-Agent", "ZulipJenkins/0.1.2")
+                    .header("Content-Type", "application/x-www-form-urlencoded")
+                    .header("Authorization", "Basic " + encoded_auth)
                     .POST(HttpRequest.BodyPublishers.ofString(body, encodingCharset))
                     .build();
 
@@ -166,6 +169,7 @@ public class Zulip {
 
     public HttpResponse<String> sendStreamMessage(String stream, String subject, String message) {
         Map<String, String> parameters = new HashMap<String, String>();
+
         parameters.put("api-key", this.getApiKey());
         parameters.put("email", this.getEmail());
         parameters.put("type", "stream");

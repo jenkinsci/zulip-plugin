@@ -1,34 +1,26 @@
 package jenkins.plugins.zulip;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 import com.google.common.net.HttpHeaders;
 
 import hudson.util.Secret;
 import jenkins.model.Jenkins;
+
+import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 import org.mockserver.integration.ClientAndServer;
-import org.mockserver.model.Body;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
 import static org.mockserver.model.StringBody.exact;
-import static org.powermock.api.mockito.PowerMockito.when;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({ Jenkins.class, Secret.class })
 public class ZulipTest {
 
     private static ClientAndServer mockServer;
@@ -49,12 +41,24 @@ public class ZulipTest {
         mockServer.stop();
     }
 
+    private MockedStatic<Jenkins> jenkinsStatic;
+    private MockedStatic<Secret> secretStatic;
+
     @Before
     public void setUp() {
-        PowerMockito.mockStatic(Jenkins.class);
-        when(Jenkins.getInstance()).thenReturn(jenkins);
-        PowerMockito.mockStatic(Secret.class);
-        when(Secret.toString(any(Secret.class))).thenReturn("secret");
+        MockitoAnnotations.openMocks(this);
+
+        jenkinsStatic = Mockito.mockStatic(Jenkins.class);
+        jenkinsStatic.when(Jenkins::getInstance).thenReturn(jenkins);
+
+        secretStatic = Mockito.mockStatic(Secret.class);
+        secretStatic.when(() -> Secret.toString(any(Secret.class))).thenReturn("secret");
+    }
+
+    @After
+    public void tearDown() {
+        jenkinsStatic.close();
+        secretStatic.close();
     }
 
     @Test
@@ -67,16 +71,8 @@ public class ZulipTest {
                 request()
                         .withMethod("POST")
                         .withPath("/api/v1/messages")
-                        .withBody(
-                                buildBody(
-                                        Map.of("api-key", "secret",
-                                                "email", "jenkins-bot@zulip.com",
-                                                "type", "stream",
-                                                "to", "testStreamůř",
-                                                "subject", "testTopic",
-                                                "content", "testMessage"))
-
-                        )
+                        .withBody(exact(
+                                "api-key=secret&subject=testTopic&to=testStream%C5%AF%C5%99&type=stream&email=jenkins-bot%40zulip.com&content=testMessage"))
                         .withHeader(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded")
                         .withHeader(HttpHeaders.AUTHORIZATION, "Basic amVua2lucy1ib3RAenVsaXAuY29tOnNlY3JldA=="));
     }
@@ -102,15 +98,6 @@ public class ZulipTest {
         Zulip zulip = new Zulip("http://unreachable:1080", "jenkins-bot@zulip.com", secret);
         // Test that this does not throw exception
         zulip.sendStreamMessage("testStream", "testTopic", "testMessage");
-    }
-
-    private Body<String> buildBody(Map<String, String> parameters) throws Exception {
-        String body = parameters.entrySet()
-                .stream()
-                .map(e -> e.getKey() + "=" + URLEncoder.encode(e.getValue(), StandardCharsets.UTF_8))
-                .collect(Collectors.joining("&"));
-
-        return exact(body);
     }
 
 }
