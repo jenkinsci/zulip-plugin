@@ -30,7 +30,7 @@ public class ZulipUtilTest {
     private ItemGroup<?> rootItemGroupMock;
 
     @Mock
-    private ItemAndItemGroup<?> parentItemGroupMock;
+    private ItemAndItemGroup parentItemGroupMock;
 
     @Mock
     private Item itemMock;
