@@ -9,7 +9,7 @@
   </parent>
 
   <properties>
-    <jenkins.version>2.401.1</jenkins.version>
+    <jenkins.version>2.387.3</jenkins.version>
     <java.level>11</java.level>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <mockserver.version>5.15.0</mockserver.version>
