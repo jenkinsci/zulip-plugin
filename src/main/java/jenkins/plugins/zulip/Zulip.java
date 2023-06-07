@@ -133,7 +133,7 @@ public class Zulip {
         try {
             String body = parameters.entrySet()
                     .stream()
-                    .map(e -> e.getKey() + "=" + URLEncoder.encode(e.getValue(), encodingCharset))
+                    .map(e -> encodeValue(e))
                     .collect(Collectors.joining("&"));
 
             String auth_info = this.getEmail() + ":" + this.getApiKey();
@@ -178,5 +178,12 @@ public class Zulip {
         parameters.put("content", message);
 
         return post("messages", parameters);
+    }
+
+    private String encodeValue(Map.Entry<String, String> value) {
+        String toEncode = value.getValue() != null ? value.getValue() : "";
+        String encodedValue = URLEncoder.encode(toEncode, encodingCharset);
+
+        return value.getKey() + "=" + encodedValue;
     }
 }
