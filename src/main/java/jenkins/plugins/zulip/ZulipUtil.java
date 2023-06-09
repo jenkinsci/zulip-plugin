@@ -2,7 +2,6 @@ package jenkins.plugins.zulip;
 
 import hudson.model.Item;
 import hudson.model.ItemGroup;
-import hudson.model.Job;
 import hudson.model.ModelObject;
 import hudson.model.Run;
 import hudson.model.TaskListener;
@@ -44,8 +43,8 @@ public class ZulipUtil {
     }
 
     /**
-     * Gets Url pointing to Jenkins instance. By default use value from Zulip config,
-     * if it's blank, fallback to Jenkins instance settings
+     * Gets Url pointing to Jenkins instance. By default use value from Zulip
+     * config, if it's blank, fallback to Jenkins instance settings
      *
      * @param globalConfig Zulip global configuration
      * @return The Jenkins instance Url
@@ -59,14 +58,16 @@ public class ZulipUtil {
     }
 
     /**
-     * Expands the variables in the given value by using environment variables from the build process
+     * Expands the variables in the given value by using environment variables from
+     * the build process
      *
-     * @param run A build this is running as part of
+     * @param run      A build this is running as part of
      * @param listener A place to send output
-     * @param value A value to expand variables in
+     * @param value    A value to expand variables in
      * @return The value with expanded variables
      */
-    public static String expandVariables(@Nonnull Run<?, ?> run, @Nonnull TaskListener listener, String value) throws InterruptedException {
+    public static String expandVariables(@Nonnull Run<?, ?> run, @Nonnull TaskListener listener, String value)
+            throws InterruptedException {
         String expandedMessage = value;
         try {
             expandedMessage = run.getEnvironment(listener).expand(expandedMessage);
@@ -81,14 +82,17 @@ public class ZulipUtil {
      *
      * @param item         The item to display.
      * @param globalConfig Zulip global configuration.
-     * @param fullPath     Whether to display the full path including the display name of parent items
-     *                     ({@code true}) or just this item's display name ({@code false}).
-     * @param displayLinks Whether to display links to the item and (if relevant) its parent items.
+     * @param fullPath     Whether to display the full path including the display
+     *                     name of parent items ({@code true}) or just this item's
+     *                     display name ({@code false}).
+     * @param displayLinks Whether to display links to the item and (if relevant)
+     *                     its parent items.
      * @return A string representing the item.
      */
     public static String displayItem(Item item, DescriptorImpl globalConfig, boolean fullPath, boolean displayLinks) {
         StringBuilder builder = new StringBuilder();
-        // Don't call getUrl() unless necessary: the logic behind that method is complex.
+        // Don't call getUrl() unless necessary: the logic behind that method is
+        // complex.
         displayObject(builder, item, displayLinks ? item.getUrl() : null, globalConfig, fullPath, displayLinks);
         return builder.toString();
     }
@@ -99,29 +103,34 @@ public class ZulipUtil {
      * @param builder      The builder to append to.
      * @param object       The object to display.
      * @param globalConfig Zulip global configuration.
-     * @param fullPath     Whether to display the full path including the display name of parent items
-     *                     ({@code true}) or just this object's display name ({@code false}).
-     * @param displayLinks Whether to display links to the object and (if relevant) its parent items.
+     * @param fullPath     Whether to display the full path including the display
+     *                     name of parent items ({@code true}) or just this object's
+     *                     display name ({@code false}).
+     * @param displayLinks Whether to display links to the object and (if relevant)
+     *                     its parent items.
      */
-    private static void displayObject(StringBuilder builder, ModelObject object, String url, DescriptorImpl globalConfig,
-                                      boolean fullPath, boolean displayLinks) {
+    private static void displayObject(StringBuilder builder, ModelObject object, String url,
+            DescriptorImpl globalConfig,
+            boolean fullPath, boolean displayLinks) {
         // We never display Jenkins; it's implicit.
-        if (object instanceof jenkins.model.Jenkins) {
+        if (object == Jenkins.getInstance()) {
             return;
         }
-        // The only common interface between Item and ItemGroup is ModelObject, which doesn't define getParent,
-        // so we need to resort to instanceof + cast to crawl up the item tree.
+        // The only common interface between Item and ItemGroup is ModelObject, which
+        // doesn't define getParent, so we need to resort to instanceof + cast to crawl
+        // up the item tree.
         if (fullPath && object instanceof Item) {
             ItemGroup<?> parent = ((Item) object).getParent();
             int lengthBefore = builder.length();
-            // Don't call getUrl() unless necessary: the logic behind that method is complex.
+            // Don't call getUrl() unless necessary: the logic behind that method is
+            // complex.
             displayObject(builder, parent, displayLinks ? parent.getUrl() : null, globalConfig, fullPath, displayLinks);
             if (builder.length() != lengthBefore) {
                 builder.append(" » ");
             }
         }
         String displayName = object.getDisplayName();
-        if ( displayName != null && !displayName.isEmpty() ) {
+        if (displayName != null && !displayName.isEmpty()) {
             builder.append(displayObjectWithLink(object, displayLinks ? url : null, globalConfig));
         }
     }
@@ -132,7 +141,8 @@ public class ZulipUtil {
      * @param object       The Jenkins model object (item, run, ...)
      * @param url          The Url to the Jenkins model object
      * @param globalConfig Zulip global configuration
-     * @return A string representing the Jenkins model object, with a link if possible.
+     * @return A string representing the Jenkins model object, with a link if
+     *         possible.
      */
     public static String displayObjectWithLink(ModelObject object, String url, DescriptorImpl globalConfig) {
         String message = object.getDisplayName();

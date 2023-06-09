@@ -8,33 +8,29 @@ import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.util.Secret;
 import jenkins.model.Jenkins;
+
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import org.mockito.MockedConstruction;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.reset;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.powermock.api.mockito.PowerMockito.verifyNew;
-import static org.powermock.api.mockito.PowerMockito.when;
+import static org.mockito.Mockito.when;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({Jenkins.class, ZulipSendStep.class, Secret.class})
 public class ZulipSendStepTest {
 
     @Mock
@@ -42,9 +38,6 @@ public class ZulipSendStepTest {
 
     @Mock
     private Secret secret;
-
-    @Mock
-    private Zulip zulip;
 
     @Mock
     private DescriptorImpl descMock;
@@ -73,11 +66,21 @@ public class ZulipSendStepTest {
     @Captor
     private ArgumentCaptor<String> messageCaptor;
 
+    private MockedConstruction<Zulip> zulipConstruction;
+    private MockedStatic<Jenkins> jenkinsStatic;
+
     @Before
     public void setUp() throws Exception {
-        PowerMockito.whenNew(Zulip.class).withAnyArguments().thenReturn(zulip);
-        PowerMockito.mockStatic(Jenkins.class);
-        when(Jenkins.getInstance()).thenReturn(jenkins);
+        MockitoAnnotations.openMocks(this);
+
+        zulipConstruction = Mockito.mockConstruction(Zulip.class, (zulio, context) -> {
+            assertEquals("zulipUrl", context.arguments().get(0));
+            assertEquals("jenkins-bot@zulip.com", context.arguments().get(1));
+        });
+
+        jenkinsStatic = Mockito.mockStatic(Jenkins.class);
+        jenkinsStatic.when(Jenkins::getInstance).thenReturn(jenkins);
+
         when(jenkins.getDescriptorByType(DescriptorImpl.class)).thenReturn(descMock);
         when(descMock.getUrl()).thenReturn("zulipUrl");
         when(descMock.getEmail()).thenReturn("jenkins-bot@zulip.com");
@@ -95,25 +98,33 @@ public class ZulipSendStepTest {
         });
     }
 
+    @After
+    public void tearDown() {
+        zulipConstruction.close();
+        jenkinsStatic.close();
+        // descConstruction.close();
+    }
+
     @Test
     public void testShouldUseDefaults() throws Exception {
         ZulipSendStep sendStep = new ZulipSendStep();
         sendStep.setMessage("message");
         sendStep.perform(run, null, null, taskListener);
-        verifyNew(Zulip.class).withArguments(eq("zulipUrl"), eq("jenkins-bot@zulip.com"), any(Secret.class));
+
         verify(envVars, times(3)).expand(expandCaptor.capture());
         assertThat("Should expand stream, topic and message", expandCaptor.getAllValues(),
                 is(Arrays.asList("defaultStream", "defaultTopic", "message")));
-        verify(zulip).sendStreamMessage(streamCaptor.capture(), topicCaptor.capture(), messageCaptor.capture());
+        verify(zulipConstruction.constructed().get(0)).sendStreamMessage(streamCaptor.capture(), topicCaptor.capture(),
+                messageCaptor.capture());
         assertEquals("Should be default stream", "defaultStream", streamCaptor.getValue());
         assertEquals("Should be default topic", "defaultTopic", topicCaptor.getValue());
         assertEquals("message", messageCaptor.getValue());
         //
-        reset(zulip);
         sendStep.setStream("");
         sendStep.setTopic("");
         sendStep.perform(run, null, null, taskListener);
-        verify(zulip).sendStreamMessage(streamCaptor.capture(), topicCaptor.capture(), messageCaptor.capture());
+        verify(zulipConstruction.constructed().get(1)).sendStreamMessage(streamCaptor.capture(), topicCaptor.capture(),
+                messageCaptor.capture());
         assertEquals("Should be default stream", "defaultStream", streamCaptor.getValue());
         assertEquals("Should be default topic", "defaultTopic", topicCaptor.getValue());
     }
@@ -124,18 +135,21 @@ public class ZulipSendStepTest {
         sendStep.setStream("projectStream");
         sendStep.setTopic("projectTopic");
         sendStep.perform(run, null, null, taskListener);
-        verify(zulip).sendStreamMessage(streamCaptor.capture(), topicCaptor.capture(), messageCaptor.capture());
+        verify(zulipConstruction.constructed().get(0)).sendStreamMessage(streamCaptor.capture(), topicCaptor.capture(),
+                messageCaptor.capture());
         assertEquals("Should be project stream", "projectStream", streamCaptor.getValue());
         assertEquals("Should be project topic", "projectTopic", topicCaptor.getValue());
         assertNull("Should be null message", messageCaptor.getValue());
     }
 
+    @Test
     public void testShouldUseProjectNameAsTopic() throws Exception {
         ZulipSendStep sendStep = new ZulipSendStep();
         // Override default topic config
         when(descMock.getTopic()).thenReturn("");
         sendStep.perform(run, null, null, taskListener);
-        verify(zulip).sendStreamMessage(streamCaptor.capture(), topicCaptor.capture(), messageCaptor.capture());
+        verify(zulipConstruction.constructed().get(0)).sendStreamMessage(streamCaptor.capture(), topicCaptor.capture(),
+                messageCaptor.capture());
         assertEquals("Topic should be project display name", "TestJob", topicCaptor.getValue());
     }
 

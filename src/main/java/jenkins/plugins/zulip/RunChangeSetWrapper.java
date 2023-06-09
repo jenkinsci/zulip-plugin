@@ -6,10 +6,10 @@ import java.util.List;
 import hudson.model.AbstractBuild;
 import hudson.model.Run;
 import hudson.scm.ChangeLogSet;
-import org.jenkinsci.plugins.workflow.job.WorkflowRun;
+import jenkins.scm.RunWithSCM;
 
 /**
- * Wrapper that is allowed to pull change set since last build for both {@link AbstractBuild} and {@link WorkflowRun}
+ * Wrapper that pulls change set since last build
  */
 public class RunChangeSetWrapper {
 
@@ -29,8 +29,8 @@ public class RunChangeSetWrapper {
     public boolean hasChangeSet() {
         if (build instanceof AbstractBuild) {
             return !((AbstractBuild<?, ?>) build).getChangeSet().isEmptySet();
-        } else if (build instanceof WorkflowRun) {
-            return !((WorkflowRun) build).getChangeSets().isEmpty();
+        } else if (build instanceof RunWithSCM) {
+            return !((RunWithSCM<?, ?>) build).getChangeSets().isEmpty();
         }
         return false;
     }
@@ -38,8 +38,8 @@ public class RunChangeSetWrapper {
     public List<? extends ChangeLogSet<? extends ChangeLogSet.Entry>> getChangeSets() {
         if (build instanceof AbstractBuild) {
             return Collections.singletonList(((AbstractBuild<?, ?>) build).getChangeSet());
-        } else if (build instanceof WorkflowRun) {
-            return ((WorkflowRun) build).getChangeSets();
+        } else if (build instanceof RunWithSCM) {
+            return ((RunWithSCM<?, ?>) build).getChangeSets();
         }
         return null;
     }
