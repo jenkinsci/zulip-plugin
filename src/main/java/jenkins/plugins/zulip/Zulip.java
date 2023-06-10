@@ -51,7 +51,7 @@ public class Zulip {
     /**
      * Configures proxy connection on {@link HttpClient} based on Jenkins settings
      *
-     * @param httpClient
+     * @param httpClientBuilder The HttpClient builder
      */
     protected void configureProxy(HttpClient.Builder httpClientBuilder) throws MalformedURLException {
         LOGGER.log(Level.FINE, "Setting up HttpClient proxy");
