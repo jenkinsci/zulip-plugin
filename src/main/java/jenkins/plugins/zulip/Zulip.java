@@ -137,7 +137,7 @@ public class Zulip {
                     .collect(Collectors.joining("&"));
 
             String auth_info = this.getEmail() + ":" + this.getApiKey();
-            String encoded_auth = new String(Base64.getEncoder().encodeToString(auth_info.getBytes(encodingCharset)));
+            String encoded_auth = Base64.getEncoder().encodeToString(auth_info.getBytes(encodingCharset));
 
             HttpRequest httpRequest = HttpRequest.newBuilder()
                     .uri(getApiEndpoint(method))
