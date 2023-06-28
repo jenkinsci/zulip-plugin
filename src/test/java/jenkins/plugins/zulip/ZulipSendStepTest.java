@@ -79,7 +79,7 @@ public class ZulipSendStepTest {
         });
 
         jenkinsStatic = Mockito.mockStatic(Jenkins.class);
-        jenkinsStatic.when(Jenkins::getInstance).thenReturn(jenkins);
+        jenkinsStatic.when(Jenkins::get).thenReturn(jenkins);
 
         when(jenkins.getDescriptorByType(DescriptorImpl.class)).thenReturn(descMock);
         when(descMock.getUrl()).thenReturn("zulipUrl");

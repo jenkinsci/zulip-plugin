@@ -49,7 +49,7 @@ public class ZulipTest {
         MockitoAnnotations.openMocks(this);
 
         jenkinsStatic = Mockito.mockStatic(Jenkins.class);
-        jenkinsStatic.when(Jenkins::getInstance).thenReturn(jenkins);
+        jenkinsStatic.when(Jenkins::get).thenReturn(jenkins);
 
         secretStatic = Mockito.mockStatic(Secret.class);
         secretStatic.when(() -> Secret.toString(any(Secret.class))).thenReturn("secret");

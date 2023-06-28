@@ -50,7 +50,7 @@ public class ZulipUtil {
      * @return The Jenkins instance Url
      */
     public static String getJenkinsUrl(DescriptorImpl globalConfig) {
-        String jenkinsUrl = getDefaultValue(globalConfig.getJenkinsUrl(), Jenkins.getInstance().getRootUrl());
+        String jenkinsUrl = getDefaultValue(globalConfig.getJenkinsUrl(), Jenkins.get().getRootUrl());
         if (jenkinsUrl != null && jenkinsUrl.length() > 0 && !jenkinsUrl.endsWith("/")) {
             jenkinsUrl = jenkinsUrl + "/";
         }
@@ -113,7 +113,7 @@ public class ZulipUtil {
             DescriptorImpl globalConfig,
             boolean fullPath, boolean displayLinks) {
         // We never display Jenkins; it's implicit.
-        if (object == Jenkins.getInstance()) {
+        if (object == Jenkins.get()) {
             return;
         }
         // The only common interface between Item and ItemGroup is ModelObject, which

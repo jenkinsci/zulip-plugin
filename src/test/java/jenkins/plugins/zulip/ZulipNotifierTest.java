@@ -117,7 +117,7 @@ public class ZulipNotifierTest {
         });
 
         jenkinsStatic = Mockito.mockStatic(Jenkins.class);
-        jenkinsStatic.when(Jenkins::getInstance).thenReturn(jenkins);
+        jenkinsStatic.when(Jenkins::get).thenReturn(jenkins);
 
         userStatic = Mockito.mockStatic(User.class);
         userStatic.when(() -> User.get(anyString())).thenAnswer(new Answer<User>() {

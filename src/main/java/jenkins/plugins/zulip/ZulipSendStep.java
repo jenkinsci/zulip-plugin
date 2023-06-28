@@ -37,15 +37,19 @@ public class ZulipSendStep extends Builder implements SimpleBuildStep {
     }
 
     @Override
-    public void perform(@Nonnull Run<?, ?> run, @Nonnull FilePath workspace, @Nonnull Launcher launcher, @Nonnull TaskListener listener)
+    public void perform(@Nonnull Run<?, ?> run, @Nonnull FilePath workspace, @Nonnull Launcher launcher,
+            @Nonnull TaskListener listener)
             throws InterruptedException, IOException {
-        jenkins.plugins.zulip.DescriptorImpl globalConfig =
-                Jenkins.getInstance().getDescriptorByType(jenkins.plugins.zulip.DescriptorImpl.class);
+        jenkins.plugins.zulip.DescriptorImpl globalConfig = Jenkins.get()
+                .getDescriptorByType(jenkins.plugins.zulip.DescriptorImpl.class);
         Zulip zulip = new Zulip(globalConfig.getUrl(), globalConfig.getEmail(), globalConfig.getApiKey());
-        String stream = ZulipUtil.expandVariables(run, listener, ZulipUtil.getDefaultValue(getStream(), globalConfig.getStream()));
-        String defaultTopic = displayItem(run.getParent(), globalConfig, globalConfig.isFullJobPathAsDefaultTopic(), false);
+        String stream = ZulipUtil.expandVariables(run, listener,
+                ZulipUtil.getDefaultValue(getStream(), globalConfig.getStream()));
+        String defaultTopic = displayItem(run.getParent(), globalConfig, globalConfig.isFullJobPathAsDefaultTopic(),
+                false);
         String topic = ZulipUtil.expandVariables(run, listener,
-                ZulipUtil.getDefaultValue(ZulipUtil.getDefaultValue(getTopic(), globalConfig.getTopic()), defaultTopic));
+                ZulipUtil.getDefaultValue(ZulipUtil.getDefaultValue(getTopic(), globalConfig.getTopic()),
+                        defaultTopic));
         String message = ZulipUtil.expandVariables(run, listener, getMessage());
         zulip.sendStreamMessage(stream, topic, message);
     }

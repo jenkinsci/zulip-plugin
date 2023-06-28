@@ -46,7 +46,7 @@ public class DescriptorImpl extends BuildStepDescriptor<Publisher> {
             XStream2 xstream = new XStream2();
             xstream.alias("hudson.plugins.humbug.DescriptorImpl", DescriptorImpl.class);
             XmlFile oldConfig = new XmlFile(xstream,
-                    new File(Jenkins.getInstance().getRootDir(), OLD_CONFIG_FILE_NAME));
+                    new File(Jenkins.get().getRootDir(), OLD_CONFIG_FILE_NAME));
             if (oldConfig.exists()) {
                 try {
                     oldConfig.unmarshal(this);
@@ -159,7 +159,7 @@ public class DescriptorImpl extends BuildStepDescriptor<Publisher> {
         save();
 
         // Cleanup the configuration file from previous plugin id - humbug
-        File oldConfig = new File(Jenkins.getInstance().getRootDir(), OLD_CONFIG_FILE_NAME);
+        File oldConfig = new File(Jenkins.get().getRootDir(), OLD_CONFIG_FILE_NAME);
         if (oldConfig.exists()) {
             if (oldConfig.delete()) {
                 logger.log(Level.INFO, "Old humbug configuration file successfully cleaned up.");

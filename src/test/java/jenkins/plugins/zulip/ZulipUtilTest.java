@@ -41,7 +41,7 @@ public class ZulipUtilTest {
     public void setUp() {
         MockitoAnnotations.openMocks(this);
         jenkinsStatic = Mockito.mockStatic(Jenkins.class);
-        jenkinsStatic.when(Jenkins::getInstance).thenReturn(jenkins);
+        jenkinsStatic.when(Jenkins::get).thenReturn(jenkins);
         when(jenkins.getRootUrl()).thenReturn("http://JenkinsConfigUrl/");
     }
 
@@ -101,7 +101,7 @@ public class ZulipUtilTest {
     // return ItemGroup<? extends Item>
     @SuppressWarnings("unchecked")
     public void testDisplayJob() {
-        jenkinsStatic.when(Jenkins::getInstance).thenReturn(jenkins);
+        jenkinsStatic.when(Jenkins::get).thenReturn(jenkins);
         when(itemMock.getDisplayName()).thenReturn("MyJobName");
         when(itemMock.getUrl()).thenReturn("job/MyJob");
         when(itemMock.getParent()).thenReturn((ItemGroup) parentItemGroupMock);

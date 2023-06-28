@@ -113,7 +113,7 @@ public class ZulipNotifierFullJobPathTest {
         });
 
         jenkinsStatic = Mockito.mockStatic(Jenkins.class);
-        jenkinsStatic.when(Jenkins::getInstance).thenReturn(jenkins);
+        jenkinsStatic.when(Jenkins::get).thenReturn(jenkins);
         when(jenkins.getDisplayName()).thenReturn("Jenkins");
 
         userStatic = Mockito.mockStatic(User.class);
