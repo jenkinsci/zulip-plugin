@@ -37,6 +37,16 @@ one of following criteria is met:
     * Previous build failed
     
     In another words, the notifications will not be sent for continuously successful builds.
+* **Use full job path in default topic name** = Determines how the topic name is constructed when **Default topic name** is blank:
+    * When disabled, only the build run direct parent name is used.
+    * When enabled, all parent names (e.g. folders) are used.
+    
+    It is recommended to have this option on, especially if you use projects with multiple layers (e.g. multi-branch pipeline).
+* **Use full job path in notification message** = Determines how the build notification message is constructed.
+    * When disabled, only the build run direct parent name is used.
+    * When enabled, all parent names (e.g. folders) are used.
+    
+    It is recommended to have this option on, especially if you use projects with multiple layers (e.g. multi-branch pipeline).
 * **Jenkins URL** = :warning: This parameter is kept just for the sake of backward compatibility.:warning:
 Instead of setting this, configure Jenkins URL in "Manage Jenkins" > "Configure System" > "Jenkins Location" > "Jenkins URL" 
 
@@ -53,7 +63,7 @@ You can use build variables in stream name.
 If blank in both places, job name will be used as topic.
 You can use build variables in topic name.
 * **Smart Notification** = Allows you override global smart notification setting and enable / disabled
-smart notification for this job. The job uses global smart notification seting by default. 
+smart notification for this job. The job uses global smart notification setting by default. 
 
 #### Freestyle project 
 
@@ -123,7 +133,7 @@ In scripted pipeline, simply use the ```zulipSend``` step in any stage of the bu
 node {
     stage('Prepare') {
         zulipSend message: 'Started build #${BUILD_NUMBER} of project ${JOB_NAME}...'
-        // ... Perphaps SCM checkout here ...
+        // ... Perhaps SCM checkout here ...
     }
     // ... Other build stages ...
 }
@@ -131,7 +141,7 @@ node {
 
 #### Declarative Pipeline
 
-In declaretive pipeline, simply use the ```zulipSend``` step in any stage of the build.
+In declarative pipeline, simply use the ```zulipSend``` step in any stage of the build.
 
 ```jenkins
 pipeline {
@@ -140,7 +150,7 @@ pipeline {
         stage('Prepare') {
             steps {
                 zulipSend message: 'Started build #${BUILD_NUMBER} of project ${JOB_NAME}...'
-                // ... Perphaps SCM checkout here ...
+                // ... Perhaps SCM checkout here ...
             }
         }
         // ... Other build stages ...
@@ -181,7 +191,7 @@ job('DSL-Freestyle') {
 If you're using 1.x version of Jenkins and 1.x version of workflow job plugin (previous name for the pipeline jobs)
 you will encounter exceptions like ```java.lang.NoSuchMethodError: No such DSL method zulipSend found among [...]```.
 
-In that case, you will have to use the metastep instead. Simply replace:
+In that case, you will have to use the meta-step instead. Simply replace:
 
 ```jenkins
 zulipSend message: 'Test'
