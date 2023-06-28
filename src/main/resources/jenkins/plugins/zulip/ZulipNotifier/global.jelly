@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?jelly escape-by-default='true'?>
-<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
-  <!--
+<j:jelly xmlns:j="jelly:core"
+    xmlns:st="jelly:stapler"
+    xmlns:d="jelly:define"
+    xmlns:l="/lib/layout"
+    xmlns:t="/lib/hudson"
+    xmlns:f="/lib/form">
+    <!--
     This Jelly script is used to produce the global configuration option.
 
     Hudson uses a set of tag libraries to provide uniformity in forms.
@@ -13,33 +18,33 @@
     tags they use. Views are always organized according to its owner class,
     so it should be straightforward to find them.
   -->
-<f:section title="Zulip Notification Settings">
-    <f:entry title="Zulip URL" help="/plugin/zulip/help-globalConfig-zulipUrl.html">
-        <f:textbox name="url" value="${descriptor.getUrl()}" />
-    </f:entry>
-    <f:entry title="Zulip User Email" help="/plugin/zulip/help-globalConfig-email.html">
-        <f:textbox name="email" value="${descriptor.getEmail()}" />
-    </f:entry>
-    <f:entry title="Zulip API Key" help="/plugin/zulip/help-globalConfig-apiKey.html">
-        <f:password name="apiKey" value="${descriptor.getApiKey()}" />
-    </f:entry>
-    <f:entry title="Default Stream Name" help="/plugin/zulip/help-globalConfig-stream.html">
-        <f:textbox name="stream" value="${descriptor.getStream()}" />
-    </f:entry>
-    <f:entry title="Default Topic Name" help="/plugin/zulip/help-globalConfig-topic.html">
-        <f:textbox name="topic" value="${descriptor.getTopic()}" />
-    </f:entry>
-    <f:entry title="Use full job path in default topic name" help="/plugin/zulip/help-globalConfig-fullJobPathAsDefaultTopic.html">
-        <f:checkbox name="fullJobPathAsDefaultTopic" checked="${descriptor.isFullJobPathAsDefaultTopic()}" />
-    </f:entry>
-    <f:entry title="Use full job path in notification message" help="/plugin/zulip/help-globalConfig-fullJobPathInMessage.html">
-        <f:checkbox name="fullJobPathInMessage" checked="${descriptor.isFullJobPathInMessage()}" />
-    </f:entry>
-    <f:entry title="Enable Smart Notification" help="/plugin/zulip/help-globalConfig-smartNotify.html">
-        <f:checkbox name="smartNotify" checked="${descriptor.isSmartNotify()}" />
-    </f:entry>
-    <f:entry title="Jenkins URL" help="/plugin/zulip/help-globalConfig-jenkinsUrl.html">
-        <f:textbox name="jenkinsUrl" value="${descriptor.getJenkinsUrl()}" />
-    </f:entry>
-  </f:section>
+    <f:section title="Zulip Notification Settings">
+        <f:entry title="Zulip URL" help="/plugin/zulip/help-globalConfig-zulipUrl.html">
+            <f:textbox name="url" value="${descriptor.getUrl()}" />
+        </f:entry>
+        <f:entry title="Zulip User Email" help="/plugin/zulip/help-globalConfig-email.html">
+            <f:textbox name="email" value="${descriptor.getEmail()}" />
+        </f:entry>
+        <f:entry title="Zulip API Key" help="/plugin/zulip/help-globalConfig-apiKey.html">
+            <f:password name="apiKey" value="${descriptor.getApiKey()}" />
+        </f:entry>
+        <f:entry title="Default Stream Name" help="/plugin/zulip/help-globalConfig-stream.html">
+            <f:textbox name="stream" value="${descriptor.getStream()}" />
+        </f:entry>
+        <f:entry title="Default Topic Name" help="/plugin/zulip/help-globalConfig-topic.html">
+            <f:textbox name="topic" value="${descriptor.getTopic()}" />
+        </f:entry>
+        <f:entry title="Use full job path in default topic name" help="/plugin/zulip/help-globalConfig-fullJobPathAsDefaultTopic.html">
+            <f:checkbox name="fullJobPathAsDefaultTopic" checked="${descriptor.getFullJobPathAsDefaultTopic()}" default="true" />
+        </f:entry>
+        <f:entry title="Use full job path in notification message" help="/plugin/zulip/help-globalConfig-fullJobPathInMessage.html">
+            <f:checkbox name="fullJobPathInMessage" checked="${descriptor.getFullJobPathInMessage()}" default="true" />
+        </f:entry>
+        <f:entry title="Enable Smart Notification" help="/plugin/zulip/help-globalConfig-smartNotify.html">
+            <f:checkbox name="smartNotify" checked="${descriptor.getSmartNotify()}" default="true" />
+        </f:entry>
+        <f:entry title="Jenkins URL" help="/plugin/zulip/help-globalConfig-jenkinsUrl.html">
+            <f:textbox name="jenkinsUrl" value="${descriptor.getJenkinsUrl()}" />
+        </f:entry>
+    </f:section>
 </j:jelly>

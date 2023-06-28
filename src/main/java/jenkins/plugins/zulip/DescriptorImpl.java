@@ -31,11 +31,11 @@ public class DescriptorImpl extends BuildStepDescriptor<Publisher> {
     private Secret apiKey;
     private String stream;
     private String topic;
-    private boolean fullJobPathAsDefaultTopic;
-    private boolean fullJobPathInMessage;
+    private Boolean fullJobPathAsDefaultTopic;
+    private Boolean fullJobPathInMessage;
     private transient String hudsonUrl; // backwards compatibility
     private String jenkinsUrl;
-    private boolean smartNotify;
+    private Boolean smartNotify;
 
     public DescriptorImpl() {
         super(ZulipNotifier.class);
@@ -45,7 +45,8 @@ public class DescriptorImpl extends BuildStepDescriptor<Publisher> {
         } else {
             XStream2 xstream = new XStream2();
             xstream.alias("hudson.plugins.humbug.DescriptorImpl", DescriptorImpl.class);
-            XmlFile oldConfig = new XmlFile(xstream, new File(Jenkins.getInstance().getRootDir(), OLD_CONFIG_FILE_NAME));
+            XmlFile oldConfig = new XmlFile(xstream,
+                    new File(Jenkins.getInstance().getRootDir(), OLD_CONFIG_FILE_NAME));
             if (oldConfig.exists()) {
                 try {
                     oldConfig.unmarshal(this);
@@ -97,6 +98,10 @@ public class DescriptorImpl extends BuildStepDescriptor<Publisher> {
     }
 
     public boolean isFullJobPathAsDefaultTopic() {
+        return Boolean.TRUE.equals(fullJobPathAsDefaultTopic);
+    }
+
+    public Boolean getFullJobPathAsDefaultTopic() {
         return fullJobPathAsDefaultTopic;
     }
 
@@ -105,10 +110,14 @@ public class DescriptorImpl extends BuildStepDescriptor<Publisher> {
     }
 
     public boolean isFullJobPathInMessage() {
+        return Boolean.TRUE.equals(fullJobPathInMessage);
+    }
+
+    public Boolean getFullJobPathInMessage() {
         return fullJobPathInMessage;
     }
 
-    public void setFullJobPathInMessage(boolean fullJobPathInMessage) {
+    public void setFullJobPathInMessage(Boolean fullJobPathInMessage) {
         this.fullJobPathInMessage = fullJobPathInMessage;
     }
 
@@ -121,10 +130,14 @@ public class DescriptorImpl extends BuildStepDescriptor<Publisher> {
     }
 
     public boolean isSmartNotify() {
+        return Boolean.TRUE.equals(smartNotify);
+    }
+
+    public Boolean getSmartNotify() {
         return smartNotify;
     }
 
-    public void setSmartNotify(boolean smartNotify) {
+    public void setSmartNotify(Boolean smartNotify) {
         this.smartNotify = smartNotify;
     }
 
@@ -139,10 +152,10 @@ public class DescriptorImpl extends BuildStepDescriptor<Publisher> {
         apiKey = Secret.fromString((String) json.get("apiKey"));
         stream = (String) json.get("stream");
         topic = (String) json.get("topic");
-        fullJobPathAsDefaultTopic = Boolean.TRUE.equals(json.get("fullJobPathAsDefaultTopic"));
-        fullJobPathInMessage = Boolean.TRUE.equals(json.get("fullJobPathInMessage"));
+        fullJobPathAsDefaultTopic = (Boolean) json.get("fullJobPathAsDefaultTopic");
+        fullJobPathInMessage = (Boolean) json.get("fullJobPathInMessage");
         jenkinsUrl = (String) json.get("jenkinsUrl");
-        smartNotify = Boolean.TRUE.equals(json.get("smartNotify"));
+        smartNotify = (Boolean) json.get("smartNotify");
         save();
 
         // Cleanup the configuration file from previous plugin id - humbug
