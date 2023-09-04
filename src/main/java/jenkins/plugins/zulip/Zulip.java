@@ -80,6 +80,9 @@ public class Zulip {
         httpClientBuilder.authenticator(new Authenticator() {
             @Override
             protected PasswordAuthentication getPasswordAuthentication() {
+                LOGGER.log(Level.FINE, "{0} authentication requested from {1}:{2}", new Object[] { getRequestorType(),
+                        getRequestingHost(), getRequestingPort() });
+
                 switch (getRequestorType()) {
                     case PROXY:
                         ProxyConfiguration proxyConfiguration = Jenkins.get().proxy;
@@ -91,8 +94,12 @@ public class Zulip {
                                     Secret.toString(proxyConfiguration.getSecretPassword()).toCharArray());
                         }
 
+                        LOGGER.log(Level.FINE, "Proxy authentication not configured in Jenkins");
+
                         return null;
                     default:
+                        LOGGER.log(Level.FINE, "Unsupported authentication request");
+
                         return null;
                 }
             }
@@ -155,8 +162,10 @@ public class Zulip {
             HttpResponse<String> httpResponse = client.send(httpRequest, HttpResponse.BodyHandlers.ofString());
 
             if (httpResponse.statusCode() != 200) {
-                LOGGER.log(Level.SEVERE, "Error sending Zulip message:\n" + httpResponse.body() + "\n\n" +
-                        "We sent:" + body);
+                LOGGER.log(Level.SEVERE,
+                        "Error sending Zulip message:\nStatus:" + httpResponse.statusCode() + "\nBody:"
+                                + httpResponse.body() + "\n\n" +
+                                "We sent:" + body);
             }
 
             return httpResponse;
