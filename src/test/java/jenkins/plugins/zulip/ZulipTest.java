@@ -95,7 +95,8 @@ public class ZulipTest {
 
     @Test
     public void testSendsAuthorizationWhenRequested() {
-        mockServer.when(request().withPath("/api/v1/messages").withHeader(NottableString.not("Authorization")))
+        mockServer
+                .when(request().withPath("/api/v1/messages").withHeader(NottableString.not(HttpHeaders.AUTHORIZATION)))
                 .respond(response().withStatusCode(401).withHeader(HttpHeaders.WWW_AUTHENTICATE, "Basic"));
         mockServer.when(request().withPath("/api/v1/messages"))
                 .respond(response().withStatusCode(200));
