@@ -15,7 +15,6 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -53,9 +52,9 @@ public class Zulip {
      *
      * @param httpClientBuilder The HttpClient builder
      */
-    protected void configureProxy(HttpClient.Builder httpClientBuilder) throws MalformedURLException {
+    protected void configureProxy(HttpClient.Builder httpClientBuilder, ProxyConfiguration proxyConfiguration)
+            throws MalformedURLException {
         LOGGER.log(Level.FINE, "Setting up HttpClient proxy");
-        ProxyConfiguration proxyConfiguration = Jenkins.get().proxy;
 
         if (proxyConfiguration != null && ZulipUtil.isValueSet(proxyConfiguration.name)) {
             URL urlObj = new URL(url);
@@ -76,7 +75,7 @@ public class Zulip {
         }
     }
 
-    protected void configureAuthenticator(HttpClient.Builder httpClientBuilder) {
+    protected void configureAuthenticator(HttpClient.Builder httpClientBuilder, ProxyConfiguration proxyConfiguration) {
         httpClientBuilder.authenticator(new Authenticator() {
             @Override
             protected PasswordAuthentication getPasswordAuthentication() {
@@ -85,8 +84,6 @@ public class Zulip {
 
                 switch (getRequestorType()) {
                     case PROXY:
-                        ProxyConfiguration proxyConfiguration = Jenkins.get().proxy;
-
                         if (ZulipUtil.isValueSet(proxyConfiguration.getUserName())) {
                             LOGGER.log(Level.FINE, "Using proxy authentication username: {0}, password: ******",
                                     proxyConfiguration.getUserName());
@@ -97,6 +94,11 @@ public class Zulip {
                         LOGGER.log(Level.FINE, "Proxy authentication not configured in Jenkins");
 
                         return null;
+                    case SERVER:
+                        LOGGER.log(Level.FINE, "Using Zulip server authentication username: {0}, password: ******",
+                                getEmail());
+
+                        return new PasswordAuthentication(getEmail(), getApiKey().toCharArray());
                     default:
                         LOGGER.log(Level.FINE, "Unsupported authentication request");
 
@@ -107,9 +109,11 @@ public class Zulip {
     }
 
     protected HttpClient getClient() throws MalformedURLException {
+        ProxyConfiguration proxyConfiguration = Jenkins.get().proxy;
+
         HttpClient.Builder httpClientBuilder = HttpClient.newBuilder();
-        configureProxy(httpClientBuilder);
-        configureAuthenticator(httpClientBuilder);
+        configureProxy(httpClientBuilder, proxyConfiguration);
+        configureAuthenticator(httpClientBuilder, proxyConfiguration);
         return httpClientBuilder.build();
     }
 
@@ -143,9 +147,6 @@ public class Zulip {
                     .map(e -> encodeValue(e))
                     .collect(Collectors.joining("&"));
 
-            String auth_info = this.getEmail() + ":" + this.getApiKey();
-            String encoded_auth = Base64.getEncoder().encodeToString(auth_info.getBytes(encodingCharset));
-
             HttpRequest httpRequest = HttpRequest.newBuilder()
                     .uri(getApiEndpoint(method))
                     // TODO: It would be nice if this version number read from the Maven XML file
@@ -153,7 +154,6 @@ public class Zulip {
                     // http://stackoverflow.com/questions/8829147/maven-version-number-in-java-file
                     .header("User-Agent", "ZulipJenkins/0.1.2")
                     .header("Content-Type", "application/x-www-form-urlencoded")
-                    .header("Authorization", "Basic " + encoded_auth)
                     .POST(HttpRequest.BodyPublishers.ofString(body, encodingCharset))
                     .build();
 
