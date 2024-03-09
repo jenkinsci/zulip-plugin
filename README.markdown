@@ -4,13 +4,6 @@ This plugin sends [messages](#zulip-send) and [notifications](#zulip-notificatio
 
 It began its life as a fork of the [Jenkins Campfire plugin](https://github.com/jenkinsci/campfire-plugin).
 
-## Table of contents
-1. [Global Configuration](#global-configuration)
-1. [Zulip Notification](#zulip-notification)
-1. [Zulip Send](#zulip-send)
-1. [Job DSL](#job-dsl)
-1. [Troubleshooting](#troubleshooting)
-
 ## Global configuration
 
 The Zulip server is configured globally for the whole Jenkins instance.
