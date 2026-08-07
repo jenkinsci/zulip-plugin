@@ -2,6 +2,7 @@ package jenkins.plugins.zulip;
 
 import hudson.Extension;
 import hudson.FilePath;
+import hudson.Functions;
 import hudson.Launcher;
 import hudson.model.AbstractBuild;
 import hudson.model.BuildListener;
@@ -13,7 +14,6 @@ import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Publisher;
 import hudson.tasks.test.AbstractTestResultAction;
 import jenkins.tasks.SimpleBuildStep;
-import org.apache.commons.lang.exception.ExceptionUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 
@@ -96,7 +96,7 @@ public class ZulipNotifier extends Publisher implements SimpleBuildStep {
             } catch (Exception e) {
                 logger.log(Level.WARNING,
                         "Exception while computing changes since last build:\n"
-                                + ExceptionUtils.getStackTrace(e));
+                                + Functions.printThrowable(e));
                 changeString += "\nError determining changes since last build - please contact support@zulip.com.";
             }
             String resultString = result.toString();
