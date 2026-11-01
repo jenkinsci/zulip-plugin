@@ -266,30 +266,27 @@ public class ZulipNotifierTest {
     public void testSmartNotify() throws Exception {
         ZulipNotifier notifier = new ZulipNotifier();
         when(descMock.isSmartNotify()).thenReturn(true);
-        // If there was no previous build, notification should be sent no matter the
         // result
-        when(build.getPreviousBuild()).thenReturn(null);
-        when(build.getResult()).thenReturn(Result.SUCCESS);
+        setupRunGetResultAndGetPreviousBuildStubs(null);
+        // If there was no previous build, notification should be sent no matter the
         notifier.perform(build, (Launcher) null, buildListener);
         when(build.getResult()).thenReturn(Result.FAILURE);
         notifier.perform(build, (Launcher) null, buildListener);
         assertEquals(2, zulipConstruction.constructed().size());
 
         // If the previous build was a failure, notification should be sent no matter
-        // what
-        when(build.getPreviousBuild()).thenReturn(previousBuild);
         when(previousBuild.getResult()).thenReturn(Result.FAILURE);
-        when(build.getResult()).thenReturn(Result.SUCCESS);
+        // what
+        setupRunGetResultAndGetPreviousBuildStubs(previousBuild);
         notifier.perform(build, (Launcher) null, buildListener);
         when(build.getResult()).thenReturn(Result.FAILURE);
         notifier.perform(build, (Launcher) null, buildListener);
         assertEquals(4, zulipConstruction.constructed().size());
 
         // If the previous build was a success, notification should be sent only for
-        // failed builds
-        when(build.getPreviousBuild()).thenReturn(previousBuild);
         when(previousBuild.getResult()).thenReturn(Result.SUCCESS);
-        when(build.getResult()).thenReturn(Result.SUCCESS);
+        // failed builds
+        setupRunGetResultAndGetPreviousBuildStubs(previousBuild);
         notifier.perform(build, (Launcher) null, buildListener);
         when(build.getResult()).thenReturn(Result.FAILURE);
         notifier.perform(build, (Launcher) null, buildListener);
@@ -317,4 +314,8 @@ public class ZulipNotifierTest {
         }
     }
 
+    private void setupRunGetResultAndGetPreviousBuildStubs(AbstractBuild getPreviousBuildReturnValue) {
+        when(build.getPreviousBuild()).thenReturn(getPreviousBuildReturnValue);
+        when(build.getResult()).thenReturn(Result.SUCCESS);
+    }
 }
