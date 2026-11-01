@@ -90,8 +90,7 @@ public class ZulipUtilTest {
         assertEquals("MyJobName", ZulipUtil.displayObjectWithLink(itemMock, null, descMock));
 
         // No Jenkins root URL at all
-        when(jenkins.getRootUrl()).thenReturn(null);
-        when(descMock.getJenkinsUrl()).thenReturn(null);
+        setupDescriptorImplGetJenkinsUrlAndGetRootUrlStubs();
         assertEquals("MyJobName", ZulipUtil.displayObjectWithLink(itemMock, "job/MyJob", descMock));
         assertEquals("MyJobName", ZulipUtil.displayObjectWithLink(itemMock, null, descMock));
     }
@@ -102,8 +101,7 @@ public class ZulipUtilTest {
     @SuppressWarnings("unchecked")
     public void testDisplayJob() {
         jenkinsStatic.when(Jenkins::get).thenReturn(jenkins);
-        when(itemMock.getDisplayName()).thenReturn("MyJobName");
-        when(itemMock.getUrl()).thenReturn("job/MyJob");
+        setupItemGetUrlAndGetDisplayNameStubs(itemMock, "job/MyJob", "MyJobName");
         when(itemMock.getParent()).thenReturn((ItemGroup) parentItemGroupMock);
         // Jenkins is always at the root of the job tree
         when(parentItemGroupMock.getParent()).thenReturn((ItemGroup) jenkins);
@@ -112,8 +110,7 @@ public class ZulipUtilTest {
         when(jenkins.getDisplayName()).thenReturn("Jenkins");
 
         // Parent with a name => Display full path when requested
-        when(parentItemGroupMock.getDisplayName()).thenReturn("ParentName");
-        when(parentItemGroupMock.getUrl()).thenReturn("job/Parent");
+        setupItemGetUrlAndGetDisplayNameStubs(parentItemGroupMock, "job/Parent", "ParentName");
         assertEquals(
                 "[ParentName](http://JenkinsConfigUrl/job/Parent) » [MyJobName](http://JenkinsConfigUrl/job/MyJob)",
                 ZulipUtil.displayItem(itemMock, descMock, true, true));
@@ -123,8 +120,7 @@ public class ZulipUtilTest {
         assertEquals("MyJobName", ZulipUtil.displayItem(itemMock, descMock, false, false));
 
         // Parent without a URL => don't add a link
-        when(parentItemGroupMock.getDisplayName()).thenReturn("ParentName");
-        when(parentItemGroupMock.getUrl()).thenReturn(null);
+        setupItemGetUrlAndGetDisplayNameStubs(parentItemGroupMock, null, "ParentName");
         assertEquals("ParentName » [MyJobName](http://JenkinsConfigUrl/job/MyJob)",
                 ZulipUtil.displayItem(itemMock, descMock, true, true));
         assertEquals("ParentName » MyJobName", ZulipUtil.displayItem(itemMock, descMock, true, false));
@@ -134,8 +130,7 @@ public class ZulipUtilTest {
 
         // Parent with an empty name => display the job only
         // This can happen: see hudson.model.AbstractItem.getFullDisplayName
-        when(parentItemGroupMock.getDisplayName()).thenReturn("");
-        when(parentItemGroupMock.getUrl()).thenReturn("view/RootUrl");
+        setupItemGetUrlAndGetDisplayNameStubs(parentItemGroupMock, "view/RootUrl", "");
         assertEquals("[MyJobName](http://JenkinsConfigUrl/job/MyJob)",
                 ZulipUtil.displayItem(itemMock, descMock, true, true));
         assertEquals("MyJobName", ZulipUtil.displayItem(itemMock, descMock, true, false));
@@ -145,8 +140,7 @@ public class ZulipUtilTest {
 
         // Parent without a name => display the job only
         // Not sure this can happen, but let's be safe
-        when(parentItemGroupMock.getDisplayName()).thenReturn(null);
-        when(parentItemGroupMock.getUrl()).thenReturn("view/RootUrl");
+        setupItemGetUrlAndGetDisplayNameStubs(parentItemGroupMock, "view/RootUrl", null);
         assertEquals("[MyJobName](http://JenkinsConfigUrl/job/MyJob)",
                 ZulipUtil.displayItem(itemMock, descMock, true, true));
         assertEquals("MyJobName", ZulipUtil.displayItem(itemMock, descMock, true, false));
@@ -156,8 +150,7 @@ public class ZulipUtilTest {
 
         // Custom Jenkins root URL from plugin config
         when(descMock.getJenkinsUrl()).thenReturn("http://ZulipConfigUrl/");
-        when(parentItemGroupMock.getDisplayName()).thenReturn("ParentName");
-        when(parentItemGroupMock.getUrl()).thenReturn("job/Parent");
+        setupItemGetUrlAndGetDisplayNameStubs(parentItemGroupMock, "job/Parent", "ParentName");
         assertEquals(
                 "[ParentName](http://ZulipConfigUrl/job/Parent) » [MyJobName](http://ZulipConfigUrl/job/MyJob)",
                 ZulipUtil.displayItem(itemMock, descMock, true, true));
@@ -167,14 +160,22 @@ public class ZulipUtilTest {
         assertEquals("MyJobName", ZulipUtil.displayItem(itemMock, descMock, false, false));
 
         // No Jenkins root URL at all
-        when(jenkins.getRootUrl()).thenReturn(null);
-        when(descMock.getJenkinsUrl()).thenReturn(null);
-        when(parentItemGroupMock.getDisplayName()).thenReturn("ParentName");
-        when(parentItemGroupMock.getUrl()).thenReturn("job/Parent");
+        setupDescriptorImplGetJenkinsUrlAndGetRootUrlStubs();
+        setupItemGetUrlAndGetDisplayNameStubs(parentItemGroupMock, "job/Parent", "ParentName");
         assertEquals("ParentName » MyJobName", ZulipUtil.displayItem(itemMock, descMock, true, true));
         assertEquals("ParentName » MyJobName", ZulipUtil.displayItem(itemMock, descMock, true, false));
         assertEquals("MyJobName", ZulipUtil.displayItem(itemMock, descMock, false, true));
         assertEquals("MyJobName", ZulipUtil.displayItem(itemMock, descMock, false, false));
+    }
+
+    private void setupItemGetUrlAndGetDisplayNameStubs(Item item, String getUrlReturnValue, String getDisplayNameReturnValue) {
+        when(item.getDisplayName()).thenReturn(getDisplayNameReturnValue);
+        when(item.getUrl()).thenReturn(getUrlReturnValue);
+    }
+
+    private void setupDescriptorImplGetJenkinsUrlAndGetRootUrlStubs() {
+        when(jenkins.getRootUrl()).thenReturn(null);
+        when(descMock.getJenkinsUrl()).thenReturn(null);
     }
 
 }
